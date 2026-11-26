@@ -10009,14 +10009,19 @@ Mickala Lighting Towers`);
             
             const jobCode = docData.job_code;
             const uploadedBy = docData.uploaded_by || 'Unknown';
+            const editedBy = docData.edited_by || uploadedBy; // Fall back to uploadedBy if edited_by not set
             const fileName = docData.file_name || 'document';
             const verifiedUser = getVerifiedCurrentUser();
-            const isOwnUpload = verifiedUser && uploadedBy === verifiedUser.name;
+            // For INSERT: check against uploadedBy; For UPDATE: check against editedBy
+            const actionUser = eventType === 'UPDATE' ? editedBy : uploadedBy;
+            const isOwnAction = verifiedUser && actionUser === verifiedUser.name;
             
             console.log('[PO-DEBUG] jobCode:', jobCode);
             console.log('[PO-DEBUG] uploadedBy:', uploadedBy);
+            console.log('[PO-DEBUG] editedBy:', editedBy);
+            console.log('[PO-DEBUG] actionUser:', actionUser);
             console.log('[PO-DEBUG] currentUser.name:', verifiedUser ? verifiedUser.name : 'NOT SET');
-            console.log('[PO-DEBUG] isOwnUpload:', isOwnUpload);
+            console.log('[PO-DEBUG] isOwnAction:', isOwnAction);
             
             // Update local cache
             poDocuments[jobCode] = {
@@ -10041,19 +10046,19 @@ Mickala Lighting Towers`);
                 console.log('[PO-DEBUG] Refreshed PO Management UI for selected job');
             }
             
-            // Show notification for OTHER users' uploads (not your own)
-            console.log('[PO-DEBUG] About to check toast condition. isOwnUpload=', isOwnUpload);
-            if (!isOwnUpload) {
-                console.log('[PO-DEBUG] SHOWING TOAST - not own upload');
+            // Show notification for OTHER users' actions (not your own)
+            console.log('[PO-DEBUG] About to check toast condition. isOwnAction=', isOwnAction);
+            if (!isOwnAction) {
+                console.log('[PO-DEBUG] SHOWING TOAST - not own action');
                 if (eventType === 'INSERT') {
                     console.log('[PO-DEBUG] Calling showToast for INSERT');
                     showToast(`📄 New PO uploaded for job ${jobCode} by ${uploadedBy}`, 'success');
                 } else {
                     console.log('[PO-DEBUG] Calling showToast for UPDATE');
-                    showToast(`📄 PO updated for job ${jobCode} by ${uploadedBy}`, 'info');
+                    showToast(`📄 PO updated for job ${jobCode} by ${editedBy}`, 'info');
                 }
             } else {
-                console.log('[PO-DEBUG] NOT showing toast - is own upload');
+                console.log('[PO-DEBUG] NOT showing toast - is own action');
             }
             console.log('[PO-DEBUG] ========== END handlePODocChange ==========');
         }
