@@ -6,11 +6,11 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="app-version" content="2026.11.26.45-tower-id-fix">
+    <meta name="app-version" content="2026.11.26.50-po-management-4-panel">
     <title>MLT Asset Tracker</title>
     <script>
         // Force reload if version changed
-        const APP_VERSION = '2026.11.26.47-activity-feed-scroll';
+        const APP_VERSION = '2026.11.26.50-po-management-4-panel';
         const storedVersion = localStorage.getItem('mlt_app_version');
         if (storedVersion && storedVersion !== APP_VERSION) {
             localStorage.setItem('mlt_app_version', APP_VERSION);
@@ -120,7 +120,9 @@
         .app-container {
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
+            height: 100vh;
+            max-height: 100vh;
+            overflow: hidden;
         }
         
         /* Top Bar */
@@ -279,7 +281,7 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            height: 100%;
+            flex-shrink: 0;
         }
         
         .global-activity-sidebar .sidebar-header {
@@ -289,6 +291,7 @@
             align-items: center;
             justify-content: space-between;
             background: var(--bg-primary);
+            flex-shrink: 0;
         }
         
         .global-activity-sidebar .sidebar-header h3 {
@@ -319,6 +322,7 @@
         .global-activity-sidebar .sidebar-content {
             flex: 1;
             overflow-y: auto;
+            overflow-x: hidden;
             padding: 12px;
             min-height: 0; /* Critical for flex scrolling */
         }
@@ -407,6 +411,7 @@
             padding: 16px;
             margin-top: auto;
             background: var(--bg-secondary);
+            flex-shrink: 0;
         }
         
         .online-now-header {
@@ -1612,6 +1617,8 @@
         }
         
         .toast.error { background: var(--danger); }
+        .toast.info { background: #2196F3; } /* Blue info toast */
+        .toast.warning { background: #ff9800; } /* Orange warning toast */
         .toast.active { display: block; }
         
         @keyframes slideIn {
@@ -2881,39 +2888,124 @@
                     </div>
                 </div>
                 
-                <!-- PO Management Tab Content -->
+                <!-- PO Management Tab Content - 4-Panel Hierarchy -->
                 <div class="finance-content hidden" id="financePOManagement">
-                    <div class="po-management-container">
-                        <div class="po-alerts-section">
-                            <h3>⚠️ PO Expiry Alerts</h3>
-                            <div class="po-alert-cards" id="poExpiryAlerts"></div>
+                    <div class="finance-columns">
+                        <!-- PO Customer Column -->
+                        <div class="column-panel" id="poCustomerPanel">
+                            <div class="column-header">
+                                <span class="column-title">Customers</span>
+                                <span id="poCustomerCount" style="font-size:11px;color:var(--text-muted)">0</span>
+                            </div>
+                            <div class="column-content" id="poCustomerList"></div>
                         </div>
-                        <div class="po-table-section">
-                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-                                <h3 style="margin:0">📋 All Active POs</h3>
-                                <div style="display:flex;gap:8px;">
-                                    <button class="btn primary" onclick="showAddPOModal()">➕ Add New PO</button>
-                                    <button class="btn" onclick="downloadPOsCSV()">📥 Download CSV</button>
+                        
+                        <!-- PO Site Column -->
+                        <div class="column-panel" id="poSitePanel">
+                            <div class="column-header">
+                                <span class="column-title">Sites</span>
+                                <span id="poSiteCount" style="font-size:11px;color:var(--text-muted)">0</span>
+                            </div>
+                            <div class="column-content" id="poSiteList">
+                                <div class="empty-state">
+                                    <div class="empty-state-icon">👈</div>
+                                    <div class="empty-state-text">Select a customer</div>
                                 </div>
                             </div>
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Customer</th>
-                                        <th>Job Code</th>
-                                        <th>PO Number</th>
-                                        <th>Category</th>
-                                        <th>Location</th>
-                                        <th>Start Date</th>
-                                        <th>End Date</th>
-                                        <th>Days Left</th>
-                                        <th>Towers</th>
-                                        <th>Schedule</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="poManagementTable"></tbody>
-                            </table>
+                        </div>
+                        
+                        <!-- PO Job Column (with PO status indicators) -->
+                        <div class="column-panel wide" id="poJobPanel">
+                            <div class="column-header">
+                                <span class="column-title">Jobs</span>
+                                <span id="poJobCount" style="font-size:11px;color:var(--text-muted)">0</span>
+                            </div>
+                            <div class="column-content" id="poJobList">
+                                <div class="empty-state">
+                                    <div class="empty-state-icon">👈</div>
+                                    <div class="empty-state-text">Select a site</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- PO Details Panel -->
+                        <div class="invoice-panel" id="poDetailsPanel">
+                            <div class="empty-state" id="poDetailsEmpty" style="flex:1">
+                                <div class="empty-state-icon">📋</div>
+                                <div class="empty-state-text">Select a job to view PO details</div>
+                            </div>
+                            
+                            <div class="hidden" id="poDetailsContent">
+                                <div class="invoice-header">
+                                    <div>
+                                        <h2 class="invoice-title" id="poDetailsTitle">-</h2>
+                                        <p class="invoice-subtitle" id="poDetailsSubtitle">-</p>
+                                        <div class="po-status-badge" id="poStatusBadge" style="margin: 10px 0; padding: 8px 16px; border-radius: 6px; display: inline-block; font-weight: 600;"></div>
+                                        <div class="po-number-edit" id="poNumberSectionMgmt">
+                                            <span class="po-label">PO Number:</span>
+                                            <span class="po-value" id="poDetailsNumber" onclick="editPONumberMgmt()">-</span>
+                                            <button class="btn-edit-po" id="editPOBtnMgmt" onclick="editPONumberMgmt()" title="Edit PO Number">✏️</button>
+                                        </div>
+                                        <div class="po-number-input hidden" id="poNumberEditMgmt">
+                                            <input type="text" id="poNumberInputMgmt" placeholder="Enter PO Number" />
+                                            <button class="btn-save-po" onclick="savePONumberMgmt()" title="Save">Save</button>
+                                            <button class="btn-cancel-po" onclick="cancelPOEditMgmt()" title="Cancel">Cancel</button>
+                                        </div>
+                                        
+                                        <!-- PO Document Upload Section -->
+                                        <div class="po-document-section" id="poDocumentSectionMgmt" style="margin-top:15px;">
+                                            <div class="po-doc-status" id="poDocStatusMgmt">
+                                                <span class="po-doc-icon">📎</span>
+                                                <span class="po-doc-text" id="poDocTextMgmt">No PO document uploaded</span>
+                                            </div>
+                                            <div class="po-doc-actions">
+                                                <button class="btn-small" id="poDocViewBtnMgmt" onclick="viewPODocumentMgmt()" style="display:none">👁️ View</button>
+                                                <button class="btn-small" id="poDocDownloadBtnMgmt" onclick="downloadPODocumentMgmt()" style="display:none">⬇️ Download</button>
+                                                <button class="btn-small" onclick="document.getElementById('poDocUploadMgmt').click()" style="background:#FF8C00;color:#000;cursor:pointer;">
+                                                    📤 Upload PO
+                                                </button>
+                                                <input type="file" id="poDocUploadMgmt" accept=".pdf,.png,.jpg,.jpeg" onchange="uploadPODocumentMgmt(event)" style="display:none">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="invoice-stats" style="margin-top:20px;">
+                                    <div class="invoice-stat">
+                                        <div class="invoice-stat-label">Towers</div>
+                                        <div class="invoice-stat-value" id="poDetailsTowers">-</div>
+                                    </div>
+                                    <div class="invoice-stat">
+                                        <div class="invoice-stat-label">PO Start</div>
+                                        <div class="invoice-stat-value" id="poDetailsStart">-</div>
+                                    </div>
+                                    <div class="invoice-stat">
+                                        <div class="invoice-stat-label">PO End</div>
+                                        <div class="invoice-stat-value" id="poDetailsEnd">-</div>
+                                    </div>
+                                    <div class="invoice-stat">
+                                        <div class="invoice-stat-label">Days Remaining</div>
+                                        <div class="invoice-stat-value" id="poDetailsDays">-</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="invoice-table-wrap" style="margin-top:20px;">
+                                    <h4 style="margin-bottom:10px;color:var(--accent);">Towers on this Job</h4>
+                                    <table class="data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Tower ID</th>
+                                                <th>Model</th>
+                                                <th>Config</th>
+                                                <th>Location</th>
+                                                <th>Daily Rate</th>
+                                                <th>Schedule</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="poDetailsTowerTable"></tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -4450,7 +4542,7 @@
                     break;
                 case 'po-management':
                     document.getElementById('financePOManagement').classList.remove('hidden');
-                    renderPOManagement();
+                    renderPOCustomers();
                     break;
                 case 'revenue':
                     document.getElementById('financeRevenue').classList.remove('hidden');
@@ -4609,6 +4701,460 @@
             
             tableBody.innerHTML = tableHtml || '<tr><td colspan="11" style="text-align:center;color:var(--text-secondary)">No active POs with end dates</td></tr>';
         }
+        
+        // =============================================
+        // PO MANAGEMENT 4-PANEL HIERARCHY
+        // =============================================
+        
+        // State variables for PO Management view
+        let selectedPOCustomer = null;
+        let selectedPOSite = null;
+        let selectedPOJob = null;
+        let currentPODocUrlMgmt = null;
+        
+        // Render customers in PO Management view
+        function renderPOCustomers() {
+            // Get all customers with towers ON HIRE
+            const customers = getCustomers();
+            document.getElementById('poCustomerCount').textContent = customers.length;
+            
+            let html = '';
+            customers.forEach(name => {
+                // Count jobs for this customer across all sites
+                const customerTowers = fleetData.filter(t => 
+                    t.customer === name && 
+                    (t.status || '').toUpperCase().startsWith('ON HIRE')
+                );
+                const jobCodes = [...new Set(customerTowers.map(t => t.visionJob).filter(Boolean))];
+                
+                // Check PO status for jobs
+                let withPO = 0;
+                let missingPO = 0;
+                jobCodes.forEach(jobCode => {
+                    const hasPO = poDocuments[jobCode] && poDocuments[jobCode].url;
+                    if (hasPO) withPO++;
+                    else missingPO++;
+                });
+                
+                html += `
+                    <div class="column-item ${selectedPOCustomer === name ? 'active' : ''}" 
+                         onclick="selectPOCustomer('${escapeHtml(name).replace(/'/g, "\\'")}')">
+                        <div>
+                            <div class="column-item-name">${escapeHtml(name)}</div>
+                            <div class="column-item-sub">${jobCodes.length} jobs</div>
+                        </div>
+                        <span class="column-item-count">${withPO > 0 ? '✅' + withPO : ''}${missingPO > 0 ? ' ❌' + missingPO : ''}</span>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('poCustomerList').innerHTML = html || '<div class="empty-state"><div class="empty-state-text">No customers with active hires</div></div>';
+        }
+        
+        // Select a customer in PO Management
+        function selectPOCustomer(name) {
+            selectedPOCustomer = name;
+            selectedPOSite = null;
+            selectedPOJob = null;
+            
+            renderPOCustomers();
+            renderPOSites();
+            
+            // Reset jobs and details panels
+            document.getElementById('poJobList').innerHTML = '<div class="empty-state"><div class="empty-state-icon">👈</div><div class="empty-state-text">Select a site</div></div>';
+            document.getElementById('poJobCount').textContent = '0';
+            
+            document.getElementById('poDetailsEmpty').classList.remove('hidden');
+            document.getElementById('poDetailsContent').classList.add('hidden');
+        }
+        
+        // Render sites for selected customer in PO Management
+        function renderPOSites() {
+            if (!selectedPOCustomer) return;
+            
+            const sites = getSitesForCustomer(selectedPOCustomer);
+            document.getElementById('poSiteCount').textContent = sites.length;
+            
+            let html = '';
+            sites.forEach(name => {
+                // Count jobs at this site
+                const siteTowers = fleetData.filter(t => 
+                    t.customer === selectedPOCustomer && 
+                    t.site === name && 
+                    (t.status || '').toUpperCase().startsWith('ON HIRE')
+                );
+                const jobCodes = [...new Set(siteTowers.map(t => t.visionJob).filter(Boolean))];
+                
+                // Check PO status
+                let withPO = 0;
+                let missingPO = 0;
+                jobCodes.forEach(jobCode => {
+                    const hasPO = poDocuments[jobCode] && poDocuments[jobCode].url;
+                    if (hasPO) withPO++;
+                    else missingPO++;
+                });
+                
+                html += `
+                    <div class="column-item ${selectedPOSite === name ? 'active' : ''}" 
+                         onclick="selectPOSite('${escapeHtml(name).replace(/'/g, "\\'")}')">
+                        <div>
+                            <div class="column-item-name">${escapeHtml(name)}</div>
+                            <div class="column-item-sub">${jobCodes.length} jobs</div>
+                        </div>
+                        <span class="column-item-count">${withPO > 0 ? '✅' + withPO : ''}${missingPO > 0 ? ' ❌' + missingPO : ''}</span>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('poSiteList').innerHTML = html || '<div class="empty-state"><div class="empty-state-text">No sites</div></div>';
+        }
+        
+        // Select a site in PO Management
+        function selectPOSite(name) {
+            selectedPOSite = name;
+            selectedPOJob = null;
+            
+            renderPOSites();
+            renderPOJobs();
+            
+            document.getElementById('poDetailsEmpty').classList.remove('hidden');
+            document.getElementById('poDetailsContent').classList.add('hidden');
+        }
+        
+        // Render jobs with PO status indicators
+        function renderPOJobs() {
+            if (!selectedPOCustomer || !selectedPOSite) return;
+            
+            const jobs = getJobsForSite(selectedPOCustomer, selectedPOSite);
+            document.getElementById('poJobCount').textContent = jobs.length;
+            
+            let html = '';
+            jobs.forEach(job => {
+                // Check if job has a PO document uploaded
+                const hasPODoc = poDocuments[job.code] && poDocuments[job.code].url;
+                // Also check if job has a PO number
+                const hasPONumber = job.poNumber && job.poNumber !== '-' && job.poNumber !== '';
+                
+                // Determine PO status
+                let statusIcon, statusClass, statusText;
+                if (hasPODoc) {
+                    // Check expiry if we have dates
+                    const endDate = job.endDate || (poOverrides[job.code]?.poEnd);
+                    if (endDate) {
+                        const daysLeft = Math.ceil((new Date(endDate) - new Date()) / (1000 * 60 * 60 * 24));
+                        if (daysLeft < 0) {
+                            statusIcon = '⚠️';
+                            statusClass = 'color: var(--danger);';
+                            statusText = 'Expired';
+                        } else if (daysLeft <= 14) {
+                            statusIcon = '⚠️';
+                            statusClass = 'color: var(--warning);';
+                            statusText = daysLeft + 'd left';
+                        } else {
+                            statusIcon = '✅';
+                            statusClass = 'color: var(--success);';
+                            statusText = daysLeft + 'd';
+                        }
+                    } else {
+                        statusIcon = '✅';
+                        statusClass = 'color: var(--success);';
+                        statusText = 'Has PO';
+                    }
+                } else {
+                    statusIcon = '❌';
+                    statusClass = 'color: var(--danger);';
+                    statusText = 'Missing';
+                }
+                
+                html += `
+                    <div class="column-item ${selectedPOJob === job.code ? 'active' : ''}" 
+                         onclick="selectPOJob('${escapeHtml(job.code).replace(/'/g, "\\'")}')">
+                        <div style="flex:1;">
+                            <div class="column-item-name">${escapeHtml(job.code)}</div>
+                            <div class="column-item-sub">${job.towerCount} towers${hasPONumber ? ' • PO: ' + escapeHtml(job.poNumber) : ''}</div>
+                        </div>
+                        <span style="${statusClass} font-size:12px; white-space:nowrap;">${statusIcon} ${statusText}</span>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('poJobList').innerHTML = html || '<div class="empty-state"><div class="empty-state-text">No jobs</div></div>';
+        }
+        
+        // Select a job in PO Management
+        async function selectPOJob(code) {
+            selectedPOJob = code;
+            renderPOJobs();
+            renderPODetails();
+            
+            // Load PO document for this job
+            await loadPODocForJobMgmt(code);
+        }
+        
+        // Render PO details panel
+        function renderPODetails() {
+            if (!selectedPOCustomer || !selectedPOSite || !selectedPOJob) return;
+            
+            const jobs = getJobsForSite(selectedPOCustomer, selectedPOSite);
+            const job = jobs.find(j => j.code === selectedPOJob);
+            if (!job) return;
+            
+            const towers = getTowersForJob(selectedPOCustomer, selectedPOSite, selectedPOJob);
+            
+            // Get PO info
+            const override = poOverrides[selectedPOJob] || {};
+            const poNumber = override.poNumber || job.poNumber || '-';
+            const poStart = override.poStart || job.startDate || '-';
+            const poEnd = override.poEnd || job.endDate || '-';
+            
+            // Calculate days remaining
+            let daysRemaining = '-';
+            let daysBadgeClass = '';
+            if (poEnd && poEnd !== '-') {
+                const daysLeft = Math.ceil((new Date(poEnd) - new Date()) / (1000 * 60 * 60 * 24));
+                daysRemaining = daysLeft < 0 ? 'Expired ' + Math.abs(daysLeft) + ' days ago' : daysLeft + ' days';
+                if (daysLeft < 0) daysBadgeClass = 'color: var(--danger);';
+                else if (daysLeft <= 14) daysBadgeClass = 'color: var(--warning);';
+            }
+            
+            // Check PO status
+            const hasPODoc = poDocuments[selectedPOJob] && poDocuments[selectedPOJob].url;
+            const statusBadge = document.getElementById('poStatusBadge');
+            if (hasPODoc) {
+                statusBadge.style.background = 'rgba(34, 197, 94, 0.2)';
+                statusBadge.style.color = 'var(--success)';
+                statusBadge.textContent = '✅ PO Document Uploaded';
+            } else {
+                statusBadge.style.background = 'rgba(239, 68, 68, 0.2)';
+                statusBadge.style.color = 'var(--danger)';
+                statusBadge.textContent = '❌ PO Document Missing - Please Upload';
+            }
+            
+            document.getElementById('poDetailsEmpty').classList.add('hidden');
+            document.getElementById('poDetailsContent').classList.remove('hidden');
+            
+            document.getElementById('poDetailsTitle').textContent = `${selectedPOCustomer} - ${selectedPOSite}`;
+            document.getElementById('poDetailsSubtitle').textContent = `Job: ${job.code} - ${job.description || 'Tower Hire'}`;
+            document.getElementById('poDetailsNumber').textContent = poNumber || 'Click to add';
+            
+            document.getElementById('poDetailsTowers').textContent = towers.length;
+            document.getElementById('poDetailsStart').textContent = poStart;
+            document.getElementById('poDetailsEnd').textContent = poEnd;
+            document.getElementById('poDetailsDays').innerHTML = `<span style="${daysBadgeClass}">${daysRemaining}</span>`;
+            
+            // Build tower table
+            let html = '';
+            towers.forEach(tower => {
+                const towerId = escapeHtml(tower.tower_id || tower.id || '');
+                const model = escapeHtml(tower.model || '-');
+                const config = escapeHtml(tower.config || '-');
+                const location = escapeHtml(tower.location || tower.site || '-');
+                const dailyRate = parseFloat(tower.rateDaily) || 0;
+                const schedule = escapeHtml(tower.invoicingSchedule || '-');
+                
+                html += `
+                    <tr>
+                        <td class="tower-id">${formatTowerId(towerId)}</td>
+                        <td>${model}</td>
+                        <td><span class="config-badge">${config}</span></td>
+                        <td>${location}</td>
+                        <td class="money">${dailyRate > 0 ? '$' + dailyRate.toFixed(2) : '-'}</td>
+                        <td>${schedule}</td>
+                    </tr>
+                `;
+            });
+            
+            document.getElementById('poDetailsTowerTable').innerHTML = html || '<tr><td colspan="6" style="text-align:center;color:var(--text-secondary)">No towers assigned</td></tr>';
+        }
+        
+        // PO Document functions for Management tab
+        async function loadPODocForJobMgmt(jobCode) {
+            // First check localStorage for actual file data
+            if (poDocuments[jobCode] && poDocuments[jobCode].url) {
+                currentPODocUrlMgmt = poDocuments[jobCode].url;
+                updatePODocUIMgmt(true, poDocuments[jobCode].fileName);
+                return;
+            }
+            
+            // Then try Supabase
+            try {
+                const { data, error } = await supabaseClient
+                    .from('po_documents')
+                    .select('*')
+                    .eq('job_code', jobCode)
+                    .order('uploaded_at', { ascending: false })
+                    .limit(1);
+                
+                const record = data && data.length > 0 ? data[0] : null;
+                
+                if (record && !error && record.file_url) {
+                    poDocuments[jobCode] = {
+                        url: record.file_url,
+                        fileName: record.file_name || record.filename,
+                        uploadedAt: record.uploaded_at,
+                        uploadedBy: record.uploaded_by,
+                        type: record.file_type,
+                        isBase64: record.file_url?.startsWith('data:')
+                    };
+                    localStorage.setItem('mlt_po_documents', JSON.stringify(poDocuments));
+                    
+                    currentPODocUrlMgmt = record.file_url;
+                    updatePODocUIMgmt(true, record.file_name || record.filename);
+                    return;
+                }
+            } catch (err) {
+                console.warn('Could not load PO doc from Supabase:', err);
+            }
+            
+            // No document found
+            currentPODocUrlMgmt = null;
+            updatePODocUIMgmt(false);
+        }
+        
+        function updatePODocUIMgmt(hasDocument, fileName = '') {
+            const textEl = document.getElementById('poDocTextMgmt');
+            const viewBtn = document.getElementById('poDocViewBtnMgmt');
+            const downloadBtn = document.getElementById('poDocDownloadBtnMgmt');
+            
+            if (!textEl) return;
+            
+            if (hasDocument) {
+                textEl.textContent = `📄 ${fileName}`;
+                textEl.style.color = 'var(--success)';
+                if (viewBtn) viewBtn.style.display = 'inline-flex';
+                if (downloadBtn) downloadBtn.style.display = 'inline-flex';
+            } else {
+                textEl.textContent = 'No PO document uploaded';
+                textEl.style.color = 'var(--danger)';
+                if (viewBtn) viewBtn.style.display = 'none';
+                if (downloadBtn) downloadBtn.style.display = 'none';
+            }
+            
+            // Also update the status badge
+            renderPODetails();
+        }
+        
+        function viewPODocumentMgmt() {
+            if (currentPODocUrlMgmt) {
+                window.open(currentPODocUrlMgmt, '_blank');
+            }
+        }
+        
+        function downloadPODocumentMgmt() {
+            if (!currentPODocUrlMgmt || !selectedPOJob) return;
+            
+            const fileName = poDocuments[selectedPOJob]?.fileName || `PO_${selectedPOJob}.pdf`;
+            const a = document.createElement('a');
+            a.href = currentPODocUrlMgmt;
+            a.download = fileName;
+            a.click();
+        }
+        
+        async function uploadPODocumentMgmt(event) {
+            const file = event.target.files[0];
+            if (!file || !selectedPOJob) return;
+            
+            // Max 5MB for base64 storage
+            if (file.size > 5 * 1024 * 1024) {
+                alert('File too large. Maximum size is 5MB.');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const base64Data = e.target.result;
+                
+                // Store in localStorage
+                poDocuments[selectedPOJob] = {
+                    url: base64Data,
+                    fileName: file.name,
+                    uploadedAt: new Date().toISOString(),
+                    uploadedBy: currentUser?.pin || 'unknown',
+                    type: file.type,
+                    isBase64: true
+                };
+                localStorage.setItem('mlt_po_documents', JSON.stringify(poDocuments));
+                
+                // Try to store in Supabase
+                try {
+                    // Delete any existing record first
+                    await supabaseClient.from('po_documents').delete().eq('job_code', selectedPOJob);
+                    
+                    // Insert new record
+                    await supabaseClient
+                        .from('po_documents')
+                        .insert({
+                            job_code: selectedPOJob,
+                            customer: selectedPOCustomer,
+                            file_name: file.name,
+                            file_type: file.type,
+                            file_url: base64Data,
+                            uploaded_by: currentUser?.pin || 'unknown',
+                            uploaded_at: new Date().toISOString()
+                        });
+                    
+                    console.log('PO document uploaded to Supabase');
+                } catch (err) {
+                    console.warn('Could not upload to Supabase, stored locally:', err);
+                }
+                
+                currentPODocUrlMgmt = base64Data;
+                updatePODocUIMgmt(true, file.name);
+                
+                // Refresh the jobs list to update status indicators
+                renderPOJobs();
+            };
+            
+            reader.readAsDataURL(file);
+            event.target.value = ''; // Reset file input
+        }
+        
+        // PO Number editing for Management tab
+        function editPONumberMgmt() {
+            document.getElementById('poNumberSectionMgmt').classList.add('hidden');
+            document.getElementById('poNumberEditMgmt').classList.remove('hidden');
+            const currentPO = document.getElementById('poDetailsNumber').textContent;
+            document.getElementById('poNumberInputMgmt').value = currentPO === 'Click to add' ? '' : currentPO;
+            document.getElementById('poNumberInputMgmt').focus();
+        }
+        
+        function cancelPOEditMgmt() {
+            document.getElementById('poNumberSectionMgmt').classList.remove('hidden');
+            document.getElementById('poNumberEditMgmt').classList.add('hidden');
+        }
+        
+        async function savePONumberMgmt() {
+            const newPO = document.getElementById('poNumberInputMgmt').value.trim();
+            if (!selectedPOJob) return;
+            
+            // Update the override
+            if (!poOverrides[selectedPOJob]) {
+                poOverrides[selectedPOJob] = {};
+            }
+            poOverrides[selectedPOJob].poNumber = newPO;
+            
+            // Save to Supabase
+            try {
+                await supabaseClient
+                    .from('po_overrides')
+                    .upsert({
+                        job_code: selectedPOJob,
+                        customer: selectedPOCustomer,
+                        po_number: newPO,
+                        updated_by: currentUser?.pin || 'unknown',
+                        updated_at: new Date().toISOString()
+                    });
+                console.log('PO number saved to Supabase');
+            } catch (err) {
+                console.warn('Could not save PO number:', err);
+            }
+            
+            // Update UI
+            document.getElementById('poDetailsNumber').textContent = newPO || 'Click to add';
+            cancelPOEditMgmt();
+            renderPOJobs();
+        }
+        
         
         // PO Overrides storage (synced via Supabase)
         let poOverrides = {};
@@ -8797,109 +9343,145 @@ Mickala Lighting Towers`);
             
             try {
                 console.log('[PO-DEBUG] Setting up realtime channel for po_documents');
-                supabaseClient
-                    .channel('po_documents_changes')
-                    .on('postgres_changes', { event: '*', schema: 'public', table: 'po_documents' }, (payload) => {
-                        console.log('[PO-DEBUG] ========== REALTIME EVENT RECEIVED ==========');
-                        console.log('[PO-DEBUG] payload.eventType:', payload.eventType);
-                        console.log('[PO-DEBUG] payload.new:', payload.new);
-                        console.log('[PO-DEBUG] payload.old:', payload.old);
-                        console.log('[PO-DEBUG] currentUser at event time:', currentUser ? currentUser.name : 'NOT SET');
-                        
-                        // Handle INSERT (new upload) and UPDATE events
-                        if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
-                            const docData = payload.new;
-                            console.log('[PO-DEBUG] Processing INSERT/UPDATE, docData:', docData);
-                            if (!docData) {
-                                console.log('[PO-DEBUG] ABORT: docData is null/undefined');
-                                return;
-                            }
-                            
-                            const jobCode = docData.job_code;
-                            const uploadedBy = docData.uploaded_by || 'Unknown';
-                            const fileName = docData.file_name || 'document';
-                            const isOwnUpload = currentUser && uploadedBy === currentUser.name;
-                            
-                            console.log('[PO-DEBUG] jobCode:', jobCode);
-                            console.log('[PO-DEBUG] uploadedBy:', uploadedBy);
-                            console.log('[PO-DEBUG] currentUser.name:', currentUser ? currentUser.name : 'NOT SET');
-                            console.log('[PO-DEBUG] isOwnUpload:', isOwnUpload);
-                            
-                            // Update local cache
-                            poDocuments[jobCode] = {
-                                url: docData.file_url,
-                                fileName: fileName,
-                                uploadedAt: docData.uploaded_at,
-                                uploadedBy: uploadedBy,
-                                fromSupabase: true
-                            };
-                            localStorage.setItem('mlt_po_documents', JSON.stringify(poDocuments));
-                            console.log('[PO-DEBUG] Local cache updated for job:', jobCode);
-                            
-                            // Refresh UI if this job is currently selected
-                            if (selectedJob === jobCode) {
-                                loadPODocForJob(selectedJob);
-                                console.log('[PO-DEBUG] Refreshed UI for selected job');
-                            }
-                            
-                            // Show notification for OTHER users' uploads (not your own)
-                            console.log('[PO-DEBUG] About to check toast condition. isOwnUpload=', isOwnUpload);
-                            if (!isOwnUpload) {
-                                console.log('[PO-DEBUG] SHOWING TOAST - not own upload');
-                                if (payload.eventType === 'INSERT') {
-                                    console.log('[PO-DEBUG] Calling showToast for INSERT');
-                                    showToast(`📄 New PO uploaded for job ${jobCode} by ${uploadedBy}`, 'info');
-                                } else {
-                                    console.log('[PO-DEBUG] Calling showToast for UPDATE');
-                                    showToast(`📄 PO updated for job ${jobCode} by ${uploadedBy}`, 'info');
-                                }
-                            } else {
-                                console.log('[PO-DEBUG] NOT showing toast - is own upload');
-                            }
-                        }
-                        
-                        // Handle DELETE events
-                        if (payload.eventType === 'DELETE' && payload.old) {
-                            const jobCode = payload.old.job_code;
-                            const deletedBy = payload.old.uploaded_by || 'Unknown';
-                            const isOwnDelete = currentUser && deletedBy === currentUser.name;
-                            
-                            console.log('[PO-DEBUG] Processing DELETE for job:', jobCode);
-                            console.log('[PO-DEBUG] isOwnDelete:', isOwnDelete);
-                            
-                            // Remove from local cache
-                            delete poDocuments[jobCode];
-                            localStorage.setItem('mlt_po_documents', JSON.stringify(poDocuments));
-                            
-                            // Refresh UI if this job is currently selected
-                            if (selectedJob === jobCode) {
-                                loadPODocForJob(selectedJob);
-                            }
-                            
-                            // Show notification for OTHER users' deletes
-                            if (!isOwnDelete) {
-                                console.log('[PO-DEBUG] SHOWING TOAST for DELETE');
-                                showToast(`📄 PO removed for job ${jobCode}`, 'warning');
-                            }
-                        }
-                        console.log('[PO-DEBUG] ========== END REALTIME EVENT ==========');
-                    })
-                    .subscribe((status) => {
-                        console.log('[PO-DEBUG] Realtime subscription status:', status);
-                        if (status === 'SUBSCRIBED') {
-                            console.log('[PO-DEBUG] ✓ Successfully subscribed to po_documents changes!');
-                            poDocsSubscribed = true; // Mark as subscribed
-                        } else if (status === 'CHANNEL_ERROR') {
-                            console.error('[PO-DEBUG] ✗ Channel error - realtime not working!');
-                        } else if (status === 'TIMED_OUT') {
-                            console.error('[PO-DEBUG] ✗ Subscription timed out!');
-                        }
-                    });
+                const channel = supabaseClient.channel('po_documents_realtime');
+                
+                // Subscribe to INSERT events (new uploads)
+                channel.on('postgres_changes', 
+                    { event: 'INSERT', schema: 'public', table: 'po_documents' }, 
+                    (payload) => {
+                        console.log('[PO-DEBUG] ========== INSERT EVENT RECEIVED ==========');
+                        console.log('[PO-DEBUG] payload:', JSON.stringify(payload, null, 2));
+                        handlePODocChange(payload, 'INSERT');
+                    }
+                );
+                
+                // Subscribe to UPDATE events
+                channel.on('postgres_changes', 
+                    { event: 'UPDATE', schema: 'public', table: 'po_documents' }, 
+                    (payload) => {
+                        console.log('[PO-DEBUG] ========== UPDATE EVENT RECEIVED ==========');
+                        console.log('[PO-DEBUG] payload:', JSON.stringify(payload, null, 2));
+                        handlePODocChange(payload, 'UPDATE');
+                    }
+                );
+                
+                // Subscribe to DELETE events
+                channel.on('postgres_changes', 
+                    { event: 'DELETE', schema: 'public', table: 'po_documents' }, 
+                    (payload) => {
+                        console.log('[PO-DEBUG] ========== DELETE EVENT RECEIVED ==========');
+                        console.log('[PO-DEBUG] payload:', JSON.stringify(payload, null, 2));
+                        handlePODocDelete(payload);
+                    }
+                );
+                
+                channel.subscribe((status) => {
+                    console.log('[PO-DEBUG] Realtime subscription status:', status);
+                    if (status === 'SUBSCRIBED') {
+                        console.log('[PO-DEBUG] ✓ Successfully subscribed to po_documents changes!');
+                        poDocsSubscribed = true;
+                    } else if (status === 'CHANNEL_ERROR') {
+                        console.error('[PO-DEBUG] ✗ Channel error - realtime not working!');
+                        poDocsSubscribed = false;
+                    } else if (status === 'TIMED_OUT') {
+                        console.error('[PO-DEBUG] ✗ Subscription timed out!');
+                        poDocsSubscribed = false;
+                    }
+                });
+                
                 console.log('[PO-DEBUG] Channel subscription initiated');
                 poDocsSubscribed = true; // Set immediately to prevent duplicate calls during async subscribe
             } catch (err) {
                 console.error('[PO-DEBUG] Exception in subscribeToPODocs:', err);
             }
+        }
+        
+        // Handler for INSERT and UPDATE PO document events
+        function handlePODocChange(payload, eventType) {
+            console.log('[PO-DEBUG] handlePODocChange called, eventType:', eventType);
+            console.log('[PO-DEBUG] currentUser at event time:', currentUser ? currentUser.name : 'NOT SET');
+            
+            const docData = payload.new;
+            if (!docData) {
+                console.log('[PO-DEBUG] ABORT: docData is null/undefined');
+                return;
+            }
+            
+            const jobCode = docData.job_code;
+            const uploadedBy = docData.uploaded_by || 'Unknown';
+            const fileName = docData.file_name || 'document';
+            const isOwnUpload = currentUser && uploadedBy === currentUser.name;
+            
+            console.log('[PO-DEBUG] jobCode:', jobCode);
+            console.log('[PO-DEBUG] uploadedBy:', uploadedBy);
+            console.log('[PO-DEBUG] currentUser.name:', currentUser ? currentUser.name : 'NOT SET');
+            console.log('[PO-DEBUG] isOwnUpload:', isOwnUpload);
+            
+            // Update local cache
+            poDocuments[jobCode] = {
+                url: docData.file_url,
+                fileName: fileName,
+                uploadedAt: docData.uploaded_at,
+                uploadedBy: uploadedBy,
+                fromSupabase: true
+            };
+            localStorage.setItem('mlt_po_documents', JSON.stringify(poDocuments));
+            console.log('[PO-DEBUG] Local cache updated for job:', jobCode);
+            
+            // Refresh UI if this job is currently selected
+            if (selectedJob === jobCode) {
+                loadPODocForJob(selectedJob);
+                console.log('[PO-DEBUG] Refreshed UI for selected job');
+            }
+            
+            // Show notification for OTHER users' uploads (not your own)
+            console.log('[PO-DEBUG] About to check toast condition. isOwnUpload=', isOwnUpload);
+            if (!isOwnUpload) {
+                console.log('[PO-DEBUG] SHOWING TOAST - not own upload');
+                if (eventType === 'INSERT') {
+                    console.log('[PO-DEBUG] Calling showToast for INSERT');
+                    showToast(`📄 New PO uploaded for job ${jobCode} by ${uploadedBy}`, 'success');
+                } else {
+                    console.log('[PO-DEBUG] Calling showToast for UPDATE');
+                    showToast(`📄 PO updated for job ${jobCode} by ${uploadedBy}`, 'info');
+                }
+            } else {
+                console.log('[PO-DEBUG] NOT showing toast - is own upload');
+            }
+            console.log('[PO-DEBUG] ========== END handlePODocChange ==========');
+        }
+        
+        // Handler for DELETE PO document events
+        function handlePODocDelete(payload) {
+            console.log('[PO-DEBUG] handlePODocDelete called');
+            
+            if (!payload.old) {
+                console.log('[PO-DEBUG] ABORT: payload.old is null/undefined');
+                return;
+            }
+            
+            const jobCode = payload.old.job_code;
+            const deletedBy = payload.old.uploaded_by || 'Unknown';
+            const isOwnDelete = currentUser && deletedBy === currentUser.name;
+            
+            console.log('[PO-DEBUG] Processing DELETE for job:', jobCode);
+            console.log('[PO-DEBUG] isOwnDelete:', isOwnDelete);
+            
+            // Remove from local cache
+            delete poDocuments[jobCode];
+            localStorage.setItem('mlt_po_documents', JSON.stringify(poDocuments));
+            
+            // Refresh UI if this job is currently selected
+            if (selectedJob === jobCode) {
+                loadPODocForJob(selectedJob);
+            }
+            
+            // Show notification for OTHER users' deletes
+            if (!isOwnDelete) {
+                console.log('[PO-DEBUG] SHOWING TOAST for DELETE');
+                showToast(`📄 PO removed for job ${jobCode}`, 'warning');
+            }
+            console.log('[PO-DEBUG] ========== END handlePODocDelete ==========');
         }
         
         // Initialize PO docs sync
@@ -9983,7 +10565,12 @@ Mickala Lighting Towers`);
             const toast = document.getElementById('toast');
             console.log('[TOAST-DEBUG] toast element found:', !!toast);
             toast.textContent = message;
-            toast.className = 'toast active' + (type === 'error' ? ' error' : '');
+            // Apply type class (success is default green, error is red, info is blue, warning is orange)
+            let typeClass = '';
+            if (type === 'error') typeClass = ' error';
+            else if (type === 'info') typeClass = ' info';
+            else if (type === 'warning') typeClass = ' warning';
+            toast.className = 'toast active' + typeClass;
             console.log('[TOAST-DEBUG] toast className set to:', toast.className);
             setTimeout(() => toast.classList.remove('active'), 3000);
         }
