@@ -6,11 +6,11 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="app-version" content="2026.11.26.53-po-edit-fix">
+    <meta name="app-version" content="2026.11.27.1">
     <title>MLT Asset Tracker</title>
     <script>
         // Force reload if version changed
-        const APP_VERSION = '2026.11.26.53-po-edit-fix';
+        const APP_VERSION = '2026.11.27.1';
         const storedVersion = localStorage.getItem('mlt_app_version');
         if (storedVersion && storedVersion !== APP_VERSION) {
             localStorage.setItem('mlt_app_version', APP_VERSION);
@@ -115,6 +115,83 @@
         .login-security { margin-top: 24px; font-size: 12px; color: var(--text-muted); }
         
         .hidden { display: none !important; }
+        
+        /* Auto-Update Banner */
+        .update-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10000;
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+            color: white;
+            padding: 12px 24px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.4);
+            animation: slideDown 0.3s ease-out;
+        }
+        
+        .update-banner.visible {
+            display: flex;
+        }
+        
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .update-banner:hover {
+            background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+        }
+        
+        .update-banner-icon {
+            font-size: 18px;
+            animation: spin 2s linear infinite;
+        }
+        
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+        
+        .update-banner-text {
+            flex: 1;
+            text-align: center;
+        }
+        
+        .update-banner-dismiss {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .update-banner-dismiss:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        /* Adjust body when banner is shown */
+        body.has-update-banner .app-container {
+            padding-top: 50px;
+        }
+        
+        body.has-update-banner .login-screen {
+            padding-top: 50px;
+        }
         
         /* Date Picker Enhancements */
         input[type="date"] {
@@ -2800,6 +2877,13 @@
     </style>
 </head>
 <body>
+    <!-- Auto-Update Banner -->
+    <div class="update-banner" id="updateBanner" onclick="forceRefreshWithCacheBust()">
+        <span class="update-banner-icon">🔄</span>
+        <span class="update-banner-text">New update available - click to refresh</span>
+        <button class="update-banner-dismiss" onclick="event.stopPropagation(); dismissUpdateBanner()">Later</button>
+    </div>
+    
     <!-- Login Screen -->
     <div class="login-screen" id="loginScreen">
         <div class="login-box">
@@ -4282,6 +4366,126 @@
 
     <script>
         // =============================================
+        // AUTO-UPDATE SYSTEM
+        // =============================================
+        const CURRENT_VERSION = '2026.11.27.1';
+        let serverVersion = CURRENT_VERSION;
+        let updateAvailable = false;
+        let lastActivityTime = Date.now();
+        let updateCheckInterval = null;
+        let updateChannel = null;
+        
+        // Idle detection - track user activity
+        function trackActivity() {
+            lastActivityTime = Date.now();
+        }
+        
+        // Check if user is idle (no activity for 2+ minutes)
+        function isUserIdle() {
+            return (Date.now() - lastActivityTime) > 2 * 60 * 1000; // 2 minutes
+        }
+        
+        // Show update banner
+        function showUpdateBanner() {
+            const banner = document.getElementById('updateBanner');
+            if (banner) {
+                banner.classList.add('visible');
+                document.body.classList.add('has-update-banner');
+            }
+        }
+        
+        // Hide update banner
+        function dismissUpdateBanner() {
+            const banner = document.getElementById('updateBanner');
+            if (banner) {
+                banner.classList.remove('visible');
+                document.body.classList.remove('has-update-banner');
+            }
+        }
+        
+        // Force refresh with cache bust
+        function forceRefreshWithCacheBust() {
+            const cacheBuster = Date.now();
+            const url = new URL(window.location.href);
+            url.searchParams.set('v', cacheBuster);
+            window.location.href = url.toString();
+        }
+        
+        // Check for updates by polling version.json
+        async function checkForUpdates() {
+            try {
+                const response = await fetch(`/version.json?t=${Date.now()}`, {
+                    cache: 'no-store',
+                    headers: { 'Cache-Control': 'no-cache' }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.version && data.version !== CURRENT_VERSION) {
+                        serverVersion = data.version;
+                        updateAvailable = true;
+                        showUpdateBanner();
+                        console.log(`[AutoUpdate] New version available: ${data.version} (current: ${CURRENT_VERSION})`);
+                        
+                        // Auto-refresh if user is idle
+                        if (isUserIdle()) {
+                            console.log('[AutoUpdate] User is idle, auto-refreshing...');
+                            forceRefreshWithCacheBust();
+                        }
+                    }
+                }
+            } catch (err) {
+                console.log('[AutoUpdate] Version check failed:', err.message);
+            }
+        }
+        
+        // Initialize auto-update system
+        function initAutoUpdate() {
+            // Track user activity
+            document.addEventListener('mousemove', trackActivity);
+            document.addEventListener('keydown', trackActivity);
+            document.addEventListener('click', trackActivity);
+            document.addEventListener('scroll', trackActivity);
+            document.addEventListener('touchstart', trackActivity);
+            
+            // Poll for updates every 60 seconds
+            checkForUpdates(); // Initial check
+            updateCheckInterval = setInterval(checkForUpdates, 60 * 1000);
+            
+            console.log('[AutoUpdate] Initialized with version:', CURRENT_VERSION);
+        }
+        
+        // Initialize Supabase realtime channel for instant deploy notifications
+        function initUpdateChannel(supabase) {
+            if (!supabase) return;
+            
+            try {
+                updateChannel = supabase.channel('app-deploy')
+                    .on('broadcast', { event: 'deploy' }, (payload) => {
+                        console.log('[AutoUpdate] Received deploy broadcast:', payload);
+                        if (payload.payload && payload.payload.version !== CURRENT_VERSION) {
+                            serverVersion = payload.payload.version;
+                            updateAvailable = true;
+                            showUpdateBanner();
+                            
+                            // Auto-refresh if user is idle
+                            if (isUserIdle()) {
+                                console.log('[AutoUpdate] User is idle, auto-refreshing from broadcast...');
+                                setTimeout(() => forceRefreshWithCacheBust(), 2000); // Small delay
+                            }
+                        }
+                    })
+                    .subscribe((status) => {
+                        console.log('[AutoUpdate] Channel status:', status);
+                    });
+            } catch (err) {
+                console.log('[AutoUpdate] Failed to setup realtime channel:', err.message);
+            }
+        }
+        
+        // Start auto-update when DOM is ready
+        document.addEventListener('DOMContentLoaded', initAutoUpdate);
+        
+        // =============================================
         // CONFIG & STATE
         // =============================================
         // Staff codes are now validated securely server-side via Supabase
@@ -4305,6 +4509,9 @@
         const SUPABASE_URL = 'https://fntqwckvrdbemjadcpcz.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZudHF3Y2t2cmRiZW1qYWRjcGN6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxNjQxOTEsImV4cCI6MjA5Nzc0MDE5MX0.RkrUugZ4Jain6O2Z8XziNjRzWfcKRQcdFSrVb8NnBl4';
         const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+        
+        // Initialize auto-update realtime channel
+        initUpdateChannel(supabaseClient);
         
         let selectedCustomer = null;
         let selectedSite = null;
