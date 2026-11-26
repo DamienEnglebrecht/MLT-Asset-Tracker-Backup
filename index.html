@@ -5649,7 +5649,7 @@
                 const value = po.po_value ? '$' + parseFloat(po.po_value).toLocaleString() : '-';
                 // Use verified user to check admin access
                 const user = getVerifiedCurrentUser();
-                const isAdmin = user && (user.role === 'admin' || user.name.includes('Damien') || user.name.includes('Debbie'));
+                const canEditPO = user && (user.role === 'admin' || user.name.includes('Damien') || user.name.includes('Debbie') || user.name.includes('Letisha') || user.name.includes('Vicki'));
                 
                 html += `
                     <div class="po-card" style="background:var(--bg-secondary);border-radius:8px;padding:16px;margin-bottom:12px;border-left:4px solid ${statusInfo.color};">
@@ -5669,7 +5669,7 @@
                             <div style="display:flex;flex-direction:column;gap:6px;">
                                 <button class="btn-small" onclick="viewPO('${po.id}')" style="font-size:11px;padding:6px 10px;cursor:pointer;">👁️ View</button>
                                 <button class="btn-small" onclick="downloadPO('${po.id}')" style="font-size:11px;padding:6px 10px;cursor:pointer;">⬇️ Download</button>
-                                ${isAdmin ? `<button class="btn-small" onclick="editPO('${po.id}')" style="font-size:11px;padding:6px 10px;cursor:pointer;background:var(--accent);color:#000;">✏️ Edit</button>` : ''}
+                                ${canEditPO ? `<button class="btn-small" onclick="editPO('${po.id}')" style="font-size:11px;padding:6px 10px;cursor:pointer;background:var(--accent);color:#000;">✏️ Edit</button>` : ''}
                             </div>
                         </div>
                     </div>
