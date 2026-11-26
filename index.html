@@ -3122,6 +3122,10 @@
                                             </select>
                                         </div>
                                         <div>
+                                            <label style="font-size:12px;color:var(--text-secondary);">Customer PO Number *</label>
+                                            <input type="text" id="newPONumber" placeholder="e.g. 4520411352" style="width:100%;padding:8px;border-radius:4px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-primary);">
+                                        </div>
+                                        <div>
                                             <label style="font-size:12px;color:var(--text-secondary);">Value (optional)</label>
                                             <input type="number" id="newPOValue" placeholder="e.g. 50000" style="width:100%;padding:8px;border-radius:4px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-primary);">
                                         </div>
@@ -3166,6 +3170,10 @@
                                                 <option value="November">November</option>
                                                 <option value="December">December</option>
                                             </select>
+                                        </div>
+                                        <div>
+                                            <label style="font-size:12px;color:var(--text-secondary);">Customer PO Number *</label>
+                                            <input type="text" id="editPONumber" placeholder="e.g. 4520411352" style="width:100%;padding:8px;border-radius:4px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-primary);">
                                         </div>
                                         <div>
                                             <label style="font-size:12px;color:var(--text-secondary);">Value (optional)</label>
@@ -4307,7 +4315,7 @@
             updateOnHireCount(); // Update On Hire (Invoicing) badge count
             
             // Show Close Week button for Damien and Debbie only
-            const canCloseWeek = ['Damien', 'Debbie'].includes(currentUser.name);
+            const canCloseWeek = currentUser && (currentUser.role === 'admin' || currentUser.name.includes('Damien') || currentUser.name.includes('Debbie'));
             const closeWeekBtn = document.getElementById('closeWeekBtn');
             if (closeWeekBtn) {
                 closeWeekBtn.style.display = canCloseWeek ? 'inline-flex' : 'none';
@@ -5254,18 +5262,20 @@
             let html = '';
             currentJobPOList.forEach((po, index) => {
                 const statusInfo = calculatePOStatus(po.po_start_date, po.po_end_date);
+                const poMonth = po.po_month || '';
                 const poNumber = po.po_number || `PO-${index + 1}`;
+                const displayName = poMonth ? `${poMonth} - PO: ${poNumber}` : poNumber;
                 const fileName = po.file_name || po.filename || 'Document';
                 const startDate = formatDateDisplay(po.po_start_date);
                 const endDate = formatDateDisplay(po.po_end_date);
                 const value = po.po_value ? '$' + parseFloat(po.po_value).toLocaleString() : '-';
-                const isAdmin = currentUser && ['Damien', 'Debbie'].includes(currentUser.name);
+                const isAdmin = currentUser && (currentUser.role === 'admin' || currentUser.name.includes('Damien') || currentUser.name.includes('Debbie'));
                 
                 html += `
                     <div class="po-card" style="background:var(--bg-secondary);border-radius:8px;padding:16px;margin-bottom:12px;border-left:4px solid ${statusInfo.color};">
                         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">
                             <div style="flex:1;">
-                                <div style="font-weight:600;color:var(--text-primary);font-size:15px;margin-bottom:8px;">${statusInfo.badge} ${escapeHtml(poNumber)}</div>
+                                <div style="font-weight:600;color:var(--text-primary);font-size:15px;margin-bottom:8px;">${statusInfo.badge} ${escapeHtml(displayName)}</div>
                                 <div style="font-size:13px;color:var(--text-secondary);margin-top:6px;line-height:1.5;">
                                     📅 ${startDate} → ${endDate}
                                 </div>
@@ -5325,7 +5335,8 @@
             document.getElementById('editPOId').value = poId;
             
             // Pre-fill form with current values
-            document.getElementById('editPOMonth').value = po.po_number || '';
+            document.getElementById('editPOMonth').value = po.po_month || '';
+            document.getElementById('editPONumber').value = po.po_number || '';
             document.getElementById('editPOValue').value = po.po_value || '';
             document.getElementById('editPOStartDate').value = po.po_start_date || '';
             document.getElementById('editPOEndDate').value = po.po_end_date || '';
@@ -5348,7 +5359,8 @@
         // Save PO Edit
         async function savePOEdit() {
             const poId = parseInt(document.getElementById('editPOId').value);
-            const poNumber = document.getElementById('editPOMonth').value;
+            const poMonth = document.getElementById('editPOMonth').value;
+            const poNumber = document.getElementById('editPONumber').value;
             const poValue = document.getElementById('editPOValue').value;
             const startDate = document.getElementById('editPOStartDate').value;
             const endDate = document.getElementById('editPOEndDate').value;
@@ -5356,8 +5368,12 @@
             const file = fileInput.files[0];
             
             // Validation
-            if (!poNumber) {
+            if (!poMonth) {
                 alert('Please select a Month');
+                return;
+            }
+            if (!poNumber) {
+                alert('Please enter the Customer PO Number');
                 return;
             }
             if (!startDate) {
@@ -5380,6 +5396,7 @@
             
             // Build update object
             const updateData = {
+                po_month: poMonth,
                 po_number: poNumber,
                 po_start_date: startDate,
                 po_end_date: endDate,
@@ -5457,7 +5474,8 @@
         
         // Submit new PO
         async function submitNewPO() {
-            const poNumber = document.getElementById('newPOMonth').value;
+            const poMonth = document.getElementById('newPOMonth').value;
+            const poNumber = document.getElementById('newPONumber').value;
             const poValue = document.getElementById('newPOValue').value;
             const startDate = document.getElementById('newPOStartDate').value;
             const endDate = document.getElementById('newPOEndDate').value;
@@ -5465,8 +5483,12 @@
             const file = fileInput.files[0];
             
             // Validation
-            if (!poNumber) {
+            if (!poMonth) {
                 alert('Please select a Month');
+                return;
+            }
+            if (!poNumber) {
+                alert('Please enter the Customer PO Number');
                 return;
             }
             if (!startDate) {
@@ -5494,17 +5516,18 @@
                 try {
                     const statusInfo = calculatePOStatus(startDate, endDate);
                     
-                    // Insert new PO record
+                    // Insert new PO record - store month in po_month field, customer PO in po_number
                     const { data, error } = await supabaseClient
                         .from('po_documents')
                         .insert({
                             job_code: selectedPOJob,
                             customer: selectedPOCustomer,
                             po_number: poNumber,
+                            po_month: poMonth,
                             file_name: file.name,
                             file_type: file.type,
                             file_url: base64Data,
-                            uploaded_by: currentUser?.pin || 'unknown',
+                            uploaded_by: currentUser?.name || 'unknown',
                             uploaded_at: new Date().toISOString(),
                             po_start_date: startDate,
                             po_end_date: endDate,
