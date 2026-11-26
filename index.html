@@ -6,11 +6,11 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="app-version" content="2026.11.26.28-po-realtime-sync">
+    <meta name="app-version" content="2026.11.26.30-po-toast-fix">
     <title>MLT Asset Tracker</title>
     <script>
         // Force reload if version changed
-        const APP_VERSION = '2026.11.26.28-po-realtime-sync';
+        const APP_VERSION = '2026.11.26.30-po-toast-fix';
         const storedVersion = localStorage.getItem('mlt_app_version');
         if (storedVersion && storedVersion !== APP_VERSION) {
             localStorage.setItem('mlt_app_version', APP_VERSION);
@@ -3946,6 +3946,7 @@
             await loadMovementsFromSupabase();
             subscribeToMovementChanges();
             subscribeToActivityFeed();
+            subscribeToPODocs();
             loadDashboardActivity(); // Load global activity sidebar immediately
             initPresence();
             initLiveClock(); // Start live clock
@@ -7473,7 +7474,8 @@
         function updatePresenceConnectionStatus(connected) {
             const indicator = document.getElementById('presenceConnectionStatus');
             if (indicator) {
-                indicator.className = connected ? 'presence-connected' : 'presence-disconnected';
+                indicator.classList.remove('presence-connected', 'presence-disconnected');
+                indicator.classList.add(connected ? 'presence-connected' : 'presence-disconnected');
                 indicator.title = connected ? 'Real-time presence active' : 'Reconnecting...';
             }
         }
@@ -8580,24 +8582,52 @@ Mickala Lighting Towers`);
         }
         
         // Subscribe to realtime PO document changes
+        let poDocsSubscribed = false; // Prevent duplicate subscriptions
         function subscribeToPODocs() {
-            if (!supabaseClient) return;
+            console.log('[PO-DEBUG] subscribeToPODocs() called');
+            console.log('[PO-DEBUG] supabaseClient exists:', !!supabaseClient);
+            console.log('[PO-DEBUG] currentUser:', currentUser ? currentUser.name : 'NOT SET');
+            console.log('[PO-DEBUG] poDocsSubscribed (already?):', poDocsSubscribed);
+            
+            if (poDocsSubscribed) {
+                console.log('[PO-DEBUG] ABORT: Already subscribed, skipping duplicate');
+                return;
+            }
+            
+            if (!supabaseClient) {
+                console.log('[PO-DEBUG] ABORT: supabaseClient is null/undefined');
+                return;
+            }
             
             try {
+                console.log('[PO-DEBUG] Setting up realtime channel for po_documents');
                 supabaseClient
                     .channel('po_documents_changes')
                     .on('postgres_changes', { event: '*', schema: 'public', table: 'po_documents' }, (payload) => {
-                        console.log('PO document realtime change:', payload);
+                        console.log('[PO-DEBUG] ========== REALTIME EVENT RECEIVED ==========');
+                        console.log('[PO-DEBUG] payload.eventType:', payload.eventType);
+                        console.log('[PO-DEBUG] payload.new:', payload.new);
+                        console.log('[PO-DEBUG] payload.old:', payload.old);
+                        console.log('[PO-DEBUG] currentUser at event time:', currentUser ? currentUser.name : 'NOT SET');
                         
                         // Handle INSERT (new upload) and UPDATE events
                         if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
                             const docData = payload.new;
-                            if (!docData) return;
+                            console.log('[PO-DEBUG] Processing INSERT/UPDATE, docData:', docData);
+                            if (!docData) {
+                                console.log('[PO-DEBUG] ABORT: docData is null/undefined');
+                                return;
+                            }
                             
                             const jobCode = docData.job_code;
                             const uploadedBy = docData.uploaded_by || 'Unknown';
                             const fileName = docData.file_name || 'document';
                             const isOwnUpload = currentUser && uploadedBy === currentUser.name;
+                            
+                            console.log('[PO-DEBUG] jobCode:', jobCode);
+                            console.log('[PO-DEBUG] uploadedBy:', uploadedBy);
+                            console.log('[PO-DEBUG] currentUser.name:', currentUser ? currentUser.name : 'NOT SET');
+                            console.log('[PO-DEBUG] isOwnUpload:', isOwnUpload);
                             
                             // Update local cache
                             poDocuments[jobCode] = {
@@ -8608,19 +8638,27 @@ Mickala Lighting Towers`);
                                 fromSupabase: true
                             };
                             localStorage.setItem('mlt_po_documents', JSON.stringify(poDocuments));
+                            console.log('[PO-DEBUG] Local cache updated for job:', jobCode);
                             
                             // Refresh UI if this job is currently selected
                             if (selectedJob === jobCode) {
                                 loadPODocForJob(selectedJob);
+                                console.log('[PO-DEBUG] Refreshed UI for selected job');
                             }
                             
                             // Show notification for OTHER users' uploads (not your own)
+                            console.log('[PO-DEBUG] About to check toast condition. isOwnUpload=', isOwnUpload);
                             if (!isOwnUpload) {
+                                console.log('[PO-DEBUG] SHOWING TOAST - not own upload');
                                 if (payload.eventType === 'INSERT') {
+                                    console.log('[PO-DEBUG] Calling showToast for INSERT');
                                     showToast(`📄 New PO uploaded for job ${jobCode} by ${uploadedBy}`, 'info');
                                 } else {
+                                    console.log('[PO-DEBUG] Calling showToast for UPDATE');
                                     showToast(`📄 PO updated for job ${jobCode} by ${uploadedBy}`, 'info');
                                 }
+                            } else {
+                                console.log('[PO-DEBUG] NOT showing toast - is own upload');
                             }
                         }
                         
@@ -8629,6 +8667,9 @@ Mickala Lighting Towers`);
                             const jobCode = payload.old.job_code;
                             const deletedBy = payload.old.uploaded_by || 'Unknown';
                             const isOwnDelete = currentUser && deletedBy === currentUser.name;
+                            
+                            console.log('[PO-DEBUG] Processing DELETE for job:', jobCode);
+                            console.log('[PO-DEBUG] isOwnDelete:', isOwnDelete);
                             
                             // Remove from local cache
                             delete poDocuments[jobCode];
@@ -8641,15 +8682,27 @@ Mickala Lighting Towers`);
                             
                             // Show notification for OTHER users' deletes
                             if (!isOwnDelete) {
+                                console.log('[PO-DEBUG] SHOWING TOAST for DELETE');
                                 showToast(`📄 PO removed for job ${jobCode}`, 'warning');
                             }
                         }
+                        console.log('[PO-DEBUG] ========== END REALTIME EVENT ==========');
                     })
                     .subscribe((status) => {
-                        console.log('PO documents realtime subscription status:', status);
+                        console.log('[PO-DEBUG] Realtime subscription status:', status);
+                        if (status === 'SUBSCRIBED') {
+                            console.log('[PO-DEBUG] ✓ Successfully subscribed to po_documents changes!');
+                            poDocsSubscribed = true; // Mark as subscribed
+                        } else if (status === 'CHANNEL_ERROR') {
+                            console.error('[PO-DEBUG] ✗ Channel error - realtime not working!');
+                        } else if (status === 'TIMED_OUT') {
+                            console.error('[PO-DEBUG] ✗ Subscription timed out!');
+                        }
                     });
+                console.log('[PO-DEBUG] Channel subscription initiated');
+                poDocsSubscribed = true; // Set immediately to prevent duplicate calls during async subscribe
             } catch (err) {
-                console.log('Realtime subscription not available for po_documents:', err);
+                console.error('[PO-DEBUG] Exception in subscribeToPODocs:', err);
             }
         }
         
@@ -9260,9 +9313,12 @@ Mickala Lighting Towers`);
         }
         
         function showToast(message, type = 'success') {
+            console.log('[TOAST-DEBUG] showToast called with:', message, 'type:', type);
             const toast = document.getElementById('toast');
+            console.log('[TOAST-DEBUG] toast element found:', !!toast);
             toast.textContent = message;
             toast.className = 'toast active' + (type === 'error' ? ' error' : '');
+            console.log('[TOAST-DEBUG] toast className set to:', toast.className);
             setTimeout(() => toast.classList.remove('active'), 3000);
         }
         
