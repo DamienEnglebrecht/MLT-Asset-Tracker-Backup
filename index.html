@@ -5416,6 +5416,7 @@
                     updateData.file_url = e.target.result;
                     updateData.file_name = file.name;
                     updateData.file_type = file.type;
+                    updateData.file_path = `po_documents/${selectedPOJob}/${file.name}`;
                     
                     await performPOUpdate(poId, updateData);
                 };
@@ -5525,6 +5526,7 @@
                             po_number: poNumber,
                             po_month: poMonth,
                             file_name: file.name,
+                            file_path: `po_documents/${selectedPOJob}/${file.name}`,
                             file_type: file.type,
                             file_url: base64Data,
                             uploaded_by: currentUser?.name || 'unknown',
