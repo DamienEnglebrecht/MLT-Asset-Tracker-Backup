@@ -10,7 +10,7 @@
     <title>MLT Asset Tracker</title>
     <script>
         // Force reload if version changed
-        const APP_VERSION = '2026.11.26.44-pagination-verified';
+        const APP_VERSION = '2026.11.26.46-po-visibility-fix';
         const storedVersion = localStorage.getItem('mlt_app_version');
         if (storedVersion && storedVersion !== APP_VERSION) {
             localStorage.setItem('mlt_app_version', APP_VERSION);
@@ -3949,6 +3949,7 @@
             await loadData();
             await loadManualPOs();
             await loadMovementsFromSupabase();
+            await loadPODocsFromSupabase(); // Load PO docs before user can interact
             subscribeToMovementChanges();
             subscribeToActivityFeed();
             subscribeToPODocs();
@@ -9101,28 +9102,32 @@ Mickala Lighting Towers`);
                     .from('po_documents')
                     .select('*')
                     .eq('job_code', jobCode)
-                    .single();
+                    .order('uploaded_at', { ascending: false })
+                    .limit(1);
                 
-                if (data && !error) {
+                // Get newest record if any exist
+                const record = data && data.length > 0 ? data[0] : null;
+                
+                if (record && !error) {
                     // Check if file_url exists in Supabase
-                    if (data.file_url) {
+                    if (record.file_url) {
                         poDocuments[jobCode] = {
-                            url: data.file_url,
-                            fileName: data.file_name || data.filename,
-                            uploadedAt: data.uploaded_at,
-                            uploadedBy: data.uploaded_by,
-                            type: data.file_type,
-                            isBase64: data.file_url?.startsWith('data:')
+                            url: record.file_url,
+                            fileName: record.file_name || record.filename,
+                            uploadedAt: record.uploaded_at,
+                            uploadedBy: record.uploaded_by,
+                            type: record.file_type,
+                            isBase64: record.file_url?.startsWith('data:')
                         };
                         localStorage.setItem('mlt_po_documents', JSON.stringify(poDocuments));
                         
-                        currentPODocUrl = data.file_url;
-                        updatePODocUI(true, data.file_name || data.filename);
+                        currentPODocUrl = record.file_url;
+                        updatePODocUI(true, record.file_name || record.filename);
                         return;
                     } else {
                         // Supabase has record but no file - show as "needs re-upload"
                         currentPODocUrl = null;
-                        updatePODocUI(false, '', data.filename, true);
+                        updatePODocUI(false, '', record.filename, true);
                         return;
                     }
                 }
