@@ -10,7 +10,7 @@
     <title>MLT Asset Tracker</title>
     <script>
         // Force reload if version changed
-        const APP_VERSION = '2026.11.26.38-history-towers-fix';
+        const APP_VERSION = '2026.11.26.40-approve-persist';
         const storedVersion = localStorage.getItem('mlt_app_version');
         if (storedVersion && storedVersion !== APP_VERSION) {
             localStorage.setItem('mlt_app_version', APP_VERSION);
@@ -6045,12 +6045,52 @@
             document.getElementById('jobList').innerHTML = html || '<div class="empty-state"><div class="empty-state-text">No jobs</div></div>';
         }
         
-        function selectJob(code) {
-            selectedJob = code;
-            renderJobs();
-            renderInvoice();
+        // Check if a job code has already been invoiced (in Supabase or localStorage)
+        async function checkJobInvoiced(jobCode) {
+            if (!jobCode) return false;
             
-            // Reset approve button state when selecting a new job
+            // First check Supabase if available
+            if (supabaseClient) {
+                try {
+                    const { data, error } = await supabaseClient
+                        .from('invoices')
+                        .select('invoice_number')
+                        .eq('job_code', jobCode)
+                        .limit(1);
+                    
+                    if (!error && data && data.length > 0) {
+                        console.log(`[checkJobInvoiced] Job ${jobCode} already invoiced:`, data[0].invoice_number);
+                        return true;
+                    }
+                } catch (err) {
+                    console.error('Error checking job invoice status:', err);
+                }
+            }
+            
+            // Fallback: check localStorage
+            const approvedInvoices = JSON.parse(localStorage.getItem('mlt_approved_invoices') || '[]');
+            const found = approvedInvoices.some(inv => (inv.job_code || inv.jobCode) === jobCode);
+            if (found) {
+                console.log(`[checkJobInvoiced] Job ${jobCode} found in localStorage`);
+            }
+            return found;
+        }
+        
+        // Set approve button to approved state
+        function setApproveButtonApproved() {
+            const approveBtn = document.getElementById('approveInvoiceBtn');
+            if (approveBtn) {
+                approveBtn.innerHTML = '✓ Approved';
+                approveBtn.disabled = true;
+                approveBtn.style.background = '#22c55e';
+                approveBtn.style.cursor = 'not-allowed';
+                approveBtn.style.opacity = '0.8';
+                approveBtn.classList.add('invoice-approved');
+            }
+        }
+        
+        // Reset approve button to default state
+        function setApproveButtonDefault() {
             const approveBtn = document.getElementById('approveInvoiceBtn');
             if (approveBtn) {
                 approveBtn.innerHTML = '✓ Approve & Generate';
@@ -6058,6 +6098,21 @@
                 approveBtn.style.background = '';
                 approveBtn.style.cursor = '';
                 approveBtn.style.opacity = '';
+                approveBtn.classList.remove('invoice-approved');
+            }
+        }
+        
+        async function selectJob(code) {
+            selectedJob = code;
+            renderJobs();
+            renderInvoice();
+            
+            // Check if this job has already been invoiced
+            const isInvoiced = await checkJobInvoiced(code);
+            if (isInvoiced) {
+                setApproveButtonApproved();
+            } else {
+                setApproveButtonDefault();
             }
         }
         
@@ -8561,6 +8616,10 @@
             
             // Open in new window for print/PDF
             const printWindow = window.open('', '_blank');
+            if (!printWindow) {
+                showToast('Popup blocked - please allow popups', 'error');
+                return;
+            }
             printWindow.document.write(printContent);
             printWindow.document.close();
             printWindow.focus();
@@ -9091,7 +9150,12 @@ Mickala Lighting Towers`);
                     const blobUrl = URL.createObjectURL(blob);
                     
                     // Open blob URL - browsers handle this much better
-                    window.open(blobUrl, '_blank');
+                    const popupWindow = window.open(blobUrl, '_blank');
+                    if (!popupWindow) {
+                        showToast('Popup blocked - please allow popups', 'error');
+                        URL.revokeObjectURL(blobUrl);
+                        return;
+                    }
                     
                     // Clean up after a delay
                     setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
@@ -9101,7 +9165,11 @@ Mickala Lighting Towers`);
                     showToast('Could not open document', 'error');
                 }
             } else {
-                window.open(currentPODocUrl, '_blank');
+                const popupWindow = window.open(currentPODocUrl, '_blank');
+                if (!popupWindow) {
+                    showToast('Popup blocked - please allow popups', 'error');
+                    return;
+                }
             }
         }
         
@@ -9205,24 +9273,8 @@ Mickala Lighting Towers`);
                     logActivity('Approved invoice', `${invoiceNum} - $${total.toLocaleString()}`, null, selectedCustomer, 'Finance');
             
                     // Update button to show approved state
-                    console.log('[DEBUG approveInvoice] Looking for approveInvoiceBtn...');
-                    const approveBtn = document.getElementById('approveInvoiceBtn');
-                    console.log('[DEBUG approveInvoice] Button found:', approveBtn);
-                    if (approveBtn) {
-                        console.log('[DEBUG approveInvoice] Setting button to Approved state');
-                        approveBtn.innerHTML = '✓ Approved';
-                        approveBtn.disabled = true;
-                        approveBtn.style.background = '#22c55e';
-                        approveBtn.style.cursor = 'not-allowed';
-                        approveBtn.style.opacity = '0.8';
-                        approveBtn.classList.add('invoice-approved');
-                        // Store approval state for this job
-                        const approvalKey = `mlt_approved_job_${selectedJob}`;
-                        localStorage.setItem(approvalKey, 'true');
-                        console.log('[DEBUG approveInvoice] Button updated successfully, stored approval key:', approvalKey);
-                    } else {
-                        console.error('[DEBUG approveInvoice] Button NOT found! Check HTML id="approveInvoiceBtn"');
-                    }
+                    console.log('[DEBUG approveInvoice] Setting button to Approved state');
+                    setApproveButtonApproved();
             
                     // Show confirmation and offer PDF
                     if (confirm(`Invoice Approved!\n\nInvoice #: ${invoiceNum}\nCustomer: ${selectedCustomer}\nJob: ${selectedJob}\nTotal: $${total.toLocaleString()}\n\nWould you like to generate the PDF now?`)) {
@@ -9635,6 +9687,10 @@ Mickala Lighting Towers`);
             const printContent = generateHistoryInvoicePDF(data.invoice, data.lineItems);
             
             const printWindow = window.open('', '_blank');
+            if (!printWindow) {
+                showToast('Popup blocked - please allow popups', 'error');
+                return;
+            }
             printWindow.document.write(printContent);
             printWindow.document.close();
             printWindow.focus();
@@ -9655,6 +9711,10 @@ Mickala Lighting Towers`);
             const printContent = generateHistoryInvoicePDF(data.invoice, data.lineItems);
             
             const printWindow = window.open('', '_blank');
+            if (!printWindow) {
+                showToast('Popup blocked - please allow popups', 'error');
+                return;
+            }
             printWindow.document.write(printContent);
             printWindow.document.close();
             printWindow.focus();
