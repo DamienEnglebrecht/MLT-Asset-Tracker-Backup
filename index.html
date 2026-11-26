@@ -6,11 +6,11 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="app-version" content="2026.11.26.38-history-towers-fix">
+    <meta name="app-version" content="2026.11.26.41-admin-controls">
     <title>MLT Asset Tracker</title>
     <script>
         // Force reload if version changed
-        const APP_VERSION = '2026.11.26.40-approve-persist';
+        const APP_VERSION = '2026.11.26.41-admin-controls';
         const storedVersion = localStorage.getItem('mlt_app_version');
         if (storedVersion && storedVersion !== APP_VERSION) {
             localStorage.setItem('mlt_app_version', APP_VERSION);
@@ -990,6 +990,8 @@
         .btn.success { background: var(--success); border-color: var(--success); }
         .btn.warning { background: #f59e0b; border-color: #f59e0b; }
         .btn.warning:hover { background: #d97706; }
+        .btn.danger { background: var(--danger); border-color: var(--danger); }
+        .btn.danger:hover { background: #dc2626; }
         .btn.small { padding: 6px 12px; font-size: 12px; }
         
         .data-table { width: 100%; border-collapse: collapse; }
@@ -2808,6 +2810,7 @@
                                         <button class="btn" onclick="previewPDF()">📄 Preview PDF</button>
                                         <button class="btn" onclick="emailClient()">📧 Email Client</button>
                                         <button class="btn" onclick="exportCSV()">📥 Export CSV</button>
+                                        <button class="btn warning hidden" id="editInvoiceBtn" onclick="editInvoice()">✏️ Edit</button>
                                         <button class="btn success" id="approveInvoiceBtn" onclick="approveInvoice()">✓ Approve & Generate</button>
                                     </div>
                                 </div>
@@ -6079,6 +6082,9 @@
         // Set approve button to approved state
         function setApproveButtonApproved() {
             const approveBtn = document.getElementById('approveInvoiceBtn');
+            const editBtn = document.getElementById('editInvoiceBtn');
+            const isAdmin = currentUser && currentUser.role === 'admin';
+            
             if (approveBtn) {
                 approveBtn.innerHTML = '✓ Approved';
                 approveBtn.disabled = true;
@@ -6087,11 +6093,22 @@
                 approveBtn.style.opacity = '0.8';
                 approveBtn.classList.add('invoice-approved');
             }
+            
+            // Show Edit button for admin users when job is approved
+            if (editBtn) {
+                if (isAdmin) {
+                    editBtn.classList.remove('hidden');
+                } else {
+                    editBtn.classList.add('hidden');
+                }
+            }
         }
         
         // Reset approve button to default state
         function setApproveButtonDefault() {
             const approveBtn = document.getElementById('approveInvoiceBtn');
+            const editBtn = document.getElementById('editInvoiceBtn');
+            
             if (approveBtn) {
                 approveBtn.innerHTML = '✓ Approve & Generate';
                 approveBtn.disabled = false;
@@ -6099,6 +6116,11 @@
                 approveBtn.style.cursor = '';
                 approveBtn.style.opacity = '';
                 approveBtn.classList.remove('invoice-approved');
+            }
+            
+            // Hide Edit button when not approved
+            if (editBtn) {
+                editBtn.classList.add('hidden');
             }
         }
         
@@ -9400,6 +9422,7 @@ Mickala Lighting Towers`);
         
         function displayHistoryRows(invoices) {
             const table = document.getElementById('historyTable');
+            const isAdmin = currentUser && currentUser.role === 'admin';
             table.innerHTML = invoices.map(inv => {
                 // Handle both Supabase format and localStorage format
                 const invoiceNum = inv.invoice_number || inv.invoiceNumber;
@@ -9414,6 +9437,9 @@ Mickala Lighting Towers`);
                     day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' 
                 }) : '-';
                 
+                const deleteBtn = isAdmin ? 
+                    `<button class="btn danger" style="padding:4px 8px;font-size:11px;" onclick="deleteInvoice('${invoiceNum}')">🗑️ Delete</button>` : '';
+                
                 return `<tr>
                     <td><code style="background:var(--bg-tertiary);padding:4px 8px;border-radius:4px;font-size:12px;">${invoiceNum}</code></td>
                     <td>${customer}</td>
@@ -9427,6 +9453,7 @@ Mickala Lighting Towers`);
                         <div style="display:flex;gap:4px;">
                             <button class="btn" style="padding:4px 8px;font-size:11px;" onclick="viewHistoryInvoicePDF('${invoiceNum}')">👁️ View</button>
                             <button class="btn" style="padding:4px 8px;font-size:11px;" onclick="downloadHistoryInvoicePDF('${invoiceNum}')">📥 Download</button>
+                            ${deleteBtn}
                         </div>
                     </td>
                 </tr>`;
@@ -9463,6 +9490,116 @@ Mickala Lighting Towers`);
             document.getElementById('historySearch').value = '';
             renderHistory();
             showToast('History refreshed');
+        }
+        
+        // Delete invoice (admin only)
+        async function deleteInvoice(invoiceNumber) {
+            if (!currentUser || currentUser.role !== 'admin') {
+                showToast('Only administrators can delete invoices', 'error');
+                return;
+            }
+            
+            if (!confirm(`Are you sure you want to delete invoice ${invoiceNumber}?\n\nThis action cannot be undone.`)) {
+                return;
+            }
+            
+            try {
+                if (supabaseClient) {
+                    // First get the invoice ID to delete line items
+                    const { data: invoice, error: fetchError } = await supabaseClient
+                        .from('invoices')
+                        .select('id')
+                        .eq('invoice_number', invoiceNumber)
+                        .single();
+                    
+                    if (fetchError) {
+                        console.error('Error fetching invoice:', fetchError);
+                    } else if (invoice) {
+                        // Delete line items first (foreign key constraint)
+                        const { error: lineItemsError } = await supabaseClient
+                            .from('invoice_line_items')
+                            .delete()
+                            .eq('invoice_id', invoice.id);
+                        
+                        if (lineItemsError) {
+                            console.error('Error deleting line items:', lineItemsError);
+                        }
+                    }
+                    
+                    // Delete the invoice
+                    const { error: deleteError } = await supabaseClient
+                        .from('invoices')
+                        .delete()
+                        .eq('invoice_number', invoiceNumber);
+                    
+                    if (deleteError) {
+                        console.error('Error deleting invoice:', deleteError);
+                        showToast('Error deleting invoice from database', 'error');
+                        return;
+                    }
+                }
+                
+                // Also remove from localStorage
+                const localInvoices = JSON.parse(localStorage.getItem('mlt_approved_invoices') || '[]');
+                const filtered = localInvoices.filter(inv => 
+                    (inv.invoice_number || inv.invoiceNumber) !== invoiceNumber
+                );
+                localStorage.setItem('mlt_approved_invoices', JSON.stringify(filtered));
+                
+                // Log the deletion
+                logAudit('INVOICE_DELETED', {
+                    invoice_number: invoiceNumber,
+                    deleted_by: currentUser.name
+                });
+                addAuditEntry('INVOICE_DELETED', `${invoiceNumber} deleted by ${currentUser.name}`);
+                logActivity('Deleted invoice', invoiceNumber, null, null, 'Finance');
+                
+                showToast(`Invoice ${invoiceNumber} deleted`);
+                refreshHistory();
+                
+            } catch (err) {
+                console.error('Delete invoice error:', err);
+                showToast('Error deleting invoice', 'error');
+            }
+        }
+        
+        // Edit invoice (admin only) - re-enable editing for approved job
+        function editInvoice() {
+            if (!currentUser || currentUser.role !== 'admin') {
+                showToast('Only administrators can edit invoices', 'error');
+                return;
+            }
+            
+            if (!selectedJob) {
+                showToast('No job selected', 'error');
+                return;
+            }
+            
+            if (!confirm('This will allow you to modify the billing period and re-generate the invoice.\n\nContinue?')) {
+                return;
+            }
+            
+            // Reset approve button to allow re-approval
+            setApproveButtonDefault();
+            
+            // Enable billing date inputs
+            const fromInput = document.getElementById('billingFromDate');
+            const toInput = document.getElementById('billingToDate');
+            if (fromInput) fromInput.disabled = false;
+            if (toInput) toInput.disabled = false;
+            
+            // Hide the edit button since we're now in edit mode
+            const editBtn = document.getElementById('editInvoiceBtn');
+            if (editBtn) editBtn.classList.add('hidden');
+            
+            // Log the edit action
+            logAudit('INVOICE_EDIT_STARTED', {
+                job_code: selectedJob,
+                edited_by: currentUser.name
+            });
+            addAuditEntry('INVOICE_EDIT', `${selectedJob} edit mode enabled by ${currentUser.name}`);
+            
+            showToast('Edit mode enabled - modify billing period and click Approve & Generate');
         }
         
         // Load invoice and line items from Supabase for history view
