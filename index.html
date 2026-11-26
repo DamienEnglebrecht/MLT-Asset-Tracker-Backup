@@ -429,6 +429,112 @@
             font-size: 13px;
         }
         
+        /* Activity Feed Search */
+        .activity-search-container {
+            padding: 12px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        
+        .activity-search-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 12px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        
+        .activity-search-input:focus {
+            border-color: var(--accent);
+        }
+        
+        .activity-search-input::placeholder {
+            color: var(--text-muted);
+        }
+        
+        /* Activity Time Groups */
+        .activity-time-group {
+            margin-bottom: 8px;
+        }
+        
+        .activity-group-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-bottom: 6px;
+        }
+        
+        .activity-group-header:hover {
+            background: var(--bg-hover);
+        }
+        
+        .activity-group-header.collapsed {
+            margin-bottom: 0;
+        }
+        
+        .activity-group-title {
+            font-weight: 600;
+            font-size: 11px;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .activity-group-count {
+            background: var(--accent);
+            color: #000;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+        
+        .activity-group-toggle {
+            color: var(--text-muted);
+            font-size: 10px;
+            transition: transform 0.2s;
+        }
+        
+        .activity-group-header.collapsed .activity-group-toggle {
+            transform: rotate(-90deg);
+        }
+        
+        .activity-group-items {
+            padding-left: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        
+        .activity-group-items.collapsed {
+            max-height: 0 !important;
+            margin-bottom: 0;
+        }
+        
+        /* Day subheaders within groups */
+        .activity-day-subheader {
+            font-size: 10px;
+            color: var(--text-muted);
+            padding: 6px 12px 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px dashed var(--border);
+            margin-bottom: 6px;
+        }
+        
         /* ===== ONLINE NOW PANEL (Sidebar) ===== */
         .online-now-panel {
             border-top: 1px solid var(--border);
@@ -3914,6 +4020,9 @@
         <div class="sidebar-header">
             <h3>📡 Activity Feed</h3>
             <span class="live-badge">● LIVE</span>
+        </div>
+        <div class="activity-search-container">
+            <input type="text" id="activitySearchInput" class="activity-search-input" placeholder="🔍 Search activity..." oninput="filterActivityFeed()">
         </div>
         <div class="sidebar-content">
             <div id="globalActivityFeed">
@@ -8353,31 +8462,211 @@
             const globalFeedEl = document.getElementById('globalActivityFeed');
             if (!globalFeedEl) return;
             
+            // Store activities globally for filtering
+            window.allActivities = activities;
+            
             if (!activities || activities.length === 0) {
                 globalFeedEl.innerHTML = '<div class="no-activity">No recent activity</div>';
                 return;
             }
             
-            globalFeedEl.innerHTML = activities.map((item, idx) => {
-                const time = new Date(item.created_at);
-                const timeAgo = getActivityTimeAgo(time);
+            // Group activities by time period
+            const groups = groupActivitiesByTimePeriod(activities);
+            
+            // Render grouped activities
+            let html = '';
+            
+            const groupOrder = ['today', 'yesterday', 'thisWeek', 'thisMonth', 'older'];
+            const groupLabels = {
+                today: '📅 Today',
+                yesterday: '📅 Yesterday',
+                thisWeek: '📅 This Week',
+                thisMonth: '📅 This Month',
+                older: '📦 Older'
+            };
+            
+            groupOrder.forEach(groupKey => {
+                const groupData = groups[groupKey];
+                if (!groupData || groupData.items.length === 0) return;
                 
-                // Determine activity type for color coding
-                let activityType = '';
-                const actionLower = (item.action || '').toLowerCase();
-                if (actionLower.includes('move') || actionLower.includes('tower')) activityType = 'tower-move';
-                else if (actionLower.includes('po') || actionLower.includes('upload')) activityType = 'po-upload';
-                else if (actionLower.includes('invoice') || actionLower.includes('approv')) activityType = 'invoice';
+                const isCollapsed = groupKey === 'older' ? 'collapsed' : '';
                 
-                return `
-                    <div class="activity-item ${activityType}">
-                        <div class="activity-user">${item.user_name || 'System'}</div>
-                        <div class="activity-action">${item.action || 'Activity'}</div>
-                        ${item.details ? `<div class="activity-details">${item.details}</div>` : ''}
-                        <div class="activity-time">${timeAgo}</div>
+                html += `
+                    <div class="activity-time-group" data-group="${groupKey}">
+                        <div class="activity-group-header ${isCollapsed}" onclick="toggleActivityGroup('${groupKey}')">
+                            <div class="activity-group-title">
+                                ${groupLabels[groupKey]}
+                                <span class="activity-group-count">${groupData.items.length}</span>
+                            </div>
+                            <span class="activity-group-toggle">▼</span>
+                        </div>
+                        <div class="activity-group-items ${isCollapsed}" id="activity-group-${groupKey}">
+                            ${renderGroupItems(groupKey, groupData)}
+                        </div>
                     </div>
                 `;
-            }).join('');
+            });
+            
+            globalFeedEl.innerHTML = html || '<div class="no-activity">No recent activity</div>';
+        }
+        
+        function groupActivitiesByTimePeriod(activities) {
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+            const weekStart = new Date(today);
+            weekStart.setDate(weekStart.getDate() - today.getDay()); // Start of this week (Sunday)
+            const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+            
+            const groups = {
+                today: { items: [], subgroups: {} },
+                yesterday: { items: [], subgroups: {} },
+                thisWeek: { items: [], subgroups: {} },
+                thisMonth: { items: [], subgroups: {} },
+                older: { items: [], subgroups: {} }
+            };
+            
+            const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            
+            activities.forEach(activity => {
+                const actDate = new Date(activity.created_at);
+                const actDateOnly = new Date(actDate.getFullYear(), actDate.getMonth(), actDate.getDate());
+                
+                if (actDateOnly.getTime() === today.getTime()) {
+                    groups.today.items.push(activity);
+                } else if (actDateOnly.getTime() === yesterday.getTime()) {
+                    groups.yesterday.items.push(activity);
+                } else if (actDateOnly >= weekStart && actDateOnly < yesterday) {
+                    const dayName = dayNames[actDate.getDay()];
+                    if (!groups.thisWeek.subgroups[dayName]) {
+                        groups.thisWeek.subgroups[dayName] = [];
+                    }
+                    groups.thisWeek.subgroups[dayName].push(activity);
+                    groups.thisWeek.items.push(activity);
+                } else if (actDateOnly >= monthStart && actDateOnly < weekStart) {
+                    const dateKey = actDate.getDate();
+                    if (!groups.thisMonth.subgroups[dateKey]) {
+                        groups.thisMonth.subgroups[dateKey] = [];
+                    }
+                    groups.thisMonth.subgroups[dateKey].push(activity);
+                    groups.thisMonth.items.push(activity);
+                } else {
+                    const monthYearKey = `${monthNames[actDate.getMonth()]} ${actDate.getFullYear()}`;
+                    if (!groups.older.subgroups[monthYearKey]) {
+                        groups.older.subgroups[monthYearKey] = [];
+                    }
+                    groups.older.subgroups[monthYearKey].push(activity);
+                    groups.older.items.push(activity);
+                }
+            });
+            
+            return groups;
+        }
+        
+        function renderGroupItems(groupKey, groupData) {
+            let html = '';
+            
+            if (groupKey === 'today' || groupKey === 'yesterday') {
+                // Show individual items
+                html = groupData.items.map(item => renderActivityItem(item)).join('');
+            } else if (groupKey === 'thisWeek') {
+                // Group by day name
+                const dayOrder = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                dayOrder.forEach(day => {
+                    if (groupData.subgroups[day] && groupData.subgroups[day].length > 0) {
+                        html += `<div class="activity-day-subheader">${day}</div>`;
+                        html += groupData.subgroups[day].map(item => renderActivityItem(item)).join('');
+                    }
+                });
+            } else if (groupKey === 'thisMonth') {
+                // Group by date (sorted descending)
+                const dates = Object.keys(groupData.subgroups).sort((a, b) => parseInt(b) - parseInt(a));
+                dates.forEach(date => {
+                    const ordinal = getOrdinalSuffix(parseInt(date));
+                    html += `<div class="activity-day-subheader">${date}${ordinal}</div>`;
+                    html += groupData.subgroups[date].map(item => renderActivityItem(item)).join('');
+                });
+            } else if (groupKey === 'older') {
+                // Group by month/year
+                Object.keys(groupData.subgroups).forEach(monthYear => {
+                    html += `<div class="activity-day-subheader">${monthYear}</div>`;
+                    html += groupData.subgroups[monthYear].map(item => renderActivityItem(item)).join('');
+                });
+            }
+            
+            return html;
+        }
+        
+        function renderActivityItem(item) {
+            const time = new Date(item.created_at);
+            const timeAgo = getActivityTimeAgo(time);
+            
+            // Determine activity type for color coding
+            let activityType = '';
+            const actionLower = (item.action || '').toLowerCase();
+            if (actionLower.includes('move') || actionLower.includes('tower')) activityType = 'tower-move';
+            else if (actionLower.includes('po') || actionLower.includes('upload')) activityType = 'po-upload';
+            else if (actionLower.includes('invoice') || actionLower.includes('approv')) activityType = 'invoice';
+            
+            return `
+                <div class="activity-item ${activityType}">
+                    <div class="activity-user">${item.user_name || 'System'}</div>
+                    <div class="activity-action">${item.action || 'Activity'}</div>
+                    ${item.details ? `<div class="activity-details">${item.details}</div>` : ''}
+                    <div class="activity-time">${timeAgo}</div>
+                </div>
+            `;
+        }
+        
+        function getOrdinalSuffix(n) {
+            const s = ['th', 'st', 'nd', 'rd'];
+            const v = n % 100;
+            return s[(v - 20) % 10] || s[v] || s[0];
+        }
+        
+        function toggleActivityGroup(groupKey) {
+            const header = document.querySelector(`.activity-time-group[data-group="${groupKey}"] .activity-group-header`);
+            const items = document.getElementById(`activity-group-${groupKey}`);
+            
+            if (header && items) {
+                header.classList.toggle('collapsed');
+                items.classList.toggle('collapsed');
+            }
+        }
+        
+        function filterActivityFeed() {
+            const searchInput = document.getElementById('activitySearchInput');
+            const searchTerm = (searchInput?.value || '').toLowerCase().trim();
+            
+            if (!window.allActivities) return;
+            
+            if (!searchTerm) {
+                // No search, render all
+                renderGlobalActivityFeed(window.allActivities);
+                return;
+            }
+            
+            // Filter activities
+            const filtered = window.allActivities.filter(item => {
+                const userName = (item.user_name || '').toLowerCase();
+                const action = (item.action || '').toLowerCase();
+                const details = (item.details || '').toLowerCase();
+                
+                return userName.includes(searchTerm) || 
+                       action.includes(searchTerm) || 
+                       details.includes(searchTerm);
+            });
+            
+            // Render filtered results
+            const globalFeedEl = document.getElementById('globalActivityFeed');
+            if (filtered.length === 0) {
+                globalFeedEl.innerHTML = '<div class="no-activity">No matching activity found</div>';
+            } else {
+                // For search results, show flat list
+                globalFeedEl.innerHTML = filtered.map(item => renderActivityItem(item)).join('');
+            }
         }
         
         function getActivityTimeAgo(date) {
