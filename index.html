@@ -5287,9 +5287,9 @@
                                 </div>
                             </div>
                             <div style="display:flex;flex-direction:column;gap:6px;">
-                                <button class="btn-small" onclick="viewPO(${po.id})" style="font-size:11px;padding:6px 10px;cursor:pointer;">👁️ View</button>
-                                <button class="btn-small" onclick="downloadPO(${po.id})" style="font-size:11px;padding:6px 10px;cursor:pointer;">⬇️ Download</button>
-                                ${isAdmin ? `<button class="btn-small" onclick="editPO(${po.id})" style="font-size:11px;padding:6px 10px;cursor:pointer;background:var(--accent);color:#000;">✏️ Edit</button>` : ''}
+                                <button class="btn-small" onclick="viewPO('${po.id}')" style="font-size:11px;padding:6px 10px;cursor:pointer;">👁️ View</button>
+                                <button class="btn-small" onclick="downloadPO('${po.id}')" style="font-size:11px;padding:6px 10px;cursor:pointer;">⬇️ Download</button>
+                                ${isAdmin ? `<button class="btn-small" onclick="editPO('${po.id}')" style="font-size:11px;padding:6px 10px;cursor:pointer;background:var(--accent);color:#000;">✏️ Edit</button>` : ''}
                             </div>
                         </div>
                     </div>
@@ -5358,7 +5358,7 @@
         
         // Save PO Edit
         async function savePOEdit() {
-            const poId = parseInt(document.getElementById('editPOId').value);
+            const poId = document.getElementById('editPOId').value;
             const poMonth = document.getElementById('editPOMonth').value;
             const poNumber = document.getElementById('editPONumber').value;
             const poValue = document.getElementById('editPOValue').value;
