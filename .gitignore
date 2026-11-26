@@ -1,1 +1,17 @@
-.vercel
+# Utility scripts with secrets
+*.py
+*.sh
+!deploy.py
+
+# SQL files
+*.sql
+
+# Environment
+.env
+.env.*
+
+# Node
+node_modules/
+
+# OS
+.DS_Store
