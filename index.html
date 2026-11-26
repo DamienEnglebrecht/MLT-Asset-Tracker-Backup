@@ -10,7 +10,7 @@
     <title>MLT Asset Tracker</title>
     <script>
         // Force reload if version changed
-        const APP_VERSION = '2026.11.26.18-ux-fixes';
+        const APP_VERSION = '2026.11.26.19-supabase-towers';
         const storedVersion = localStorage.getItem('mlt_app_version');
         if (storedVersion && storedVersion !== APP_VERSION) {
             localStorage.setItem('mlt_app_version', APP_VERSION);
@@ -3993,12 +3993,31 @@
         
         async function loadData() {
             try {
-                const [fleetRes, poRes] = await Promise.all([
-                    fetch('fleet-data-0db4182c82029f0f5796175f1b11a26d.json'),
-                    fetch('po-data-7aa0e49555cbafae84ac50c1f8222203.json').catch(() => ({ ok: false }))
-                ]);
+                // Try Supabase first for tower data
+                if (supabaseClient) {
+                    const { data, error } = await supabaseClient
+                        .from('towers_compat')
+                        .select('*');
+                    
+                    if (!error && data && data.length > 0) {
+                        fleetData = data;
+                        console.log('Loaded ' + data.length + ' towers from Supabase');
+                    } else {
+                        // Fall back to JSON
+                        console.log('Supabase error or empty, falling back to JSON:', error?.message || 'no data');
+                        const fleetRes = await fetch('fleet-data-0db4182c82029f0f5796175f1b11a26d.json');
+                        fleetData = await fleetRes.json();
+                        console.log('Loaded ' + fleetData.length + ' towers from JSON fallback');
+                    }
+                } else {
+                    // No Supabase client, use JSON
+                    const fleetRes = await fetch('fleet-data-0db4182c82029f0f5796175f1b11a26d.json');
+                    fleetData = await fleetRes.json();
+                    console.log('Loaded ' + fleetData.length + ' towers from JSON (no Supabase)');
+                }
                 
-                fleetData = await fleetRes.json();
+                // PO data still from JSON (not migrated yet)
+                const poRes = await fetch('po-data-7aa0e49555cbafae84ac50c1f8222203.json').catch(() => ({ ok: false }));
                 if (poRes.ok) poData = await poRes.json();
             } catch (err) {
                 console.log('Data load error:', err);
