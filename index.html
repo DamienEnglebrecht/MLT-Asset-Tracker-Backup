@@ -6,11 +6,11 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="app-version" content="2026.11.26.42-towers-sync">
+    <meta name="app-version" content="2026.11.26.43-count-fix">
     <title>MLT Asset Tracker</title>
     <script>
         // Force reload if version changed
-        const APP_VERSION = '2026.11.26.42-towers-sync';
+        const APP_VERSION = '2026.11.26.43-count-fix';
         const storedVersion = localStorage.getItem('mlt_app_version');
         if (storedVersion && storedVersion !== APP_VERSION) {
             localStorage.setItem('mlt_app_version', APP_VERSION);
@@ -4268,9 +4268,10 @@
         
         function getCustomers() {
             // For Finance/Invoicing view, include ALL customers with towers ON HIRE
+            // Use startsWith to match Fleet Dashboard logic (excludes "OFF HIRE - Repairs Required" which contains "ON HIRE")
             const onHireTowers = fleetData.filter(t => 
                 t.customer && 
-                (t.status || '').toUpperCase().includes('ON HIRE')
+                (t.status || '').toUpperCase().startsWith('ON HIRE')
             );
             const fromFleet = [...new Set(onHireTowers.map(t => t.customer))];
             const fromCustom = customData.customers.map(c => c.name);
@@ -4279,8 +4280,9 @@
         
         function getSitesForCustomer(customer) {
             // Include ALL sites with towers ON HIRE (not just billable ones)
+            // Use startsWith to match Fleet Dashboard logic
             const fromFleet = fleetData
-                .filter(t => t.customer === customer && (t.status || '').toUpperCase().includes('ON HIRE'))
+                .filter(t => t.customer === customer && (t.status || '').toUpperCase().startsWith('ON HIRE'))
                 .map(t => normalizeSiteName(t.site))
                 .filter(Boolean);
             const fromCustom = customData.sites
@@ -4299,11 +4301,12 @@
         }
         
         function getJobsForSite(customer, site) {
-            // Get jobs from fleet data (visionJob field) - ALL towers ON HIRE
+            // Get all unique jobs for a site with towers ON HIRE (regardless of rate)
+            // Use startsWith to match Fleet Dashboard logic
             const towersAtSite = fleetData.filter(t => 
                 t.customer === customer && 
                 t.site === site && 
-                (t.status || '').toUpperCase().includes('ON HIRE')
+                (t.status || '').toUpperCase().startsWith('ON HIRE')
             );
             
             const jobsFromFleet = {};
@@ -4380,11 +4383,12 @@
         
         function getTowersForJob(customer, site, jobCode) {
             // Return ALL towers ON HIRE (regardless of rate)
+            // Use startsWith to match Fleet Dashboard logic
             return fleetData.filter(t => 
                 t.customer === customer && 
                 t.site === site && 
                 (t.visionJob === jobCode || (!t.visionJob && jobCode === 'UNASSIGNED')) &&
-                (t.status || '').toUpperCase().includes('ON HIRE')
+                (t.status || '').toUpperCase().startsWith('ON HIRE')
             );
         }
         
@@ -5080,8 +5084,9 @@
         }
         
         // Revenue Functions
+        // Use startsWith to match Fleet Dashboard logic (excludes "OFF HIRE - Repairs Required" which contains "ON HIRE")
         function renderRevenue() {
-            const onHire = fleetData.filter(t => (t.status || '').toUpperCase().includes('ON HIRE'));
+            const onHire = fleetData.filter(t => (t.status || '').toUpperCase().startsWith('ON HIRE'));
             
             let totalWeekly = 0;
             let totalMonthly = 0;
@@ -5699,10 +5704,11 @@
         }
         
         // Get all towers currently ON HIRE (billable)
+        // Use startsWith to match Fleet Dashboard logic (excludes "OFF HIRE - Repairs Required" which contains "ON HIRE")
         function getOnHireTowers() {
             return fleetData.filter(t => {
                 const status = (t.status || '').toUpperCase();
-                return status.includes('ON HIRE');
+                return status.startsWith('ON HIRE');
             });
         }
         
@@ -5958,7 +5964,7 @@
             customers.forEach(name => {
                 const towerCount = fleetData.filter(t => 
                     t.customer === name && 
-                    (t.status || '').toUpperCase().includes('ON HIRE')
+                    (t.status || '').toUpperCase().startsWith('ON HIRE')
                 ).length;
                 
                 html += `
@@ -6001,7 +6007,7 @@
                 const towerCount = fleetData.filter(t => 
                     t.customer === selectedCustomer && 
                     t.site === name && 
-                    (t.status || '').toUpperCase().includes('ON HIRE')
+                    (t.status || '').toUpperCase().startsWith('ON HIRE')
                 ).length;
                 
                 html += `
@@ -6721,8 +6727,9 @@
         
                 function getAllJobs() {
                     // Get all unique jobs from fleet data
+                    // Use startsWith to match Fleet Dashboard logic
                     const jobsMap = {};
-                    fleetData.filter(t => (t.status || '').toUpperCase().includes('ON HIRE')).forEach(t => {
+                    fleetData.filter(t => (t.status || '').toUpperCase().startsWith('ON HIRE')).forEach(t => {
                         const job = t.visionJob;
                         if (job && !jobsMap[job]) {
                             jobsMap[job] = {
@@ -6889,7 +6896,8 @@
                 const status = (t.status || '').toUpperCase();
                 return !status.includes('SOLD') && !status.includes('WRITTEN');
             });
-            const onHireTowers = hireFleet.filter(t => (t.status || '').toUpperCase().includes('ON HIRE'));
+            // Use startsWith to match Fleet Dashboard logic (excludes "OFF HIRE - Repairs Required" which contains "ON HIRE")
+            const onHireTowers = hireFleet.filter(t => (t.status || '').toUpperCase().startsWith('ON HIRE'));
             const availableTowers = hireFleet.filter(t => {
                 const status = (t.status || '').toUpperCase();
                 return status.includes('OFF HIRE') || status === '';
