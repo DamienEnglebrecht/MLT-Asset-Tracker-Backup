@@ -6,11 +6,11 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="app-version" content="2026.11.26.41-admin-controls">
+    <meta name="app-version" content="2026.11.26.42-towers-sync">
     <title>MLT Asset Tracker</title>
     <script>
         // Force reload if version changed
-        const APP_VERSION = '2026.11.26.41-admin-controls';
+        const APP_VERSION = '2026.11.26.42-towers-sync';
         const storedVersion = localStorage.getItem('mlt_app_version');
         if (storedVersion && storedVersion !== APP_VERSION) {
             localStorage.setItem('mlt_app_version', APP_VERSION);
@@ -4009,7 +4009,7 @@
                     
                     while (hasMore) {
                         const { data, error } = await supabaseClient
-                            .from('towers_compat')
+                            .from('towers')
                             .select('*')
                             .range(page * pageSize, (page + 1) * pageSize - 1);
                         
@@ -4024,8 +4024,23 @@
                     }
                     
                     if (allTowers.length > 0) {
-                        fleetData = allTowers;
-                        console.log('Loaded ' + allTowers.length + ' towers from Supabase');
+                        // Normalize snake_case fields to camelCase for compatibility with existing code
+                        fleetData = allTowers.map(tower => ({
+                            ...tower,
+                            // Add camelCase aliases for snake_case fields
+                            towerId: tower.tower_id || tower.towerId,
+                            visionJob: tower.vision_job || tower.visionJob,
+                            jobDescription: tower.job_description || tower.jobDescription,
+                            poNumber: tower.po_number || tower.poNumber,
+                            poStart: tower.po_start_date || tower.poStart,
+                            poEnd: tower.po_end_date || tower.poEnd,
+                            hireDuration: tower.hire_duration_days || tower.hireDuration,
+                            rateDaily: tower.daily_rate || tower.rateDaily,
+                            rateMonthly: tower.rate_monthly || tower.rateMonthly,
+                            invoicingSchedule: tower.invoicing_schedule || tower.invoicingSchedule,
+                            monthlyRepayment: tower.repayment || tower.monthlyRepayment
+                        }));
+                        console.log('Loaded ' + allTowers.length + ' towers from Supabase (towers table)');
                     } else {
                         // Fall back to JSON
                         console.log('Supabase empty, falling back to JSON');
