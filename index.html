@@ -4204,12 +4204,38 @@
         // =============================================
         // AUDIT LOGGING
         // =============================================
+        
+        // CRITICAL: Helper to get verified current user from localStorage
+        // This ensures we always use the ACTUAL logged-in user, not stale cached data
+        function getVerifiedCurrentUser() {
+            const sessionData = localStorage.getItem('mlt_tracker_session');
+            if (sessionData) {
+                try {
+                    const parsed = JSON.parse(sessionData);
+                    if (parsed.user && parsed.expires > Date.now()) {
+                        // Update currentUser from stored session to ensure consistency
+                        currentUser = parsed.user;
+                        return currentUser;
+                    } else {
+                        console.warn('[SESSION] Session expired');
+                        return null;
+                    }
+                } catch (e) {
+                    console.error('[SESSION] Invalid session data:', e);
+                    return null;
+                }
+            }
+            console.warn('[SESSION] No session found');
+            return null;
+        }
+        
         async function logAudit(action, details = {}) {
-            if (!supabaseClient || !currentUser) return;
+            const user = getVerifiedCurrentUser();
+            if (!supabaseClient || !user) return;
             try {
                 await supabaseClient.from('audit_log').insert({
-                    user_name: currentUser.name,
-                    user_code: currentUser.code,
+                    user_name: user.name,
+                    user_code: user.code,
                     action: action,
                     details: details
                 });
@@ -4630,9 +4656,10 @@
         }
         
         function addAuditEntry(action, detail) {
+            const user = getVerifiedCurrentUser();
             auditLog.unshift({
                 timestamp: new Date().toISOString(),
-                user: currentUser.name,
+                user: user ? user.name : 'unknown',
                 action,
                 detail
             });
@@ -5396,6 +5423,15 @@
         
         // Save PO Edit
         async function savePOEdit() {
+            // CRITICAL: Verify session and get fresh user data before editing
+            const user = getVerifiedCurrentUser();
+            if (!user) {
+                alert('Your session has expired. Please log in again.');
+                handleLogout();
+                return;
+            }
+            console.log('[PO Edit] Session verified - User:', user.name, 'Role:', user.role);
+            
             const poId = document.getElementById('editPOId').value;
             const poMonth = document.getElementById('editPOMonth').value;
             const poNumber = document.getElementById('editPONumber').value;
@@ -5432,14 +5468,16 @@
             
             const statusInfo = calculatePOStatus(startDate, endDate);
             
-            // Build update object
+            // Build update object - include who edited it
             const updateData = {
                 po_month: poMonth,
                 po_number: poNumber,
                 po_start_date: startDate,
                 po_end_date: endDate,
                 po_value: poValue ? parseFloat(poValue) : null,
-                po_status: statusInfo.status
+                po_status: statusInfo.status,
+                edited_by: user.name,
+                edited_at: new Date().toISOString()
             };
             
             // If a new file was selected, read and include it
@@ -5865,6 +5903,14 @@
         }
         
         async function savePOMgmtEdit(jobCode) {
+            // CRITICAL: Verify session and get fresh user data
+            const user = getVerifiedCurrentUser();
+            if (!user) {
+                alert('Your session has expired. Please log in again.');
+                handleLogout();
+                return;
+            }
+            
             const override = {
                 customer: document.getElementById('editPOCustomer').value,
                 poNumber: document.getElementById('editPONumber').value,
@@ -5888,7 +5934,7 @@
                     po_start: override.poStart,
                     po_end: override.poEnd,
                     invoicing_schedule: override.invoicingSchedule,
-                    updated_by: currentUser.name,
+                    updated_by: user.name,
                     updated_at: new Date().toISOString()
                 });
                 
@@ -5902,7 +5948,7 @@
             // Update local state
             poOverrides[jobCode] = override;
             
-            addAuditEntry('EDIT_PO', `${jobCode} updated by ${currentUser.name}`);
+            addAuditEntry('EDIT_PO', `${jobCode} updated by ${user.name}`);
             
             // Log to activity feed
             logActivity('Edited PO', `${jobCode} - ${override.poNumber || 'No PO#'}`, null, override.customer, 'Finance');
@@ -6053,6 +6099,14 @@
         
         // Save New PO to Supabase
         async function saveNewPO() {
+            // CRITICAL: Verify session and get fresh user data
+            const user = getVerifiedCurrentUser();
+            if (!user) {
+                alert('Your session has expired. Please log in again.');
+                handleLogout();
+                return;
+            }
+            
             const customer = document.getElementById('newPOCustomer').value;
             const location = document.getElementById('newPOLocation').value.trim();
             const jobCode = document.getElementById('newPOJobCode').value.trim();
@@ -6098,7 +6152,7 @@
                 rateMonthly,
                 notes,
                 towers: [],
-                createdBy: currentUser.name,
+                createdBy: user.name,
                 createdAt: new Date().toISOString(),
                 isManual: true
             };
@@ -6139,7 +6193,7 @@
             manualPOs.push(newPO);
             localStorage.setItem('mlt_manual_pos', JSON.stringify(manualPOs));
             
-            addAuditEntry('ADD_PO', `New PO ${jobCode} (${customer}) added by ${currentUser.name}`);
+            addAuditEntry('ADD_PO', `New PO ${jobCode} (${customer}) added by ${user.name}`);
             showToast(`PO ${jobCode} added successfully`);
             closeModal('addPOModal');
             renderPOManagement();
@@ -6323,6 +6377,14 @@
         async function archivePO(jobCode) {
             if (!confirm(`Archive PO for job ${jobCode}? This will move it to the Archive tab.`)) return;
             
+            // CRITICAL: Verify session and get fresh user data
+            const user = getVerifiedCurrentUser();
+            if (!user) {
+                alert('Your session has expired. Please log in again.');
+                handleLogout();
+                return;
+            }
+            
             // Get job details
             const towers = fleetData.filter(t => t.visionJob === jobCode);
             if (towers.length === 0) {
@@ -6342,7 +6404,7 @@
                 towerCount: towers.length,
                 totalInvoiced: 0,
                 archivedAt: new Date().toISOString(),
-                archivedBy: currentUser.name
+                archivedBy: user.name
             };
             
             // Save to Supabase first
@@ -7605,6 +7667,14 @@
         }
         
         function submitMovement() {
+            // CRITICAL: Verify session and get fresh user data
+            const user = getVerifiedCurrentUser();
+            if (!user) {
+                alert('Your session has expired. Please log in again.');
+                handleLogout();
+                return;
+            }
+            
             const towerId = document.getElementById('moveTowerId').value.trim().toUpperCase();
             const fromSite = document.getElementById('moveFromSite').value;
             const date = document.getElementById('moveDate').value;
@@ -7715,7 +7785,7 @@
                 invoicingSchedule,
                 jobDescription,
                 notes,
-                loggedBy: currentUser.name,
+                loggedBy: user.name,
                 loggedAt: new Date().toISOString()
             };
             movements.unshift(newMovement);
@@ -7758,7 +7828,7 @@
                     po_start: poStart,
                     po_end: poEnd,
                     invoicing_schedule: invoicingSchedule,
-                    updated_by: currentUser.name,
+                    updated_by: user.name,
                     updated_at: new Date().toISOString()
                 }, { onConflict: 'job_code' }).then(({ error }) => {
                     if (error) console.error('Failed to sync PO override:', error);
@@ -8479,13 +8549,14 @@
         }
         
         async function trackPresence(view) {
-            if (!presenceChannel || !currentUser || !presenceConnected) return;
+            const user = getVerifiedCurrentUser();
+            if (!presenceChannel || !user || !presenceConnected) return;
             
             try {
                 await presenceChannel.track({
-                    user_code: currentUser.code,
-                    user_name: currentUser.name,
-                    user_role: currentUser.role,
+                    user_code: user.code,
+                    user_name: user.name,
+                    user_role: user.role,
                     current_view: view,
                     online_at: new Date().toISOString()
                 });
@@ -8749,7 +8820,12 @@
         }
         
         async function logActivity(action, details = null, towerId = null, customer = null, tab = null) {
-            if (!currentUser) return;
+            // CRITICAL: Always verify session and get fresh user data
+            const user = getVerifiedCurrentUser();
+            if (!user) {
+                console.warn('[logActivity] No valid session - skipping activity log');
+                return;
+            }
             
             try {
                 await fetch(`${SUPABASE_URL}/rest/v1/activity_feed`, {
@@ -8761,8 +8837,8 @@
                         'Prefer': 'return=minimal'
                     },
                     body: JSON.stringify({
-                        user_name: currentUser.name,
-                        user_role: currentUser.role,
+                        user_name: user.name,
+                        user_role: user.role,
                         action: action,
                         details: details,
                         tower_id: towerId,
@@ -10401,6 +10477,14 @@ Mickala Lighting Towers`);
         }
         
         function approveInvoice() {
+            // CRITICAL: Verify session and get fresh user data
+            const user = getVerifiedCurrentUser();
+            if (!user) {
+                alert('Your session has expired. Please log in again.');
+                handleLogout();
+                return;
+            }
+            
                     if (!selectedCustomer || !selectedSite || !selectedJob) {
                         showToast('Please select a job first', 'error');
                         return;
@@ -10461,7 +10545,7 @@ Mickala Lighting Towers`);
                         billingFrom: billingFrom,
                         billingTo: billingTo,
                         total: total,
-                        approvedBy: currentUser.name,
+                        approvedBy: user.name,
                         approvedAt: new Date().toISOString()
                     });
                     localStorage.setItem('mlt_approved_invoices', JSON.stringify(approvedInvoices));
@@ -10512,7 +10596,7 @@ Mickala Lighting Towers`);
                                 site: site,
                                 total_amount: total,
                                 tower_count: towerCount,
-                                approved_by: currentUser.name,
+                                approved_by: user.name,
                                 billing_from: billingFrom,
                                 billing_to: billingTo,
                                 billing_days: billingDays
@@ -10682,7 +10766,8 @@ Mickala Lighting Towers`);
         
         // Delete invoice (admin only)
         async function deleteInvoice(invoiceNumber) {
-            if (!currentUser || currentUser.role !== 'admin') {
+            const user = getVerifiedCurrentUser();
+            if (!user || user.role !== 'admin') {
                 showToast('Only administrators can delete invoices', 'error');
                 return;
             }
@@ -10737,9 +10822,9 @@ Mickala Lighting Towers`);
                 // Log the deletion
                 logAudit('INVOICE_DELETED', {
                     invoice_number: invoiceNumber,
-                    deleted_by: currentUser.name
+                    deleted_by: user.name
                 });
-                addAuditEntry('INVOICE_DELETED', `${invoiceNumber} deleted by ${currentUser.name}`);
+                addAuditEntry('INVOICE_DELETED', `${invoiceNumber} deleted by ${user.name}`);
                 logActivity('Deleted invoice', invoiceNumber, null, null, 'Finance');
                 
                 showToast(`Invoice ${invoiceNumber} deleted`);
@@ -10753,7 +10838,8 @@ Mickala Lighting Towers`);
         
         // Edit invoice (admin only) - re-enable editing for approved job
         function editInvoice() {
-            if (!currentUser || currentUser.role !== 'admin') {
+            const user = getVerifiedCurrentUser();
+            if (!user || user.role !== 'admin') {
                 showToast('Only administrators can edit invoices', 'error');
                 return;
             }
@@ -10783,9 +10869,9 @@ Mickala Lighting Towers`);
             // Log the edit action
             logAudit('INVOICE_EDIT_STARTED', {
                 job_code: selectedJob,
-                edited_by: currentUser.name
+                edited_by: user.name
             });
-            addAuditEntry('INVOICE_EDIT', `${selectedJob} edit mode enabled by ${currentUser.name}`);
+            addAuditEntry('INVOICE_EDIT', `${selectedJob} edit mode enabled by ${user.name}`);
             
             showToast('Edit mode enabled - modify billing period and click Approve & Generate');
         }
@@ -11248,6 +11334,11 @@ Mickala Lighting Towers`);
         
         // Confirm and execute the weekly close
         async function confirmCloseWeek() {
+            const user = getVerifiedCurrentUser();
+            if (!user) {
+                showToast('Session expired. Please log in again.', 'error');
+                return;
+            }
             const weekEndingDate = document.getElementById('closeWeekDate').value;
             if (!weekEndingDate) {
                 showToast('Please select a week ending date', 'error');
@@ -11290,7 +11381,7 @@ Mickala Lighting Towers`);
                     invoice_count: weeklyInvoices.length,
                     tower_count: towerCount,
                     total_value: totalValue,
-                    closed_by: currentUser.name,
+                    closed_by: user.name,
                     closed_at: new Date().toISOString(),
                     invoice_ids: weeklyInvoices.map(i => i.id)
                 };
