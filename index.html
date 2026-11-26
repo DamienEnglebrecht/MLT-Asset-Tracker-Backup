@@ -6,11 +6,11 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="app-version" content="2026.11.26.30-po-toast-fix">
+    <meta name="app-version" content="2026.11.26.35-invoice-total-fix">
     <title>MLT Asset Tracker</title>
     <script>
         // Force reload if version changed
-        const APP_VERSION = '2026.11.26.30-po-toast-fix';
+        const APP_VERSION = '2026.11.26.35-invoice-total-fix';
         const storedVersion = localStorage.getItem('mlt_app_version');
         if (storedVersion && storedVersion !== APP_VERSION) {
             localStorage.setItem('mlt_app_version', APP_VERSION);
@@ -2808,7 +2808,7 @@
                                         <button class="btn" onclick="previewPDF()">📄 Preview PDF</button>
                                         <button class="btn" onclick="emailClient()">📧 Email Client</button>
                                         <button class="btn" onclick="exportCSV()">📥 Export CSV</button>
-                                        <button class="btn success" onclick="approveInvoice()">✓ Approve & Generate</button>
+                                        <button class="btn success" id="approveInvoiceBtn" onclick="approveInvoice()">✓ Approve & Generate</button>
                                     </div>
                                 </div>
                                 
@@ -3333,6 +3333,7 @@
                     </div>
                     <div class="po-filter-row" style="margin-bottom: 16px;">
                         <input type="text" id="historySearch" class="form-input" placeholder="Search by invoice #, customer, or job..." style="flex:1; max-width:400px;" oninput="filterHistory()">
+                        <button class="btn" onclick="exportInvoiceHistoryCSV()">📥 Export CSV</button>
                         <button class="btn primary" onclick="refreshHistory()">🔄 Refresh</button>
                     </div>
                     <div class="po-alerts-table-container">
@@ -3347,6 +3348,7 @@
                                     <th>Total</th>
                                     <th>Approved By</th>
                                     <th>Date</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="historyTable"></tbody>
@@ -6047,6 +6049,16 @@
             selectedJob = code;
             renderJobs();
             renderInvoice();
+            
+            // Reset approve button state when selecting a new job
+            const approveBtn = document.getElementById('approveInvoiceBtn');
+            if (approveBtn) {
+                approveBtn.innerHTML = '✓ Approve & Generate';
+                approveBtn.disabled = false;
+                approveBtn.style.background = '';
+                approveBtn.style.cursor = '';
+                approveBtn.style.opacity = '';
+            }
         }
         
         function renderInvoice() {
@@ -6064,7 +6076,14 @@
             const totalDays = towers.length * days;
             const total = towers.reduce((sum, t) => {
                 const daily = parseFloat(t.rateDaily) || parseFloat(t.daily_rate) || 0;
-                return sum + (daily * days);
+                const monthly = parseFloat(t.rateMonthly) || 0;
+                const schedule = (t.invoicingSchedule || '').toUpperCase();
+                // For MONTHLY schedule, use monthly rate directly; otherwise use daily * days
+                if (schedule === 'MONTHLY' && monthly > 0) {
+                    return sum + monthly;
+                } else {
+                    return sum + (daily * days);
+                }
             }, 0);
             
             document.getElementById('invoiceEmpty').classList.add('hidden');
@@ -6092,7 +6111,9 @@
                 const duration = escapeHtml(tower.hireDuration || '-');
                 const dailyRate = parseFloat(tower.rateDaily) || 0;
                 const monthlyRate = parseFloat(tower.rateMonthly) || 0;
-                const lineTotal = dailyRate > 0 ? dailyRate * days : (monthlyRate / 4.33);
+                const schedule = (tower.invoicingSchedule || '').toUpperCase();
+                // For MONTHLY schedule, use monthly rate directly; otherwise use daily * days
+                const lineTotal = (schedule === 'MONTHLY' && monthlyRate > 0) ? monthlyRate : (dailyRate * days);
                 
                 html += `
                     <tr>
@@ -6197,7 +6218,14 @@
             
             const total = towers.reduce((sum, t) => {
                 const daily = parseFloat(t.rateDaily) || parseFloat(t.daily_rate) || 0;
-                return sum + (daily * days);
+                const monthly = parseFloat(t.rateMonthly) || 0;
+                const schedule = (t.invoicingSchedule || '').toUpperCase();
+                // For MONTHLY schedule, use monthly rate directly; otherwise use daily * days
+                if (schedule === 'MONTHLY' && monthly > 0) {
+                    return sum + monthly;
+                } else {
+                    return sum + (daily * days);
+                }
             }, 0);
             
             // Update totals display
@@ -6206,17 +6234,30 @@
                 statTotal.textContent = `$${total.toLocaleString('en-AU', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
             }
             
-            // Update line items
-            const lineItems = document.querySelectorAll('#invoiceLines tr');
-            lineItems.forEach(row => {
-                const dailyRateCell = row.cells[5]; // Daily rate column
-                const lineTotalCell = row.cells[6]; // Line total column
+            // Update line items - #invoiceTable IS the tbody, correct column indices
+            // Columns: TowerID(0), Model(1), Config(2), Location(3), poStart(4), poEnd(5), Duration(6), DailyRate(7), MonthlyRate(8), LineTotal(9)
+            const lineItems = document.querySelectorAll('#invoiceTable tr:not(.total-row)');
+            lineItems.forEach((row, index) => {
+                if (index >= towers.length) return; // Skip total row
+                const tower = towers[index];
+                const dailyRateCell = row.cells[7]; // Daily rate column
+                const monthlyRateCell = row.cells[8]; // Monthly rate column
+                const lineTotalCell = row.cells[9]; // Line total column
                 if (dailyRateCell && lineTotalCell) {
                     const dailyRate = parseFloat(dailyRateCell.textContent.replace(/[$,]/g, '')) || 0;
-                    const lineTotal = dailyRate * days;
+                    const monthlyRate = monthlyRateCell ? (parseFloat(monthlyRateCell.textContent.replace(/[$,]/g, '')) || 0) : 0;
+                    const schedule = tower ? (tower.invoicingSchedule || '').toUpperCase() : '';
+                    // For MONTHLY schedule, use monthly rate directly; otherwise use daily * days
+                    const lineTotal = (schedule === 'MONTHLY' && monthlyRate > 0) ? monthlyRate : (dailyRate * days);
                     lineTotalCell.textContent = `$${lineTotal.toLocaleString('en-AU', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
                 }
             });
+            
+            // Update total row
+            const totalRow = document.querySelector('#invoiceTable tr.total-row td.money');
+            if (totalRow) {
+                totalRow.textContent = `$${total.toLocaleString('en-AU', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            }
         }
         
         // =============================================
@@ -8708,7 +8749,8 @@ Mickala Lighting Towers`);
         
         // Initialize PO docs sync
         loadPODocsFromSupabase();
-        subscribeToPODocs();
+        // NOTE: subscribeToPODocs() is called in showApp() AFTER login when currentUser exists
+        // DO NOT call it here at global scope - it must run with currentUser set
         
         // =============================================
         // PO DOCUMENT UPLOAD - SUPABASE STORAGE BUCKET
@@ -9076,14 +9118,19 @@ Mickala Lighting Towers`);
                     let total = 0;
                     const lineItems = [];
                     towers.forEach(tower => {
-                        const towerRate = parseFloat(tower.rateDaily) || parseFloat(tower.daily_rate) || 0;
-                        const lineTotal = towerRate * days;
+                        const dailyRate = parseFloat(tower.rateDaily) || parseFloat(tower.daily_rate) || 0;
+                        const monthlyRate = parseFloat(tower.rateMonthly) || 0;
+                        const schedule = (tower.invoicingSchedule || '').toUpperCase();
+                        // For MONTHLY schedule, use monthly rate directly; otherwise use daily * days
+                        const lineTotal = (schedule === 'MONTHLY' && monthlyRate > 0) ? monthlyRate : (dailyRate * days);
                         total += lineTotal;
                         lineItems.push({
                             tower_id: tower.id || tower.tower_id,
                             config: tower.config || 'Standard',
                             days: days,
-                            daily_rate: towerRate,
+                            daily_rate: dailyRate,
+                            monthly_rate: monthlyRate,
+                            invoicing_schedule: schedule,
                             line_total: lineTotal
                         });
                     });
@@ -9128,6 +9175,16 @@ Mickala Lighting Towers`);
                     
                     // Log to activity feed
                     logActivity('Approved invoice', `${invoiceNum} - $${total.toLocaleString()}`, null, selectedCustomer, 'Finance');
+            
+                    // Update button to show approved state
+                    const approveBtn = document.getElementById('approveInvoiceBtn');
+                    if (approveBtn) {
+                        approveBtn.innerHTML = '✓ Approved';
+                        approveBtn.disabled = true;
+                        approveBtn.style.background = 'var(--success)';
+                        approveBtn.style.cursor = 'not-allowed';
+                        approveBtn.style.opacity = '0.8';
+                    }
             
                     // Show confirmation and offer PDF
                     if (confirm(`Invoice Approved!\n\nInvoice #: ${invoiceNum}\nCustomer: ${selectedCustomer}\nJob: ${selectedJob}\nTotal: $${total.toLocaleString()}\n\nWould you like to generate the PDF now?`)) {
@@ -9276,6 +9333,12 @@ Mickala Lighting Towers`);
                     <td style="font-weight:600;color:var(--success)">$${Number(total).toLocaleString()}</td>
                     <td>${approvedBy}</td>
                     <td style="color:var(--text-secondary);font-size:13px">${dateStr}</td>
+                    <td>
+                        <div style="display:flex;gap:4px;">
+                            <button class="btn" style="padding:4px 8px;font-size:11px;" onclick="viewHistoryInvoicePDF('${invoiceNum}')">👁️ View</button>
+                            <button class="btn" style="padding:4px 8px;font-size:11px;" onclick="downloadHistoryInvoicePDF('${invoiceNum}')">📥 Download</button>
+                        </div>
+                    </td>
                 </tr>`;
             }).join('');
         }
@@ -9310,6 +9373,314 @@ Mickala Lighting Towers`);
             document.getElementById('historySearch').value = '';
             renderHistory();
             showToast('History refreshed');
+        }
+        
+        // Load invoice and line items from Supabase for history view
+        async function loadInvoiceFromHistory(invoiceNumber) {
+            if (!supabaseClient) {
+                // Fall back to local storage
+                const localInvoices = JSON.parse(localStorage.getItem('mlt_approved_invoices') || '[]');
+                const invoice = localInvoices.find(inv => 
+                    (inv.invoice_number || inv.invoiceNumber) === invoiceNumber
+                );
+                return invoice ? { invoice, lineItems: [] } : null;
+            }
+            
+            try {
+                // Fetch invoice record
+                const { data: invoice, error: invoiceError } = await supabaseClient
+                    .from('invoices')
+                    .select('*')
+                    .eq('invoice_number', invoiceNumber)
+                    .single();
+                    
+                if (invoiceError) {
+                    console.error('Load invoice error:', invoiceError);
+                    return null;
+                }
+                
+                // Fetch line items
+                const { data: lineItems, error: itemsError } = await supabaseClient
+                    .from('invoice_line_items')
+                    .select('*')
+                    .eq('invoice_id', invoice.id);
+                    
+                if (itemsError) {
+                    console.error('Load line items error:', itemsError);
+                    return { invoice, lineItems: [] };
+                }
+                
+                return { invoice, lineItems: lineItems || [] };
+            } catch (err) {
+                console.error('Load invoice from history error:', err);
+                return null;
+            }
+        }
+        
+        // Generate PDF HTML for a history invoice
+        function generateHistoryInvoicePDF(invoice, lineItems) {
+            const invoiceNum = invoice.invoice_number || invoice.invoiceNumber;
+            const customer = invoice.customer;
+            const site = invoice.site;
+            const jobCode = invoice.job_code || invoice.jobCode;
+            const towerCount = invoice.tower_count || invoice.towerCount || 0;
+            const total = invoice.total_amount || invoice.total || 0;
+            const approvedBy = invoice.approved_by || invoice.approvedBy;
+            const approvedAt = invoice.approved_at || invoice.approvedAt;
+            const billingFrom = invoice.billing_from || invoice.billingFrom;
+            const billingTo = invoice.billing_to || invoice.billingTo;
+            const billingDays = invoice.billing_days || invoice.days || 7;
+            const poNumber = invoice.po_number || invoice.poNumber || jobCode;
+            const description = invoice.description || 'Tower Hire';
+            
+            const dateStr = approvedAt ? new Date(approvedAt).toLocaleDateString('en-AU', {
+                day: '2-digit', month: 'short', year: 'numeric'
+            }) : new Date().toLocaleDateString();
+            
+            const billingPeriod = billingFrom && billingTo 
+                ? `${new Date(billingFrom).toLocaleDateString('en-AU')} - ${new Date(billingTo).toLocaleDateString('en-AU')}`
+                : `${billingDays} Days`;
+            
+            // Build line items HTML
+            let lineItemsHtml = '';
+            if (lineItems && lineItems.length > 0) {
+                lineItemsHtml = lineItems.map(item => {
+                    const towerId = item.tower_id || '-';
+                    const config = item.config || 'Standard';
+                    const days = item.days || billingDays;
+                    const dailyRate = item.daily_rate || 0;
+                    const lineTotal = item.line_total || (dailyRate * days);
+                    return `
+                        <tr>
+                            <td class="tower-id">${formatTowerId ? formatTowerId(towerId) : towerId}</td>
+                            <td>${config}</td>
+                            <td>${site}</td>
+                            <td>${days}</td>
+                            <td class="money">$${Number(dailyRate).toFixed(2)}</td>
+                            <td class="money">$${Number(lineTotal).toFixed(2)}</td>
+                        </tr>
+                    `;
+                }).join('');
+            } else {
+                // If no line items, show summary row
+                lineItemsHtml = `
+                    <tr>
+                        <td colspan="4">${towerCount} Tower(s) × ${billingDays} Days</td>
+                        <td class="money">-</td>
+                        <td class="money">$${Number(total).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                    </tr>
+                `;
+            }
+            
+            return `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Invoice ${invoiceNum} - ${customer}</title>
+                    <style>
+                        * { margin: 0; padding: 0; box-sizing: border-box; }
+                        body { font-family: Arial, sans-serif; padding: 40px; color: #333; }
+                        .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px; border-bottom: 3px solid #f97316; padding-bottom: 20px; }
+                        .logo { font-size: 32px; font-weight: bold; color: #f97316; }
+                        .logo-sub { font-size: 12px; color: #666; }
+                        .invoice-title { text-align: right; }
+                        .invoice-title h1 { font-size: 24px; color: #333; }
+                        .invoice-title p { color: #666; font-size: 14px; }
+                        .invoice-number { font-weight: bold; color: #f97316; font-size: 16px; margin-top: 8px; }
+                        .details { display: flex; justify-content: space-between; margin-bottom: 30px; }
+                        .details-box { background: #f5f5f5; padding: 16px; border-radius: 8px; min-width: 200px; }
+                        .details-box h3 { font-size: 11px; color: #666; text-transform: uppercase; margin-bottom: 8px; }
+                        .details-box p { font-size: 14px; margin: 4px 0; }
+                        table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+                        th { background: #f5f5f5; text-align: left; padding: 12px; font-size: 11px; text-transform: uppercase; color: #666; border-bottom: 2px solid #ddd; }
+                        td { padding: 10px 12px; border-bottom: 1px solid #eee; font-size: 13px; }
+                        .tower-id { color: #f97316; font-weight: 600; }
+                        .money { text-align: right; }
+                        .total-row { background: #f5f5f5; font-weight: bold; }
+                        .total-row td { border-top: 2px solid #ddd; font-size: 14px; }
+                        .summary { display: flex; justify-content: flex-end; }
+                        .summary-box { background: #1a1a1a; color: white; padding: 20px 30px; border-radius: 8px; text-align: right; }
+                        .summary-box .label { font-size: 11px; color: #aaa; text-transform: uppercase; }
+                        .summary-box .value { font-size: 28px; font-weight: bold; color: #22c55e; }
+                        .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; font-size: 12px; color: #666; text-align: center; }
+                        .approved-stamp { background: #22c55e; color: white; padding: 8px 16px; border-radius: 4px; display: inline-block; margin-top: 10px; font-size: 12px; }
+                        @media print { body { padding: 20px; } }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <div>
+                            <div class="logo">MLT</div>
+                            <div class="logo-sub">Mickala Lighting Towers</div>
+                        </div>
+                        <div class="invoice-title">
+                            <h1>INVOICE</h1>
+                            <div class="invoice-number">${invoiceNum}</div>
+                            <p>Date: ${dateStr}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="details">
+                        <div class="details-box">
+                            <h3>Customer</h3>
+                            <p><strong>${customer}</strong></p>
+                            <p>${site}</p>
+                        </div>
+                        <div class="details-box">
+                            <h3>Job Details</h3>
+                            <p><strong>Job: ${jobCode}</strong></p>
+                            <p>PO: ${poNumber}</p>
+                            <p>${description}</p>
+                        </div>
+                        <div class="details-box">
+                            <h3>Billing Period</h3>
+                            <p>${billingPeriod}</p>
+                            <p>${towerCount} Towers × ${billingDays} Days</p>
+                            <div class="approved-stamp">✓ Approved by ${approvedBy}</div>
+                        </div>
+                    </div>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Tower ID</th>
+                                <th>Configuration</th>
+                                <th>Site</th>
+                                <th>Days</th>
+                                <th class="money">Daily Rate</th>
+                                <th class="money">Line Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${lineItemsHtml}
+                            <tr class="total-row">
+                                <td colspan="5">Total</td>
+                                <td class="money">$${Number(total).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <div class="summary">
+                        <div class="summary-box">
+                            <div class="label">Total Amount Due</div>
+                            <div class="value">$${Number(total).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="footer">
+                        <p>Mickala Lighting Towers Pty Ltd | ABN: 60 828 345 | Invoice: ${invoiceNum} | Generated: ${new Date().toLocaleString()}</p>
+                    </div>
+                </body>
+                </html>
+            `;
+        }
+        
+        // View PDF for a history invoice
+        async function viewHistoryInvoicePDF(invoiceNumber) {
+            showToast('Loading invoice...');
+            
+            const data = await loadInvoiceFromHistory(invoiceNumber);
+            if (!data || !data.invoice) {
+                showToast('Invoice not found', 'error');
+                return;
+            }
+            
+            const printContent = generateHistoryInvoicePDF(data.invoice, data.lineItems);
+            
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(printContent);
+            printWindow.document.close();
+            printWindow.focus();
+            
+            showToast('Invoice preview opened');
+        }
+        
+        // Download PDF for a history invoice
+        async function downloadHistoryInvoicePDF(invoiceNumber) {
+            showToast('Preparing download...');
+            
+            const data = await loadInvoiceFromHistory(invoiceNumber);
+            if (!data || !data.invoice) {
+                showToast('Invoice not found', 'error');
+                return;
+            }
+            
+            const printContent = generateHistoryInvoicePDF(data.invoice, data.lineItems);
+            
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(printContent);
+            printWindow.document.close();
+            printWindow.focus();
+            
+            // Auto-trigger print dialog for save as PDF
+            printWindow.onload = () => {
+                printWindow.print();
+            };
+            
+            showToast('Use Print dialog to save as PDF');
+        }
+        
+        // Export visible invoices to CSV
+        function exportInvoiceHistoryCSV() {
+            const search = document.getElementById('historySearch').value.toLowerCase().trim();
+            let invoices = invoiceHistoryCache;
+            
+            if (search) {
+                invoices = invoiceHistoryCache.filter(inv => {
+                    const invoiceNum = (inv.invoice_number || inv.invoiceNumber || '').toLowerCase();
+                    const customer = (inv.customer || '').toLowerCase();
+                    const jobCode = (inv.job_code || inv.jobCode || '').toLowerCase();
+                    const site = (inv.site || '').toLowerCase();
+                    return invoiceNum.includes(search) || customer.includes(search) || jobCode.includes(search) || site.includes(search);
+                });
+            }
+            
+            if (invoices.length === 0) {
+                showToast('No invoices to export', 'error');
+                return;
+            }
+            
+            // CSV header
+            const headers = ['Invoice #', 'Customer', 'Site', 'Job', 'Towers', 'Total', 'Approved By', 'Date'];
+            
+            // CSV rows
+            const rows = invoices.map(inv => {
+                const invoiceNum = inv.invoice_number || inv.invoiceNumber;
+                const customer = inv.customer;
+                const site = inv.site;
+                const jobCode = inv.job_code || inv.jobCode;
+                const towerCount = inv.tower_count || inv.towerCount || 0;
+                const total = inv.total_amount || inv.total || 0;
+                const approvedBy = inv.approved_by || inv.approvedBy;
+                const approvedAt = inv.approved_at || inv.approvedAt;
+                const dateStr = approvedAt ? new Date(approvedAt).toLocaleDateString('en-AU') : '';
+                
+                return [
+                    `"${invoiceNum}"`,
+                    `"${customer}"`,
+                    `"${site}"`,
+                    `"${jobCode}"`,
+                    towerCount,
+                    total,
+                    `"${approvedBy}"`,
+                    `"${dateStr}"`
+                ].join(',');
+            });
+            
+            const csv = [headers.join(','), ...rows].join('\n');
+            
+            // Download
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `MLT_Invoice_History_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showToast(`Exported ${invoices.length} invoices to CSV`);
         }
         
         function showToast(message, type = 'success') {
