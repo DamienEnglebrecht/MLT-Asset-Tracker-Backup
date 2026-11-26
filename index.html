@@ -9856,6 +9856,13 @@ Mickala Lighting Towers`);
                 
                 console.log('[PO-DEBUG] Channel subscription initiated');
                 poDocsSubscribed = true; // Set immediately to prevent duplicate calls during async subscribe
+                
+                // Backup: Auto-refresh PO list every 15 seconds if a job is selected in PO Management
+                setInterval(() => {
+                    if (selectedPOJob) {
+                        loadAllPOsForJob(selectedPOJob);
+                    }
+                }, 15000);
             } catch (err) {
                 console.error('[PO-DEBUG] Exception in subscribeToPODocs:', err);
             }
@@ -9893,10 +9900,16 @@ Mickala Lighting Towers`);
             localStorage.setItem('mlt_po_documents', JSON.stringify(poDocuments));
             console.log('[PO-DEBUG] Local cache updated for job:', jobCode);
             
-            // Refresh UI if this job is currently selected
+            // Refresh UI if this job is currently selected in Finance tab
             if (selectedJob === jobCode) {
                 loadPODocForJob(selectedJob);
-                console.log('[PO-DEBUG] Refreshed UI for selected job');
+                console.log('[PO-DEBUG] Refreshed Finance tab UI for selected job');
+            }
+            
+            // Also refresh PO Management section if viewing the same job
+            if (selectedPOJob === jobCode) {
+                loadAllPOsForJob(selectedPOJob);
+                console.log('[PO-DEBUG] Refreshed PO Management UI for selected job');
             }
             
             // Show notification for OTHER users' uploads (not your own)
@@ -9936,9 +9949,14 @@ Mickala Lighting Towers`);
             delete poDocuments[jobCode];
             localStorage.setItem('mlt_po_documents', JSON.stringify(poDocuments));
             
-            // Refresh UI if this job is currently selected
+            // Refresh UI if this job is currently selected in Finance tab
             if (selectedJob === jobCode) {
                 loadPODocForJob(selectedJob);
+            }
+            
+            // Also refresh PO Management section if viewing the same job
+            if (selectedPOJob === jobCode) {
+                loadAllPOsForJob(selectedPOJob);
             }
             
             // Show notification for OTHER users' deletes
