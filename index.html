@@ -2929,7 +2929,7 @@
                         </div>
                         
                         <!-- PO Details Panel -->
-                        <div class="invoice-panel" id="poDetailsPanel">
+                        <div class="invoice-panel" id="poDetailsPanel" style="overflow-y:auto;">
                             <div class="empty-state" id="poDetailsEmpty" style="flex:1">
                                 <div class="empty-state-icon">📋</div>
                                 <div class="empty-state-text">Select a job to view PO details</div>
@@ -2940,33 +2940,52 @@
                                     <div>
                                         <h2 class="invoice-title" id="poDetailsTitle">-</h2>
                                         <p class="invoice-subtitle" id="poDetailsSubtitle">-</p>
-                                        <div class="po-status-badge" id="poStatusBadge" style="margin: 10px 0; padding: 8px 16px; border-radius: 6px; display: inline-block; font-weight: 600;"></div>
-                                        <div class="po-number-edit" id="poNumberSectionMgmt">
-                                            <span class="po-label">PO Number:</span>
-                                            <span class="po-value" id="poDetailsNumber" onclick="editPONumberMgmt()">-</span>
-                                            <button class="btn-edit-po" id="editPOBtnMgmt" onclick="editPONumberMgmt()" title="Edit PO Number">✏️</button>
+                                    </div>
+                                </div>
+                                
+                                <!-- PO List Section -->
+                                <div class="po-list-section" style="margin-top:15px;">
+                                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                                        <h4 style="color:var(--accent);margin:0;">📋 Purchase Orders</h4>
+                                        <button class="btn-small" onclick="showAddPOForm()" style="background:#FF8C00;color:#000;cursor:pointer;font-weight:600;">
+                                            ➕ Add New PO
+                                        </button>
+                                    </div>
+                                    <div id="poListContainer" style="max-height:300px;overflow-y:auto;">
+                                        <div class="empty-state" style="padding:20px;">
+                                            <div class="empty-state-text">No POs uploaded yet</div>
                                         </div>
-                                        <div class="po-number-input hidden" id="poNumberEditMgmt">
-                                            <input type="text" id="poNumberInputMgmt" placeholder="Enter PO Number" />
-                                            <button class="btn-save-po" onclick="savePONumberMgmt()" title="Save">Save</button>
-                                            <button class="btn-cancel-po" onclick="cancelPOEditMgmt()" title="Cancel">Cancel</button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Add PO Form (hidden by default) -->
+                                <div id="addPOForm" class="hidden" style="margin-top:15px;padding:15px;background:rgba(255,140,0,0.1);border-radius:8px;border:1px solid var(--accent);">
+                                    <h4 style="color:var(--accent);margin:0 0 12px 0;">➕ Add New Purchase Order</h4>
+                                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                                        <div>
+                                            <label style="font-size:12px;color:var(--text-secondary);">PO Number *</label>
+                                            <input type="text" id="newPONumber" placeholder="e.g. PO-2024-001" style="width:100%;padding:8px;border-radius:4px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-primary);">
                                         </div>
-                                        
-                                        <!-- PO Document Upload Section -->
-                                        <div class="po-document-section" id="poDocumentSectionMgmt" style="margin-top:15px;">
-                                            <div class="po-doc-status" id="poDocStatusMgmt">
-                                                <span class="po-doc-icon">📎</span>
-                                                <span class="po-doc-text" id="poDocTextMgmt">No PO document uploaded</span>
-                                            </div>
-                                            <div class="po-doc-actions">
-                                                <button class="btn-small" id="poDocViewBtnMgmt" onclick="viewPODocumentMgmt()" style="display:none">👁️ View</button>
-                                                <button class="btn-small" id="poDocDownloadBtnMgmt" onclick="downloadPODocumentMgmt()" style="display:none">⬇️ Download</button>
-                                                <button class="btn-small" onclick="document.getElementById('poDocUploadMgmt').click()" style="background:#FF8C00;color:#000;cursor:pointer;">
-                                                    📤 Upload PO
-                                                </button>
-                                                <input type="file" id="poDocUploadMgmt" accept=".pdf,.png,.jpg,.jpeg" onchange="uploadPODocumentMgmt(event)" style="display:none">
-                                            </div>
+                                        <div>
+                                            <label style="font-size:12px;color:var(--text-secondary);">Value (optional)</label>
+                                            <input type="number" id="newPOValue" placeholder="e.g. 50000" style="width:100%;padding:8px;border-radius:4px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-primary);">
                                         </div>
+                                        <div>
+                                            <label style="font-size:12px;color:var(--text-secondary);">Start Date *</label>
+                                            <input type="date" id="newPOStartDate" style="width:100%;padding:8px;border-radius:4px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-primary);">
+                                        </div>
+                                        <div>
+                                            <label style="font-size:12px;color:var(--text-secondary);">End Date *</label>
+                                            <input type="date" id="newPOEndDate" style="width:100%;padding:8px;border-radius:4px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-primary);">
+                                        </div>
+                                        <div style="grid-column:1/-1;">
+                                            <label style="font-size:12px;color:var(--text-secondary);">PO Document *</label>
+                                            <input type="file" id="newPOFile" accept=".pdf,.png,.jpg,.jpeg" style="width:100%;padding:8px;border-radius:4px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-primary);">
+                                        </div>
+                                    </div>
+                                    <div style="display:flex;gap:10px;margin-top:12px;justify-content:flex-end;">
+                                        <button class="btn-small" onclick="hideAddPOForm()" style="background:var(--bg-tertiary);color:var(--text-secondary);cursor:pointer;">Cancel</button>
+                                        <button class="btn-small" onclick="submitNewPO()" style="background:#FF8C00;color:#000;cursor:pointer;font-weight:600;">📤 Upload PO</button>
                                     </div>
                                 </div>
                                 
@@ -2976,16 +2995,16 @@
                                         <div class="invoice-stat-value" id="poDetailsTowers">-</div>
                                     </div>
                                     <div class="invoice-stat">
-                                        <div class="invoice-stat-label">PO Start</div>
-                                        <div class="invoice-stat-value" id="poDetailsStart">-</div>
+                                        <div class="invoice-stat-label">Active POs</div>
+                                        <div class="invoice-stat-value" id="poDetailsActivePOs">-</div>
                                     </div>
                                     <div class="invoice-stat">
-                                        <div class="invoice-stat-label">PO End</div>
-                                        <div class="invoice-stat-value" id="poDetailsEnd">-</div>
+                                        <div class="invoice-stat-label">Total PO Value</div>
+                                        <div class="invoice-stat-value" id="poDetailsTotalValue">-</div>
                                     </div>
                                     <div class="invoice-stat">
-                                        <div class="invoice-stat-label">Days Remaining</div>
-                                        <div class="invoice-stat-value" id="poDetailsDays">-</div>
+                                        <div class="invoice-stat-label">Next Expiry</div>
+                                        <div class="invoice-stat-value" id="poDetailsNextExpiry">-</div>
                                     </div>
                                 </div>
                                 
@@ -4891,8 +4910,11 @@
             await loadPODocForJobMgmt(code);
         }
         
-        // Render PO details panel
-        function renderPODetails() {
+        // Store for current job's PO list from Supabase
+        let currentJobPOList = [];
+        
+        // Render PO details panel with multiple POs support
+        async function renderPODetails() {
             if (!selectedPOCustomer || !selectedPOSite || !selectedPOJob) return;
             
             const jobs = getJobsForSite(selectedPOCustomer, selectedPOSite);
@@ -4901,46 +4923,15 @@
             
             const towers = getTowersForJob(selectedPOCustomer, selectedPOSite, selectedPOJob);
             
-            // Get PO info
-            const override = poOverrides[selectedPOJob] || {};
-            const poNumber = override.poNumber || job.poNumber || '-';
-            const poStart = override.poStart || job.startDate || '-';
-            const poEnd = override.poEnd || job.endDate || '-';
-            
-            // Calculate days remaining
-            let daysRemaining = '-';
-            let daysBadgeClass = '';
-            if (poEnd && poEnd !== '-') {
-                const daysLeft = Math.ceil((new Date(poEnd) - new Date()) / (1000 * 60 * 60 * 24));
-                daysRemaining = daysLeft < 0 ? 'Expired ' + Math.abs(daysLeft) + ' days ago' : daysLeft + ' days';
-                if (daysLeft < 0) daysBadgeClass = 'color: var(--danger);';
-                else if (daysLeft <= 14) daysBadgeClass = 'color: var(--warning);';
-            }
-            
-            // Check PO status
-            const hasPODoc = poDocuments[selectedPOJob] && poDocuments[selectedPOJob].url;
-            const statusBadge = document.getElementById('poStatusBadge');
-            if (hasPODoc) {
-                statusBadge.style.background = 'rgba(34, 197, 94, 0.2)';
-                statusBadge.style.color = 'var(--success)';
-                statusBadge.textContent = '✅ PO Document Uploaded';
-            } else {
-                statusBadge.style.background = 'rgba(239, 68, 68, 0.2)';
-                statusBadge.style.color = 'var(--danger)';
-                statusBadge.textContent = '❌ PO Document Missing - Please Upload';
-            }
-            
             document.getElementById('poDetailsEmpty').classList.add('hidden');
             document.getElementById('poDetailsContent').classList.remove('hidden');
             
             document.getElementById('poDetailsTitle').textContent = `${selectedPOCustomer} - ${selectedPOSite}`;
             document.getElementById('poDetailsSubtitle').textContent = `Job: ${job.code} - ${job.description || 'Tower Hire'}`;
-            document.getElementById('poDetailsNumber').textContent = poNumber || 'Click to add';
-            
             document.getElementById('poDetailsTowers').textContent = towers.length;
-            document.getElementById('poDetailsStart').textContent = poStart;
-            document.getElementById('poDetailsEnd').textContent = poEnd;
-            document.getElementById('poDetailsDays').innerHTML = `<span style="${daysBadgeClass}">${daysRemaining}</span>`;
+            
+            // Load all POs for this job from Supabase
+            await loadAllPOsForJob(selectedPOJob);
             
             // Build tower table
             let html = '';
@@ -4967,192 +4958,293 @@
             document.getElementById('poDetailsTowerTable').innerHTML = html || '<tr><td colspan="6" style="text-align:center;color:var(--text-secondary)">No towers assigned</td></tr>';
         }
         
-        // PO Document functions for Management tab
-        async function loadPODocForJobMgmt(jobCode) {
-            // First check localStorage for actual file data
-            if (poDocuments[jobCode] && poDocuments[jobCode].url) {
-                currentPODocUrlMgmt = poDocuments[jobCode].url;
-                updatePODocUIMgmt(true, poDocuments[jobCode].fileName);
-                return;
-            }
+        // Calculate PO status based on dates
+        function calculatePOStatus(startDate, endDate) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
             
-            // Then try Supabase
+            if (!startDate && !endDate) return { status: 'unknown', badge: '❓', color: 'var(--text-secondary)' };
+            
+            const start = startDate ? new Date(startDate) : null;
+            const end = endDate ? new Date(endDate) : null;
+            
+            if (end && end < today) {
+                return { status: 'expired', badge: '⚫', color: 'var(--danger)' };
+            }
+            if (start && start > today) {
+                return { status: 'upcoming', badge: '🟡', color: 'var(--warning)' };
+            }
+            return { status: 'active', badge: '✅', color: 'var(--success)' };
+        }
+        
+        // Format date for display
+        function formatDateDisplay(dateStr) {
+            if (!dateStr) return '-';
+            const d = new Date(dateStr);
+            return d.toLocaleDateString('en-AU', { day: '2-digit', month: 'short', year: 'numeric' });
+        }
+        
+        // Load all POs for a job from Supabase
+        async function loadAllPOsForJob(jobCode) {
+            currentJobPOList = [];
+            
             try {
                 const { data, error } = await supabaseClient
                     .from('po_documents')
                     .select('*')
                     .eq('job_code', jobCode)
-                    .order('uploaded_at', { ascending: false })
-                    .limit(1);
+                    .order('uploaded_at', { ascending: false });
                 
-                const record = data && data.length > 0 ? data[0] : null;
-                
-                if (record && !error && record.file_url) {
-                    poDocuments[jobCode] = {
-                        url: record.file_url,
-                        fileName: record.file_name || record.filename,
-                        uploadedAt: record.uploaded_at,
-                        uploadedBy: record.uploaded_by,
-                        type: record.file_type,
-                        isBase64: record.file_url?.startsWith('data:')
-                    };
-                    localStorage.setItem('mlt_po_documents', JSON.stringify(poDocuments));
-                    
-                    currentPODocUrlMgmt = record.file_url;
-                    updatePODocUIMgmt(true, record.file_name || record.filename);
-                    return;
+                if (!error && data) {
+                    currentJobPOList = data;
                 }
             } catch (err) {
-                console.warn('Could not load PO doc from Supabase:', err);
+                console.warn('Could not load POs from Supabase:', err);
             }
             
-            // No document found
-            currentPODocUrlMgmt = null;
-            updatePODocUIMgmt(false);
+            renderPOList();
         }
         
-        function updatePODocUIMgmt(hasDocument, fileName = '') {
-            const textEl = document.getElementById('poDocTextMgmt');
-            const viewBtn = document.getElementById('poDocViewBtnMgmt');
-            const downloadBtn = document.getElementById('poDocDownloadBtnMgmt');
+        // Render the list of POs for the current job
+        function renderPOList() {
+            const container = document.getElementById('poListContainer');
+            if (!container) return;
             
-            if (!textEl) return;
-            
-            if (hasDocument) {
-                textEl.textContent = `📄 ${fileName}`;
-                textEl.style.color = 'var(--success)';
-                if (viewBtn) viewBtn.style.display = 'inline-flex';
-                if (downloadBtn) downloadBtn.style.display = 'inline-flex';
-            } else {
-                textEl.textContent = 'No PO document uploaded';
-                textEl.style.color = 'var(--danger)';
-                if (viewBtn) viewBtn.style.display = 'none';
-                if (downloadBtn) downloadBtn.style.display = 'none';
+            if (currentJobPOList.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state" style="padding:20px;">
+                        <div class="empty-state-icon">📭</div>
+                        <div class="empty-state-text">No POs uploaded yet</div>
+                        <div style="margin-top:10px;font-size:12px;color:var(--text-secondary)">Click "Add New PO" to upload one</div>
+                    </div>
+                `;
+                document.getElementById('poDetailsActivePOs').textContent = '0';
+                document.getElementById('poDetailsTotalValue').textContent = '-';
+                document.getElementById('poDetailsNextExpiry').textContent = '-';
+                return;
             }
             
-            // Also update the status badge
-            renderPODetails();
+            // Calculate stats
+            let activePOs = 0;
+            let totalValue = 0;
+            let nextExpiry = null;
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            currentJobPOList.forEach(po => {
+                const statusInfo = calculatePOStatus(po.po_start_date, po.po_end_date);
+                if (statusInfo.status === 'active') activePOs++;
+                if (po.po_value) totalValue += parseFloat(po.po_value) || 0;
+                
+                if (po.po_end_date) {
+                    const endDate = new Date(po.po_end_date);
+                    if (endDate >= today && (!nextExpiry || endDate < nextExpiry)) {
+                        nextExpiry = endDate;
+                    }
+                }
+            });
+            
+            document.getElementById('poDetailsActivePOs').textContent = activePOs;
+            document.getElementById('poDetailsTotalValue').textContent = totalValue > 0 ? '$' + totalValue.toLocaleString() : '-';
+            document.getElementById('poDetailsNextExpiry').textContent = nextExpiry ? formatDateDisplay(nextExpiry) : '-';
+            
+            // Build PO cards
+            let html = '';
+            currentJobPOList.forEach((po, index) => {
+                const statusInfo = calculatePOStatus(po.po_start_date, po.po_end_date);
+                const poNumber = po.po_number || `PO-${index + 1}`;
+                const fileName = po.file_name || po.filename || 'Document';
+                const startDate = formatDateDisplay(po.po_start_date);
+                const endDate = formatDateDisplay(po.po_end_date);
+                const value = po.po_value ? '$' + parseFloat(po.po_value).toLocaleString() : '-';
+                
+                html += `
+                    <div class="po-card" style="background:var(--bg-secondary);border-radius:8px;padding:12px;margin-bottom:10px;border-left:4px solid ${statusInfo.color};">
+                        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+                            <div>
+                                <div style="font-weight:600;color:var(--text-primary);">${statusInfo.badge} ${escapeHtml(poNumber)}</div>
+                                <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">
+                                    📅 ${startDate} → ${endDate}
+                                </div>
+                                <div style="font-size:12px;color:var(--text-secondary);">
+                                    💰 Value: ${value}
+                                </div>
+                                <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">
+                                    📎 ${escapeHtml(fileName)}
+                                </div>
+                            </div>
+                            <div style="display:flex;flex-direction:column;gap:4px;">
+                                <button class="btn-small" onclick="viewPO(${po.id})" style="font-size:11px;padding:4px 8px;cursor:pointer;">👁️ View</button>
+                                <button class="btn-small" onclick="downloadPO(${po.id})" style="font-size:11px;padding:4px 8px;cursor:pointer;">⬇️ Download</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
         }
         
-        function viewPODocumentMgmt() {
-            if (currentPODocUrlMgmt) {
-                window.open(currentPODocUrlMgmt, '_blank');
+        // View a specific PO
+        function viewPO(poId) {
+            const po = currentJobPOList.find(p => p.id === poId);
+            if (po && po.file_url) {
+                window.open(po.file_url, '_blank');
             }
         }
         
-        function downloadPODocumentMgmt() {
-            if (!currentPODocUrlMgmt || !selectedPOJob) return;
-            
-            const fileName = poDocuments[selectedPOJob]?.fileName || `PO_${selectedPOJob}.pdf`;
-            const a = document.createElement('a');
-            a.href = currentPODocUrlMgmt;
-            a.download = fileName;
-            a.click();
+        // Download a specific PO
+        function downloadPO(poId) {
+            const po = currentJobPOList.find(p => p.id === poId);
+            if (po && po.file_url) {
+                const fileName = po.file_name || po.filename || `PO_${selectedPOJob}.pdf`;
+                const a = document.createElement('a');
+                a.href = po.file_url;
+                a.download = fileName;
+                a.click();
+            }
         }
         
-        async function uploadPODocumentMgmt(event) {
-            const file = event.target.files[0];
-            if (!file || !selectedPOJob) return;
+        // Show Add PO Form
+        function showAddPOForm() {
+            document.getElementById('addPOForm').classList.remove('hidden');
+            document.getElementById('newPONumber').value = '';
+            document.getElementById('newPOValue').value = '';
+            document.getElementById('newPOStartDate').value = '';
+            document.getElementById('newPOEndDate').value = '';
+            document.getElementById('newPOFile').value = '';
+        }
+        
+        // Hide Add PO Form
+        function hideAddPOForm() {
+            document.getElementById('addPOForm').classList.add('hidden');
+        }
+        
+        // Submit new PO
+        async function submitNewPO() {
+            const poNumber = document.getElementById('newPONumber').value.trim();
+            const poValue = document.getElementById('newPOValue').value;
+            const startDate = document.getElementById('newPOStartDate').value;
+            const endDate = document.getElementById('newPOEndDate').value;
+            const fileInput = document.getElementById('newPOFile');
+            const file = fileInput.files[0];
             
-            // Max 5MB for base64 storage
+            // Validation
+            if (!poNumber) {
+                alert('Please enter a PO Number');
+                return;
+            }
+            if (!startDate) {
+                alert('Please select a Start Date');
+                return;
+            }
+            if (!endDate) {
+                alert('Please select an End Date');
+                return;
+            }
+            if (!file) {
+                alert('Please select a PO document file');
+                return;
+            }
             if (file.size > 5 * 1024 * 1024) {
                 alert('File too large. Maximum size is 5MB.');
                 return;
             }
             
+            // Read file and upload
             const reader = new FileReader();
             reader.onload = async function(e) {
                 const base64Data = e.target.result;
                 
-                // Store in localStorage
-                poDocuments[selectedPOJob] = {
-                    url: base64Data,
-                    fileName: file.name,
-                    uploadedAt: new Date().toISOString(),
-                    uploadedBy: currentUser?.pin || 'unknown',
-                    type: file.type,
-                    isBase64: true
-                };
-                localStorage.setItem('mlt_po_documents', JSON.stringify(poDocuments));
-                
-                // Try to store in Supabase
                 try {
-                    // Delete any existing record first
-                    await supabaseClient.from('po_documents').delete().eq('job_code', selectedPOJob);
+                    const statusInfo = calculatePOStatus(startDate, endDate);
                     
-                    // Insert new record
-                    await supabaseClient
+                    // Insert new PO record
+                    const { data, error } = await supabaseClient
                         .from('po_documents')
                         .insert({
                             job_code: selectedPOJob,
                             customer: selectedPOCustomer,
+                            po_number: poNumber,
                             file_name: file.name,
                             file_type: file.type,
                             file_url: base64Data,
                             uploaded_by: currentUser?.pin || 'unknown',
-                            uploaded_at: new Date().toISOString()
+                            uploaded_at: new Date().toISOString(),
+                            po_start_date: startDate,
+                            po_end_date: endDate,
+                            po_value: poValue ? parseFloat(poValue) : null,
+                            po_status: statusInfo.status
                         });
                     
-                    console.log('PO document uploaded to Supabase');
+                    if (error) {
+                        console.error('Error uploading PO:', error);
+                        alert('Error uploading PO: ' + error.message);
+                        return;
+                    }
+                    
+                    console.log('PO uploaded successfully');
+                    hideAddPOForm();
+                    
+                    // Reload PO list
+                    await loadAllPOsForJob(selectedPOJob);
+                    renderPOJobs();
+                    
                 } catch (err) {
-                    console.warn('Could not upload to Supabase, stored locally:', err);
+                    console.error('Error uploading PO:', err);
+                    alert('Error uploading PO. Please try again.');
                 }
-                
-                currentPODocUrlMgmt = base64Data;
-                updatePODocUIMgmt(true, file.name);
-                
-                // Refresh the jobs list to update status indicators
-                renderPOJobs();
             };
             
             reader.readAsDataURL(file);
-            event.target.value = ''; // Reset file input
         }
         
-        // PO Number editing for Management tab
+        // Legacy functions for backwards compatibility
+        async function loadPODocForJobMgmt(jobCode) {
+            // This now calls the new multi-PO loader
+            await loadAllPOsForJob(jobCode);
+        }
+        
+        function updatePODocUIMgmt(hasDocument, fileName = '') {
+            // Legacy function - no longer needed with new multi-PO UI
+            // Keeping for backwards compatibility
+        }
+        
+        function viewPODocumentMgmt() {
+            // View the first PO if available
+            if (currentJobPOList.length > 0 && currentJobPOList[0].file_url) {
+                window.open(currentJobPOList[0].file_url, '_blank');
+            }
+        }
+        
+        function downloadPODocumentMgmt() {
+            // Download the first PO if available
+            if (currentJobPOList.length > 0 && currentJobPOList[0].file_url) {
+                downloadPO(currentJobPOList[0].id);
+            }
+        }
+        
+        // This function is now replaced by submitNewPO
+        async function uploadPODocumentMgmt(event) {
+            // Redirect to the new form-based upload
+            showAddPOForm();
+            event.target.value = '';
+        }
+        
+        // Keep this for any legacy code that might reference it
+        let currentPODocUrlMgmt = null;
+        
+        // PO Number editing for Management tab (removed - no longer needed with new multi-PO UI)
         function editPONumberMgmt() {
-            document.getElementById('poNumberSectionMgmt').classList.add('hidden');
-            document.getElementById('poNumberEditMgmt').classList.remove('hidden');
-            const currentPO = document.getElementById('poDetailsNumber').textContent;
-            document.getElementById('poNumberInputMgmt').value = currentPO === 'Click to add' ? '' : currentPO;
-            document.getElementById('poNumberInputMgmt').focus();
+            // Now handled via the PO form
         }
         
         function cancelPOEditMgmt() {
-            document.getElementById('poNumberSectionMgmt').classList.remove('hidden');
-            document.getElementById('poNumberEditMgmt').classList.add('hidden');
+            // No longer needed
         }
         
         async function savePONumberMgmt() {
-            const newPO = document.getElementById('poNumberInputMgmt').value.trim();
-            if (!selectedPOJob) return;
-            
-            // Update the override
-            if (!poOverrides[selectedPOJob]) {
-                poOverrides[selectedPOJob] = {};
-            }
-            poOverrides[selectedPOJob].poNumber = newPO;
-            
-            // Save to Supabase
-            try {
-                await supabaseClient
-                    .from('po_overrides')
-                    .upsert({
-                        job_code: selectedPOJob,
-                        customer: selectedPOCustomer,
-                        po_number: newPO,
-                        updated_by: currentUser?.pin || 'unknown',
-                        updated_at: new Date().toISOString()
-                    });
-                console.log('PO number saved to Supabase');
-            } catch (err) {
-                console.warn('Could not save PO number:', err);
-            }
-            
-            // Update UI
-            document.getElementById('poDetailsNumber').textContent = newPO || 'Click to add';
-            cancelPOEditMgmt();
-            renderPOJobs();
+            // No longer needed - PO numbers are now part of each PO document
         }
         
         
