@@ -6,11 +6,11 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="app-version" content="2026.11.26.35-invoice-total-fix">
+    <meta name="app-version" content="2026.11.26.36-invoice-fixes">
     <title>MLT Asset Tracker</title>
     <script>
         // Force reload if version changed
-        const APP_VERSION = '2026.11.26.35-invoice-total-fix';
+        const APP_VERSION = '2026.11.26.36-invoice-fixes';
         const storedVersion = localStorage.getItem('mlt_app_version');
         if (storedVersion && storedVersion !== APP_VERSION) {
             localStorage.setItem('mlt_app_version', APP_VERSION);
@@ -8401,6 +8401,7 @@
         }
         
         function previewPDF() {
+            console.log('[DEBUG previewPDF] Starting PDF preview...');
             if (!selectedCustomer || !selectedSite || !selectedJob) {
                 showToast('Please select a job first', 'error');
                 return;
@@ -8409,14 +8410,41 @@
             const jobs = getJobsForSite(selectedCustomer, selectedSite);
             const job = jobs.find(j => j.code === selectedJob);
             const towers = getTowersForJob(selectedCustomer, selectedSite, selectedJob);
-            const days = 7;
             
-            // Calculate totals
+            // Get billing dates from the form
+            const billingFrom = document.getElementById('billingFromDate')?.value;
+            const billingTo = document.getElementById('billingToDate')?.value;
+            const days = getBillingDays() || 7;
+            
+            console.log('[DEBUG previewPDF] Billing dates:', billingFrom, 'to', billingTo, 'Days:', days);
+            
+            const billingPeriod = billingFrom && billingTo 
+                ? `${new Date(billingFrom).toLocaleDateString('en-AU')} - ${new Date(billingTo).toLocaleDateString('en-AU')}`
+                : `${days} Days`;
+            
+            // Calculate totals with proper monthly rate handling
             let total = 0;
-            towers.forEach(tower => {
-                const towerRate = parseFloat(tower.rateDaily) || parseFloat(tower.daily_rate) || 0;
-                total += towerRate * days;
+            const lineItemsData = towers.map(tower => {
+                const dailyRate = parseFloat(tower.rateDaily) || parseFloat(tower.daily_rate) || 0;
+                const monthlyRate = parseFloat(tower.rateMonthly) || 0;
+                const schedule = (tower.invoicingSchedule || '').toUpperCase();
+                // For MONTHLY schedule, use monthly rate directly; otherwise use daily * days
+                const lineTotal = (schedule === 'MONTHLY' && monthlyRate > 0) ? monthlyRate : (dailyRate * days);
+                const displayRate = (schedule === 'MONTHLY' && monthlyRate > 0) ? monthlyRate : dailyRate;
+                const rateLabel = (schedule === 'MONTHLY' && monthlyRate > 0) ? 'Monthly' : 'Daily';
+                total += lineTotal;
+                return {
+                    tower,
+                    dailyRate,
+                    monthlyRate,
+                    schedule,
+                    displayRate,
+                    rateLabel,
+                    lineTotal
+                };
             });
+            
+            console.log('[DEBUG previewPDF] Total calculated:', total, 'Towers:', towers.length);
             
             // Build printable HTML
             const printContent = `
@@ -8478,8 +8506,8 @@
                         </div>
                         <div class="details-box">
                             <h3>Billing Period</h3>
-                            <p>7 Days</p>
-                            <p>${towers.length} Towers</p>
+                            <p>${billingPeriod}</p>
+                            <p>${towers.length} Towers × ${days} Days</p>
                         </div>
                     </div>
                     
@@ -8490,26 +8518,25 @@
                                 <th>Configuration</th>
                                 <th>Site</th>
                                 <th>Days</th>
-                                <th class="money">Daily Rate</th>
+                                <th class="money">Rate</th>
                                 <th class="money">Line Total</th>
                             </tr>
                         </thead>
                         <tbody>
-                            ${towers.map(tower => {
-                                const towerId = tower.id || tower.tower_id;
-                                const config = tower.config || 'Standard';
-                                const towerRate = tower.rateDaily || tower.daily_rate || rate;
-                                const lineTotal = towerRate * days;
-                                return `
-                                    <tr>
-                                        <td class="tower-id">${formatTowerId(towerId)}</td>
-                                        <td>${config}</td>
-                                        <td>${tower.site}</td>
-                                        <td>${days}</td>
-                                        <td class="money">$${towerRate.toFixed(2)}</td>
-                                        <td class="money">$${lineTotal.toFixed(2)}</td>
-                                    </tr>
-                                `;
+                            ${lineItemsData.map(item => {
+                                const towerId = item.tower.id || item.tower.tower_id;
+                                const config = item.tower.config || 'Standard';
+                                const rateDisplay = item.rateLabel === 'Monthly' 
+                                    ? '$' + item.displayRate.toFixed(2) + '/mo'
+                                    : '$' + item.displayRate.toFixed(2) + '/day';
+                                return '<tr>' +
+                                    '<td class="tower-id">' + (typeof formatTowerId === 'function' ? formatTowerId(towerId) : towerId) + '</td>' +
+                                    '<td>' + config + '</td>' +
+                                    '<td>' + item.tower.site + '</td>' +
+                                    '<td>' + days + '</td>' +
+                                    '<td class="money">' + rateDisplay + '</td>' +
+                                    '<td class="money">$' + item.lineTotal.toFixed(2) + '</td>' +
+                                '</tr>';
                             }).join('')}
                             <tr class="total-row">
                                 <td colspan="5">Total (${towers.length} towers × ${days} days)</td>
@@ -9177,13 +9204,23 @@ Mickala Lighting Towers`);
                     logActivity('Approved invoice', `${invoiceNum} - $${total.toLocaleString()}`, null, selectedCustomer, 'Finance');
             
                     // Update button to show approved state
+                    console.log('[DEBUG approveInvoice] Looking for approveInvoiceBtn...');
                     const approveBtn = document.getElementById('approveInvoiceBtn');
+                    console.log('[DEBUG approveInvoice] Button found:', approveBtn);
                     if (approveBtn) {
+                        console.log('[DEBUG approveInvoice] Setting button to Approved state');
                         approveBtn.innerHTML = '✓ Approved';
                         approveBtn.disabled = true;
-                        approveBtn.style.background = 'var(--success)';
+                        approveBtn.style.background = '#22c55e';
                         approveBtn.style.cursor = 'not-allowed';
                         approveBtn.style.opacity = '0.8';
+                        approveBtn.classList.add('invoice-approved');
+                        // Store approval state for this job
+                        const approvalKey = `mlt_approved_job_${selectedJob}`;
+                        localStorage.setItem(approvalKey, 'true');
+                        console.log('[DEBUG approveInvoice] Button updated successfully, stored approval key:', approvalKey);
+                    } else {
+                        console.error('[DEBUG approveInvoice] Button NOT found! Check HTML id="approveInvoiceBtn"');
                     }
             
                     // Show confirmation and offer PDF
@@ -9441,7 +9478,7 @@ Mickala Lighting Towers`);
                 ? `${new Date(billingFrom).toLocaleDateString('en-AU')} - ${new Date(billingTo).toLocaleDateString('en-AU')}`
                 : `${billingDays} Days`;
             
-            // Build line items HTML
+            // Build line items HTML - each tower on its own row
             let lineItemsHtml = '';
             if (lineItems && lineItems.length > 0) {
                 lineItemsHtml = lineItems.map(item => {
@@ -9449,17 +9486,25 @@ Mickala Lighting Towers`);
                     const config = item.config || 'Standard';
                     const days = item.days || billingDays;
                     const dailyRate = item.daily_rate || 0;
-                    const lineTotal = item.line_total || (dailyRate * days);
-                    return `
-                        <tr>
-                            <td class="tower-id">${formatTowerId ? formatTowerId(towerId) : towerId}</td>
-                            <td>${config}</td>
-                            <td>${site}</td>
-                            <td>${days}</td>
-                            <td class="money">$${Number(dailyRate).toFixed(2)}</td>
-                            <td class="money">$${Number(lineTotal).toFixed(2)}</td>
-                        </tr>
-                    `;
+                    const monthlyRate = item.monthly_rate || 0;
+                    const schedule = (item.invoicing_schedule || '').toUpperCase();
+                    const lineTotal = item.line_total || 0;
+                    
+                    // For MONTHLY schedule, show monthly rate; otherwise show daily rate
+                    const isMonthly = schedule === 'MONTHLY' && monthlyRate > 0;
+                    const displayRate = isMonthly ? monthlyRate : dailyRate;
+                    const rateDisplay = isMonthly 
+                        ? '$' + Number(displayRate).toFixed(2) + '/mo'
+                        : '$' + Number(displayRate).toFixed(2) + '/day';
+                    
+                    return '<tr>' +
+                        '<td class="tower-id">' + (typeof formatTowerId === 'function' ? formatTowerId(towerId) : towerId) + '</td>' +
+                        '<td>' + config + '</td>' +
+                        '<td>' + site + '</td>' +
+                        '<td>' + days + '</td>' +
+                        '<td class="money">' + rateDisplay + '</td>' +
+                        '<td class="money">$' + Number(lineTotal).toFixed(2) + '</td>' +
+                    '</tr>';
                 }).join('');
             } else {
                 // If no line items, show summary row
@@ -9547,7 +9592,7 @@ Mickala Lighting Towers`);
                                 <th>Configuration</th>
                                 <th>Site</th>
                                 <th>Days</th>
-                                <th class="money">Daily Rate</th>
+                                <th class="money">Rate</th>
                                 <th class="money">Line Total</th>
                             </tr>
                         </thead>
