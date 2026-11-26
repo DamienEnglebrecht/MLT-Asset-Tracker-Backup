@@ -6,11 +6,11 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="app-version" content="2026.11.26.52-po-month-dropdown">
+    <meta name="app-version" content="2026.11.26.53-po-edit-fix">
     <title>MLT Asset Tracker</title>
     <script>
         // Force reload if version changed
-        const APP_VERSION = '2026.11.26.52-po-month-dropdown';
+        const APP_VERSION = '2026.11.26.53-po-edit-fix';
         const storedVersion = localStorage.getItem('mlt_app_version');
         if (storedVersion && storedVersion !== APP_VERSION) {
             localStorage.setItem('mlt_app_version', APP_VERSION);
@@ -4921,7 +4921,7 @@
                         <td>${job.towers.length}</td>
                         <td>${escapeHtml(job.invoicingSchedule)}</td>
                         <td>
-                            <button class="btn small" onclick="editPO('${escapeHtml(job.jobCode).replace(/'/g, "\\'")}')">Edit</button>
+                            <button class="btn small" onclick="editPOMgmt('${escapeHtml(job.jobCode).replace(/'/g, "\\'")}')">Edit</button>
                             <button class="btn small" onclick="archivePO('${escapeHtml(job.jobCode).replace(/'/g, "\\'")}')">Archive</button>
                         </td>
                     </tr>
@@ -5691,7 +5691,7 @@
         }
         
         // Edit PO modal
-        function editPO(jobCode) {
+        function editPOMgmt(jobCode) {
             // Find job data
             const towers = fleetData.filter(t => t.visionJob === jobCode);
             if (towers.length === 0) {
@@ -5762,7 +5762,7 @@
                     </div>
                     <div class="modal-footer">
                         <button class="btn" onclick="closeEditPOModal()">Cancel</button>
-                        <button class="btn primary" onclick="savePOEdit('${jobCode}')">Save Changes</button>
+                        <button class="btn primary" onclick="savePOMgmtEdit('${jobCode}')">Save Changes</button>
                     </div>
                 </div>
             `;
@@ -5774,7 +5774,7 @@
             if (modal) modal.remove();
         }
         
-        async function savePOEdit(jobCode) {
+        async function savePOMgmtEdit(jobCode) {
             const override = {
                 customer: document.getElementById('editPOCustomer').value,
                 poNumber: document.getElementById('editPONumber').value,
