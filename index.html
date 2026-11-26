@@ -720,20 +720,33 @@
         
         /* Movement Item Styling */
         .movement-item {
-            display: grid;
-            grid-template-columns: auto 100px 1fr 1fr auto;
-            gap: 12px;
-            padding: 10px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 12px 14px;
             background: var(--bg-secondary);
             border: 1px solid var(--border);
-            border-radius: 6px;
-            margin-bottom: 6px;
+            border-radius: 8px;
+            margin-bottom: 8px;
             font-size: 12px;
-            align-items: center;
         }
         
         .movement-item:hover {
             background: var(--bg-hover);
+            border-color: var(--accent);
+        }
+        
+        .movement-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        
+        .movement-header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
         
         .movement-date {
@@ -746,18 +759,7 @@
             font-weight: 600;
             color: var(--accent);
             font-family: 'JetBrains Mono', monospace;
-        }
-        
-        .movement-from, .movement-to {
-            color: var(--text-primary);
-        }
-        
-        .movement-from::before {
-            content: '📍 ';
-        }
-        
-        .movement-to::before {
-            content: '➡️ ';
+            font-size: 14px;
         }
         
         .movement-user {
@@ -766,11 +768,89 @@
             text-align: right;
         }
         
+        .movement-locations {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 12px;
+            align-items: center;
+            padding-top: 6px;
+            border-top: 1px solid var(--border);
+        }
+        
+        .movement-from-block, .movement-to-block {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        
+        .movement-from-block {
+            text-align: left;
+        }
+        
+        .movement-to-block {
+            text-align: right;
+        }
+        
+        .movement-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            font-weight: 600;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+        }
+        
+        .movement-label.from-label {
+            color: #666;
+        }
+        
+        .movement-label.to-label {
+            color: var(--success);
+        }
+        
+        .movement-customer {
+            font-weight: 500;
+            color: var(--text-primary);
+            font-size: 13px;
+        }
+        
+        .movement-site {
+            color: var(--text-secondary);
+            font-size: 11px;
+        }
+        
+        .movement-job {
+            color: var(--accent);
+            font-size: 11px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .movement-arrow {
+            color: var(--text-muted);
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
         .no-movements {
             text-align: center;
             color: var(--text-muted);
             padding: 40px;
             font-size: 13px;
+        }
+        
+        @media (max-width: 600px) {
+            .movement-locations {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .movement-arrow {
+                transform: rotate(90deg);
+                justify-self: center;
+            }
+            
+            .movement-to-block {
+                text-align: left;
+            }
         }
         
         /* ===== ONLINE NOW PANEL (Sidebar) ===== */
@@ -8643,13 +8723,37 @@
         
         function renderMovementItem(m) {
             const timeAgo = getMovementTimeAgo(m.date);
+            
+            // Build FROM display - use fromSite which contains previous location/job
+            const fromDisplay = m.fromSite || 'Unknown';
+            
+            // Build TO display - we have customer, location, visionJob for destination
+            const toCustomer = m.customer || '';
+            const toSite = m.location || '';
+            const toJob = m.visionJob || m.toSite || '';
+            
             return `
                 <div class="movement-item">
-                    <span class="movement-date">${timeAgo}</span>
-                    <span class="movement-tower">${m.towerId}</span>
-                    <span class="movement-from">${m.fromSite || 'N/A'}</span>
-                    <span class="movement-to">${m.toSite}</span>
-                    <span class="movement-user">${m.loggedBy}</span>
+                    <div class="movement-header">
+                        <div class="movement-header-left">
+                            <span class="movement-tower">${m.towerId}</span>
+                            <span class="movement-date">${timeAgo}</span>
+                        </div>
+                        <span class="movement-user">by ${m.loggedBy}</span>
+                    </div>
+                    <div class="movement-locations">
+                        <div class="movement-from-block">
+                            <span class="movement-label from-label">From</span>
+                            <span class="movement-job">${fromDisplay}</span>
+                        </div>
+                        <span class="movement-arrow">→</span>
+                        <div class="movement-to-block">
+                            <span class="movement-label to-label">To</span>
+                            ${toCustomer ? `<span class="movement-customer">${toCustomer}</span>` : ''}
+                            ${toSite ? `<span class="movement-site">${toSite}</span>` : ''}
+                            ${toJob ? `<span class="movement-job">${toJob}</span>` : ''}
+                        </div>
+                    </div>
                 </div>
             `;
         }
