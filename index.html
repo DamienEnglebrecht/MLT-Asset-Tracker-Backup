@@ -6,11 +6,11 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="app-version" content="2026.11.26.36-invoice-fixes">
+    <meta name="app-version" content="2026.11.26.37-history-lineitem-fix">
     <title>MLT Asset Tracker</title>
     <script>
         // Force reload if version changed
-        const APP_VERSION = '2026.11.26.36-invoice-fixes';
+        const APP_VERSION = '2026.11.26.37-history-lineitem-fix';
         const storedVersion = localStorage.getItem('mlt_app_version');
         if (storedVersion && storedVersion !== APP_VERSION) {
             localStorage.setItem('mlt_app_version', APP_VERSION);
@@ -9154,6 +9154,7 @@ Mickala Lighting Towers`);
                         lineItems.push({
                             tower_id: tower.id || tower.tower_id,
                             config: tower.config || 'Standard',
+                            site: tower.site || selectedSite,
                             days: days,
                             daily_rate: dailyRate,
                             monthly_rate: monthlyRate,
@@ -9484,6 +9485,7 @@ Mickala Lighting Towers`);
                 lineItemsHtml = lineItems.map(item => {
                     const towerId = item.tower_id || '-';
                     const config = item.config || 'Standard';
+                    const itemSite = item.site || site;  // Use line item site, fallback to invoice site
                     const days = item.days || billingDays;
                     const dailyRate = item.daily_rate || 0;
                     const monthlyRate = item.monthly_rate || 0;
@@ -9500,7 +9502,7 @@ Mickala Lighting Towers`);
                     return '<tr>' +
                         '<td class="tower-id">' + (typeof formatTowerId === 'function' ? formatTowerId(towerId) : towerId) + '</td>' +
                         '<td>' + config + '</td>' +
-                        '<td>' + site + '</td>' +
+                        '<td>' + itemSite + '</td>' +
                         '<td>' + days + '</td>' +
                         '<td class="money">' + rateDisplay + '</td>' +
                         '<td class="money">$' + Number(lineTotal).toFixed(2) + '</td>' +
