@@ -4374,7 +4374,8 @@
             updateOnHireCount(); // Update On Hire (Invoicing) badge count
             
             // Show Close Week button for Damien and Debbie only
-            const canCloseWeek = currentUser && (currentUser.role === 'admin' || currentUser.name.includes('Damien') || currentUser.name.includes('Debbie'));
+            const verifiedUser = getVerifiedCurrentUser();
+            const canCloseWeek = verifiedUser && (verifiedUser.role === 'admin' || verifiedUser.name.includes('Damien') || verifiedUser.name.includes('Debbie'));
             const closeWeekBtn = document.getElementById('closeWeekBtn');
             if (closeWeekBtn) {
                 closeWeekBtn.style.display = canCloseWeek ? 'inline-flex' : 'none';
@@ -5330,7 +5331,9 @@
                 const startDate = formatDateDisplay(po.po_start_date);
                 const endDate = formatDateDisplay(po.po_end_date);
                 const value = po.po_value ? '$' + parseFloat(po.po_value).toLocaleString() : '-';
-                const isAdmin = currentUser && (currentUser.role === 'admin' || currentUser.name.includes('Damien') || currentUser.name.includes('Debbie'));
+                // Use verified user to check admin access
+                const user = getVerifiedCurrentUser();
+                const isAdmin = user && (user.role === 'admin' || user.name.includes('Damien') || user.name.includes('Debbie'));
                 
                 html += `
                     <div class="po-card" style="background:var(--bg-secondary);border-radius:8px;padding:16px;margin-bottom:12px;border-left:4px solid ${statusInfo.color};">
@@ -5556,43 +5559,16 @@
         
         // Submit new PO
         async function submitNewPO() {
-            // CRITICAL: Verify currentUser is valid before upload
-            // This ensures we use the ACTUAL logged-in user, not stale cached data
-            const sessionData = localStorage.getItem('mlt_tracker_session');
-            if (sessionData) {
-                try {
-                    const parsed = JSON.parse(sessionData);
-                    if (parsed.user && parsed.expires > Date.now()) {
-                        // Update currentUser from the stored session to ensure consistency
-                        currentUser = parsed.user;
-                        console.log('[PO Upload] Session verified - User:', currentUser.name, 'Role:', currentUser.role);
-                    } else {
-                        console.error('[PO Upload] Session expired - cannot upload');
-                        alert('Your session has expired. Please log in again.');
-                        handleLogout();
-                        return;
-                    }
-                } catch (e) {
-                    console.error('[PO Upload] Invalid session data:', e);
-                    alert('Session error. Please log in again.');
-                    handleLogout();
-                    return;
-                }
-            } else {
-                console.error('[PO Upload] No session found');
-                alert('You must be logged in to upload POs.');
-                return;
-            }
-            
-            // Double-check currentUser is valid
-            if (!currentUser || !currentUser.name) {
-                console.error('[PO Upload] No valid currentUser');
-                alert('Session error. Please log in again.');
+            // CRITICAL: Verify session and get fresh user data
+            const user = getVerifiedCurrentUser();
+            if (!user) {
+                alert('Your session has expired. Please log in again.');
                 handleLogout();
                 return;
             }
+            console.log('[PO Upload] Session verified - User:', user.name, 'Role:', user.role);
             
-            const uploaderName = currentUser.name;
+            const uploaderName = user.name;
             console.log('[PO Upload] Will upload as:', uploaderName);
             
             const poMonth = document.getElementById('newPOMonth').value;
@@ -6799,6 +6775,9 @@
         
         // Set tower status override
         function setTowerStatus(towerId, newStatus) {
+            // Get verified user for audit log
+            const user = getVerifiedCurrentUser();
+            
             const tower = fleetData.find(t => (t.towerId || t.tower_id) === towerId);
             const oldStatus = getEffectiveTowerStatus(towerId, tower?.status);
             
@@ -6810,7 +6789,7 @@
                 towerId: towerId,
                 oldStatus: oldStatus,
                 newStatus: newStatus,
-                changedBy: currentUser?.name || 'Unknown'
+                changedBy: user?.name || 'Unknown'
             });
             
             showToast(`Tower ${towerId} marked as ${newStatus}`);
@@ -8440,7 +8419,8 @@
             }
             
             // Show toast for login/logout from other users
-            if (activity && activity.user_name && activity.user_name !== currentUser?.name) {
+            const verifiedUser = getVerifiedCurrentUser();
+            if (activity && activity.user_name && activity.user_name !== verifiedUser?.name) {
                 if (activity.action === 'Logged in') {
                     showPresenceNotification(activity.user_name, 'joined');
                 } else if (activity.action === 'Logged out') {
@@ -10030,11 +10010,12 @@ Mickala Lighting Towers`);
             const jobCode = docData.job_code;
             const uploadedBy = docData.uploaded_by || 'Unknown';
             const fileName = docData.file_name || 'document';
-            const isOwnUpload = currentUser && uploadedBy === currentUser.name;
+            const verifiedUser = getVerifiedCurrentUser();
+            const isOwnUpload = verifiedUser && uploadedBy === verifiedUser.name;
             
             console.log('[PO-DEBUG] jobCode:', jobCode);
             console.log('[PO-DEBUG] uploadedBy:', uploadedBy);
-            console.log('[PO-DEBUG] currentUser.name:', currentUser ? currentUser.name : 'NOT SET');
+            console.log('[PO-DEBUG] currentUser.name:', verifiedUser ? verifiedUser.name : 'NOT SET');
             console.log('[PO-DEBUG] isOwnUpload:', isOwnUpload);
             
             // Update local cache
@@ -10088,7 +10069,8 @@ Mickala Lighting Towers`);
             
             const jobCode = payload.old.job_code;
             const deletedBy = payload.old.uploaded_by || 'Unknown';
-            const isOwnDelete = currentUser && deletedBy === currentUser.name;
+            const verifiedUser = getVerifiedCurrentUser();
+            const isOwnDelete = verifiedUser && deletedBy === verifiedUser.name;
             
             console.log('[PO-DEBUG] Processing DELETE for job:', jobCode);
             console.log('[PO-DEBUG] isOwnDelete:', isOwnDelete);
@@ -10128,6 +10110,15 @@ Mickala Lighting Towers`);
         async function uploadPODocument(event) {
             const file = event.target.files[0];
             if (!file) return;
+            
+            // CRITICAL: Verify session and get fresh user data
+            const user = getVerifiedCurrentUser();
+            if (!user) {
+                alert('Your session has expired. Please log in again.');
+                handleLogout();
+                return;
+            }
+            console.log('[PO Upload to Storage] Session verified - User:', user.name, 'Role:', user.role);
             
             if (!selectedJob) {
                 showToast('Please select a job first', 'error');
@@ -10186,7 +10177,7 @@ Mickala Lighting Towers`);
                     storagePath: storagePath,
                     fileName: file.name,
                     uploadedAt: new Date().toISOString(),
-                    uploadedBy: currentUser?.name || 'Unknown',
+                    uploadedBy: user.name,
                     type: file.type,
                     isBase64: false,
                     size: file.size
@@ -10270,6 +10261,15 @@ Mickala Lighting Towers`);
         async function savePONumber() {
             if (!selectedJob) return;
             
+            // CRITICAL: Verify session and get fresh user data
+            const user = getVerifiedCurrentUser();
+            if (!user) {
+                alert('Your session has expired. Please log in again.');
+                handleLogout();
+                return;
+            }
+            console.log('[PO Number Save] Session verified - User:', user.name);
+            
             const newPO = document.getElementById('poNumberInput').value.trim();
             const saveBtn = document.querySelector('.btn-save-po');
             saveBtn.textContent = '...';
@@ -10289,7 +10289,7 @@ Mickala Lighting Towers`);
                         customer: selectedCustomer,
                         po_number: newPO,
                         location: selectedSite,
-                        updated_by: currentUser?.name || 'Unknown',
+                        updated_by: user.name,
                         updated_at: new Date().toISOString()
                     });
                 
@@ -10300,7 +10300,7 @@ Mickala Lighting Towers`);
                     customer: selectedCustomer,
                     poNumber: newPO,
                     location: selectedSite,
-                    updatedBy: currentUser?.name || 'Unknown',
+                    updatedBy: user.name,
                     updatedAt: new Date().toISOString()
                 };
                 
