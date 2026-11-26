@@ -1,0 +1,3395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MLT Asset Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --bg-tertiary: #1a1a1a;
+            --bg-hover: #222222;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --text-muted: #666666;
+            --accent: #f97316;
+            --accent-hover: #ea580c;
+            --success: #22c55e;
+            --warning: #eab308;
+            --danger: #ef4444;
+            --border: #2a2a2a;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+        
+        /* Login Screen */
+        .login-screen {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .login-box {
+            background: var(--bg-secondary);
+            padding: 48px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        
+        .login-logo {
+            width: 80px;
+            height: 80px;
+            background: var(--accent);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0 auto 24px;
+        }
+        
+        .login-title { font-size: 24px; margin-bottom: 8px; font-weight: 600; }
+        .login-subtitle { color: var(--text-secondary); margin-bottom: 32px; }
+        
+        .login-input {
+            width: 100%;
+            padding: 14px 16px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 16px;
+            text-align: center;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+        }
+        
+        .login-input:focus { outline: none; border-color: var(--accent); }
+        .login-input::placeholder { letter-spacing: normal; }
+        
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--accent);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .login-btn:hover { background: var(--accent-hover); }
+        .login-error { color: var(--danger); margin-top: 16px; display: none; }
+        .login-security { margin-top: 24px; font-size: 12px; color: var(--text-muted); }
+        
+        .hidden { display: none !important; }
+        
+        /* Main Layout */
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        /* Top Bar */
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 24px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            gap: 20px;
+        }
+        
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo {
+            width: 40px;
+            height: 40px;
+            background: var(--accent);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 12px;
+        }
+        
+        .logo-text { font-size: 18px; font-weight: 700; }
+        .logo-sub { font-size: 11px; color: var(--text-secondary); }
+        
+        /* Nav Tabs */
+        .nav-tabs {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .nav-tab {
+            padding: 10px 20px;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        
+        .nav-tab:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+        .nav-tab.active { background: var(--accent); border-color: var(--accent); color: white; }
+        
+        /* User */
+        .topbar-user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .user-name { font-weight: 600; font-size: 14px; }
+        .user-role { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; }
+        
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .logout-btn {
+            padding: 8px 14px;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            cursor: pointer;
+        }
+        
+        .logout-btn:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+        
+        /* Main Wrapper */
+        .main-wrapper {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        .view { display: none; flex: 1; overflow: hidden; }
+        .view.active { display: flex; }
+        
+        /* Column Panel */
+        .column-panel {
+            width: 240px;
+            min-width: 200px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .column-panel.wide { width: 300px; }
+        
+        .column-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .column-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .column-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+        }
+        
+        .column-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.15s;
+            margin-bottom: 4px;
+        }
+        
+        .column-item:hover { background: var(--bg-tertiary); }
+        .column-item.active { background: var(--bg-tertiary); border-left: 3px solid var(--accent); }
+        
+        .column-item-name { font-size: 14px; font-weight: 500; }
+        .column-item-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+        .column-item-count {
+            font-size: 12px;
+            color: var(--text-muted);
+            background: var(--bg-primary);
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+        .column-item-count.money { color: var(--success); background: rgba(34,197,94,0.1); }
+        
+        .add-btn {
+            width: 100%;
+            padding: 10px;
+            background: transparent;
+            border: 1px dashed var(--border);
+            border-radius: 8px;
+            color: var(--text-muted);
+            font-size: 13px;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: all 0.15s;
+        }
+        
+        .add-btn:hover { border-color: var(--accent); color: var(--accent); }
+        
+        /* Invoice Panel */
+        .invoice-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: var(--bg-primary);
+        }
+        
+        .invoice-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-secondary);
+        }
+        
+        .invoice-title { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+        .invoice-subtitle { color: var(--text-secondary); font-size: 14px; }
+        .invoice-po { color: var(--accent); font-size: 13px; margin-top: 4px; }
+        
+        .invoice-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 10px 16px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s;
+        }
+        
+        .btn:hover { background: var(--bg-hover); }
+        .btn.primary { background: var(--accent); border-color: var(--accent); }
+        .btn.primary:hover { background: var(--accent-hover); }
+        .btn.success { background: var(--success); border-color: var(--success); }
+        .btn.small { padding: 6px 12px; font-size: 12px; }
+        
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th { text-align: left; padding: 12px; font-size: 11px; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--border); }
+        .data-table td { padding: 12px; border-bottom: 1px solid var(--border); font-size: 13px; }
+        .data-table td.money { text-align: right; color: var(--success); font-weight: 600; }
+        .data-table th.money { text-align: right; }
+        .data-table tr:hover { background: var(--bg-tertiary); }
+        
+        .invoice-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .invoice-stat {
+            background: var(--bg-secondary);
+            padding: 16px;
+            border-radius: 8px;
+        }
+        
+        .invoice-stat-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        
+        .invoice-stat-value { font-size: 24px; font-weight: 700; }
+        .invoice-stat-value.money { color: var(--success); }
+        
+        .invoice-table-wrap {
+            flex: 1;
+            overflow: auto;
+            padding: 16px 24px;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .data-table th {
+            text-align: left;
+            padding: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            border-bottom: 2px solid var(--border);
+            position: sticky;
+            top: 0;
+            background: var(--bg-primary);
+        }
+        
+        .data-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+        }
+        
+        .data-table tr:hover { background: var(--bg-tertiary); }
+        
+        .data-table .tower-id { color: var(--accent); font-weight: 600; }
+        .data-table .money { text-align: right; }
+        .data-table .total-row { font-weight: 700; background: var(--bg-secondary); }
+        .data-table .total-row td { border-top: 2px solid var(--border); }
+        
+        .config-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+        
+        /* Operations View */
+        .ops-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .ops-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-secondary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        
+        .ops-title { font-size: 16px; font-weight: 600; }
+        
+        .ops-tabs {
+            display: flex;
+            gap: 8px;
+            padding: 0 24px 16px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .ops-tab {
+            padding: 8px 16px;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            cursor: pointer;
+        }
+        
+        .ops-tab:hover { background: var(--bg-tertiary); }
+        .ops-tab.active { background: var(--accent); border-color: var(--accent); color: white; }
+        
+        .ops-content {
+            flex: 1;
+            overflow: auto;
+            padding: 24px;
+        }
+        
+        .ops-section {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .ops-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+        
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        
+        .form-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        .form-input, .form-select {
+            padding: 10px 12px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+        
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        /* Audit Log */
+        .audit-log {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .audit-item {
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+        
+        .audit-item:last-child { border-bottom: none; }
+        
+        .audit-time { color: var(--text-muted); font-size: 11px; }
+        .audit-user { color: var(--accent); font-weight: 500; }
+        .audit-action { color: var(--text-secondary); }
+        .audit-detail { color: var(--text-primary); margin-top: 4px; }
+        
+        /* Admin View */
+        
+        /* PO Alerts Styles */
+        .po-alerts-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            background: var(--bg-primary);
+        }
+        .po-alerts-header { margin-bottom: 24px; }
+        .po-alerts-header h2 { font-size: 24px; margin: 0 0 8px 0; }
+        .po-alerts-header p { color: var(--text-muted); margin: 0; }
+        .po-stats-row {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .po-stat {
+            flex: 1;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+        }
+        .po-stat.critical { border-left: 4px solid #ef4444; }
+        .po-stat.warning { border-left: 4px solid #f59e0b; }
+        .po-stat.caution { border-left: 4px solid #eab308; }
+        .po-stat.ok { border-left: 4px solid #22c55e; }
+        .po-stat-value { font-size: 32px; font-weight: 700; }
+        .po-stat.critical .po-stat-value { color: #ef4444; }
+        .po-stat.warning .po-stat-value { color: #f59e0b; }
+        .po-stat.caution .po-stat-value { color: #eab308; }
+        .po-stat.ok .po-stat-value { color: #22c55e; }
+        .po-stat-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; margin-top: 4px; }
+        .po-filter-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .po-filter-btn {
+            padding: 8px 16px;
+            border: 1px solid var(--border);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .po-filter-btn:hover { background: var(--bg-tertiary); }
+        .po-filter-btn.active { background: var(--accent); border-color: var(--accent); }
+        .po-alerts-table-container {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+        .po-alerts-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .po-alerts-table th {
+            text-align: left;
+            padding: 12px 16px;
+            font-size: 11px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border);
+        }
+        .po-alerts-table td {
+            padding: 12px 16px;
+            font-size: 13px;
+            border-bottom: 1px solid var(--border);
+        }
+        .po-alerts-table tr:hover { background: var(--bg-tertiary); }
+        .po-status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .po-status-badge.expired { background: rgba(239,68,68,0.2); color: #ef4444; }
+        .po-status-badge.critical { background: rgba(245,158,11,0.2); color: #f59e0b; }
+        .po-status-badge.warning { background: rgba(234,179,8,0.2); color: #eab308; }
+        .po-status-badge.ok { background: rgba(34,197,94,0.2); color: #22c55e; }
+        
+        .admin-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            padding: 24px;
+        }
+        
+        .admin-card {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        
+        .admin-card-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .admin-list {
+            max-height: 250px;
+            overflow-y: auto;
+            margin-bottom: 16px;
+        }
+        
+        .admin-list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            background: var(--bg-tertiary);
+            border-radius: 6px;
+            margin-bottom: 6px;
+            font-size: 13px;
+        }
+        
+        .admin-list-item .delete-btn {
+            padding: 4px 8px;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 11px;
+        }
+        
+        .admin-list-item .delete-btn:hover {
+            background: var(--danger);
+            border-color: var(--danger);
+            color: white;
+        }
+        
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+        
+        .modal {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title { font-size: 18px; font-weight: 600; }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 24px;
+            cursor: pointer;
+            line-height: 1;
+        }
+        
+        .modal-close:hover { color: var(--text-primary); }
+        
+        .modal-body { padding: 20px; }
+        
+        .modal-footer {
+            padding: 16px 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+            text-align: center;
+        }
+        
+        .empty-state-icon { font-size: 48px; margin-bottom: 16px; }
+        .empty-state-text { font-size: 14px; }
+        
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--success);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 8px;
+            font-weight: 500;
+            display: none;
+            z-index: 1001;
+            animation: slideIn 0.3s ease;
+        }
+        
+        .toast.error { background: var(--danger); }
+        .toast.active { display: block; }
+        
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        /* Dashboard Styles */
+        .dashboard-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            background: var(--bg-primary);
+        }
+        
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        
+        .dashboard-title { font-size: 24px; font-weight: 700; }
+        .dashboard-subtitle { color: var(--text-secondary); font-size: 14px; margin-top: 4px; }
+        .dashboard-actions { display: flex; gap: 12px; }
+        
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .dash-stat {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+        
+        .dash-stat.highlight {
+            background: linear-gradient(135deg, rgba(249,115,22,0.1), rgba(249,115,22,0.05));
+            border-color: var(--accent);
+        }
+        
+        .dash-stat-icon { font-size: 28px; margin-bottom: 8px; }
+        .dash-stat-value { font-size: 32px; font-weight: 700; }
+        .dash-stat-value.money { color: var(--success); }
+        .dash-stat-label { font-size: 12px; color: var(--text-muted); margin-top: 4px; text-transform: uppercase; }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .dashboard-card {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+        
+        .dashboard-card.full-width { grid-column: 1 / -1; }
+        
+        .card-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-header h3 { font-size: 14px; font-weight: 600; }
+        
+        .search-input {
+            padding: 8px 12px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 13px;
+            width: 200px;
+        }
+        
+        .search-input:focus { outline: none; border-color: var(--accent); }
+        
+        .card-content { padding: 16px 20px; max-height: 400px; overflow-y: auto; }
+        
+        .customer-bars { display: flex; flex-direction: column; gap: 12px; }
+        
+        .customer-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .customer-bar-name {
+            width: 140px;
+            font-size: 13px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .customer-bar-track {
+            flex: 1;
+            height: 24px;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .customer-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), #fb923c);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            min-width: 60px;
+        }
+        
+        .customer-bar-value {
+            width: 100px;
+            text-align: right;
+            font-size: 13px;
+            color: var(--success);
+            font-weight: 600;
+        }
+        
+        .top-jobs-list { display: flex; flex-direction: column; gap: 8px; }
+        
+        .top-job-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            background: var(--bg-tertiary);
+            border-radius: 6px;
+        }
+        
+        .top-job-rank {
+            width: 24px;
+            height: 24px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            margin-right: 12px;
+        }
+        
+        .top-job-info { flex: 1; }
+        .top-job-code { font-weight: 600; font-size: 13px; color: var(--accent); }
+        .top-job-customer { font-size: 11px; color: var(--text-muted); }
+        .top-job-value { font-weight: 600; color: var(--success); }
+        
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .invoice-stats { grid-template-columns: repeat(2, 1fr); }
+            .dashboard-stats { grid-template-columns: repeat(2, 1fr); }
+            .dashboard-grid { grid-template-columns: 1fr; }
+        }
+        
+        @media (max-width: 900px) {
+            .column-panel { width: 180px; min-width: 150px; }
+            .topbar { flex-wrap: wrap; }
+            .nav-tabs { order: 3; width: 100%; margin-top: 12px; overflow-x: auto; }
+        }
+        
+        @media (max-width: 768px) {
+            .column-panel { width: 100%; border-right: none; border-bottom: 1px solid var(--border); max-height: 200px; }
+            .view.active { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-box">
+            <div class="login-logo">MLT</div>
+            <h1 class="login-title">Asset Tracker</h1>
+            <p class="login-subtitle">Enter your staff code to continue</p>
+            <input type="text" class="login-input" id="loginCode" placeholder="MICK-XXXX-XXXX-XXXX" autocomplete="off">
+            <button class="login-btn" onclick="handleLogin()">Sign In</button>
+            <p class="login-error" id="loginError">Invalid staff code</p>
+            <p class="login-security">🔒 Secure • Session expires after 8 hours</p>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div class="app-container hidden" id="appContainer">
+        <!-- Top Bar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <div class="logo">MLT</div>
+                <div>
+                    <div class="logo-text">Asset Tracker</div>
+                    <div class="logo-sub">Operations Command Center</div>
+                </div>
+            </div>
+            
+            <nav class="nav-tabs">
+                <button class="nav-tab" data-view="dashboard">📊 Dashboard</button>
+                <button class="nav-tab active" data-view="finance">💰 Finance</button>
+                <button class="nav-tab" data-view="history">📜 History</button>
+                <button class="nav-tab" data-view="operations">📋 Operations</button>
+                <button class="nav-tab" data-view="poalerts">🔔 PO Alerts</button>
+                <button class="nav-tab" data-view="admin">⚙️ Admin</button>
+            </nav>
+            
+            <div class="topbar-user">
+                <div>
+                    <div class="user-name" id="userName">-</div>
+                    <div class="user-role" id="userRole">ADMIN</div>
+                </div>
+                <div class="user-avatar" id="userAvatar">D</div>
+                <button class="logout-btn" onclick="handleLogout()">Logout</button>
+            </div>
+        </header>
+        
+        <!-- Main Wrapper -->
+        <div class="main-wrapper">
+            <!-- Dashboard View -->
+            <div class="view" id="viewDashboard">
+                <div class="dashboard-container">
+                    <div class="dashboard-header">
+                        <div>
+                            <h1 class="dashboard-title">Fleet Summary Dashboard</h1>
+                            <p class="dashboard-subtitle">Weekly billing overview across all customers</p>
+                        </div>
+                        <div class="dashboard-actions">
+                            <button class="btn primary" onclick="exportAllCSV()">📥 Export All CSV</button>
+                            <button class="btn success" onclick="invoiceAll()">✓ Invoice All</button>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-stats">
+                        <div class="dash-stat">
+                            <div class="dash-stat-icon">🏗️</div>
+                            <div class="dash-stat-value" id="dashTotalTowers">-</div>
+                            <div class="dash-stat-label">Towers on Hire</div>
+                        </div>
+                        <div class="dash-stat">
+                            <div class="dash-stat-icon">👥</div>
+                            <div class="dash-stat-value" id="dashTotalCustomers">-</div>
+                            <div class="dash-stat-label">Active Customers</div>
+                        </div>
+                        <div class="dash-stat">
+                            <div class="dash-stat-icon">📋</div>
+                            <div class="dash-stat-value" id="dashTotalJobs">-</div>
+                            <div class="dash-stat-label">Active Jobs</div>
+                        </div>
+                        <div class="dash-stat highlight">
+                            <div class="dash-stat-icon">💰</div>
+                            <div class="dash-stat-value money" id="dashTotalRevenue">-</div>
+                            <div class="dash-stat-label">Weekly Revenue</div>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-grid">
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h3>📊 Revenue by Customer</h3>
+                            </div>
+                            <div class="card-content">
+                                <div class="customer-bars" id="customerBars"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h3>🔝 Top 10 Jobs by Value</h3>
+                            </div>
+                            <div class="card-content">
+                                <div class="top-jobs-list" id="topJobsList"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-card full-width">
+                        <div class="card-header">
+                            <h3>📋 All Customers Summary</h3>
+                            <input type="text" class="search-input" id="dashboardSearch" placeholder="Search customers..." oninput="renderDashboardTable()">
+                        </div>
+                        <div class="card-content">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Customer</th>
+                                        <th>Sites</th>
+                                        <th>Jobs</th>
+                                        <th>Towers</th>
+                                        <th class="money">Weekly Total</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dashboardTable"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Finance View -->
+            <div class="view active" id="viewFinance">
+                <!-- Customer Column -->
+                <div class="column-panel" id="customerPanel">
+                    <div class="column-header">
+                        <span class="column-title">Customers</span>
+                        <span id="customerCount" style="font-size:11px;color:var(--text-muted)">0</span>
+                    </div>
+                    <div class="column-content" id="customerList"></div>
+                </div>
+                
+                <!-- Site Column -->
+                <div class="column-panel" id="sitePanel">
+                    <div class="column-header">
+                        <span class="column-title">Sites</span>
+                        <span id="siteCount" style="font-size:11px;color:var(--text-muted)">0</span>
+                    </div>
+                    <div class="column-content" id="siteList">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">👈</div>
+                            <div class="empty-state-text">Select a customer</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Job Column -->
+                <div class="column-panel wide" id="jobPanel">
+                    <div class="column-header">
+                        <span class="column-title">Jobs / POs</span>
+                        <span id="jobCount" style="font-size:11px;color:var(--text-muted)">0</span>
+                    </div>
+                    <div class="column-content" id="jobList">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">👈</div>
+                            <div class="empty-state-text">Select a site</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Invoice Panel -->
+                <div class="invoice-panel" id="invoicePanel">
+                    <div class="empty-state" id="invoiceEmpty" style="flex:1">
+                        <div class="empty-state-icon">📄</div>
+                        <div class="empty-state-text">Select a job to view invoice</div>
+                    </div>
+                    
+                    <div class="hidden" id="invoiceContent">
+                        <div class="invoice-header">
+                            <div>
+                                <h2 class="invoice-title" id="invoiceTitle">-</h2>
+                                <p class="invoice-subtitle" id="invoiceSubtitle">-</p>
+                                <p class="invoice-po" id="invoicePO">-</p>
+                            </div>
+                            <div class="invoice-actions">
+                                <button class="btn" onclick="previewPDF()">📄 Preview PDF</button>
+                                <button class="btn" onclick="emailClient()">📧 Email Client</button>
+                                <button class="btn" onclick="exportCSV()">📥 Export CSV</button>
+                                <button class="btn success" onclick="approveInvoice()">✓ Approve & Generate</button>
+                            </div>
+                        </div>
+                        
+                        <div class="invoice-stats">
+                            <div class="invoice-stat">
+                                <div class="invoice-stat-label">Towers on Hire</div>
+                                <div class="invoice-stat-value" id="statTowers">-</div>
+                            </div>
+                            <div class="invoice-stat">
+                                <div class="invoice-stat-label">Total Tower-Days</div>
+                                <div class="invoice-stat-value" id="statDays">-</div>
+                            </div>
+                            <div class="invoice-stat">
+                                <div class="invoice-stat-label">Daily Rate</div>
+                                <div class="invoice-stat-value" id="statRate">-</div>
+                            </div>
+                            <div class="invoice-stat">
+                                <div class="invoice-stat-label">Total to Invoice</div>
+                                <div class="invoice-stat-value money" id="statTotal">-</div>
+                            </div>
+                        </div>
+                        
+                        <div class="invoice-table-wrap">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Tower ID</th>
+                                        <th>Configuration</th>
+                                        <th>Site</th>
+                                        <th>Days</th>
+                                        <th class="money">Daily Rate</th>
+                                        <th class="money">Line Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="invoiceTable"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Operations View -->
+            <div class="view" id="viewOperations">
+                <div class="ops-container">
+                    <div class="ops-header">
+                        <div class="ops-title">Tower Operations</div>
+                        <div style="display:flex;gap:8px">
+                            <button class="btn primary" onclick="showMovementForm()">🚚 Move Tower</button>
+                        </div>
+                    </div>
+                    
+                    <div class="ops-tabs">
+                        <button class="ops-tab active" onclick="showOpsTab('movements')">Recent Movements</button>
+                        <button class="ops-tab" onclick="showOpsTab('audit')">Audit Log</button>
+                    </div>
+                    
+                    <div class="ops-content">
+                        <!-- Movement Form -->
+                        <div class="ops-section hidden" id="movementForm">
+                            <div class="ops-section-title">🚚 Move Tower</div>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">Tower ID</label>
+                                    <input type="text" class="form-input" id="moveTowerId" placeholder="MLT1244" oninput="lookupTowerForMovement()">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Current Location</label>
+                                    <input type="text" class="form-input" id="moveFromSite" disabled placeholder="Enter Tower ID to lookup">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Move To</label>
+                                    <select class="form-select" id="moveToSite"></select>
+                                </div>
+                                <div class="form-group hidden" id="newDestSection">
+                                    <label class="form-label">New Job Code</label>
+                                    <input type="text" class="form-input" id="newDestCode" placeholder="e.g. 6X99001">
+                                    <label class="form-label" style="margin-top:8px">Customer</label>
+                                    <input type="text" class="form-input" id="newDestCustomer" placeholder="e.g. BMA">
+                                    <label class="form-label" style="margin-top:8px">Site Name</label>
+                                    <input type="text" class="form-input" id="newDestSite" placeholder="e.g. New Mine Site">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Date</label>
+                                    <input type="date" class="form-input" id="moveDate">
+                                </div>
+                            </div>
+                            <div style="margin-top:16px;display:flex;gap:8px">
+                                <button class="btn primary" onclick="submitMovement()">Move Tower</button>
+                                <button class="btn" onclick="hideMovementForm()">Cancel</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Movements Tab -->
+                        <div class="ops-section" id="movementsTab">
+                            <div class="ops-section-title">📋 Recent Movements</div>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Tower</th>
+                                        <th>From</th>
+                                        <th>To</th>
+                                        <th>Logged By</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="movementsTable"></tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Audit Tab -->
+                        <div class="ops-section hidden" id="auditTab">
+                            <div class="ops-section-title">📜 Audit Log</div>
+                            <div class="audit-log" id="auditLog"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- History View -->
+            <div class="view" id="viewHistory">
+                <div class="po-alerts-container">
+                    <div class="po-alerts-header">
+                        <h2>📜 Invoice History</h2>
+                        <p>Approved invoices synced across all devices</p>
+                    </div>
+                    <div class="po-filter-row" style="margin-bottom: 16px;">
+                        <input type="text" id="historySearch" class="form-input" placeholder="Search by invoice #, customer, or job..." style="flex:1; max-width:400px;" oninput="filterHistory()">
+                        <button class="btn primary" onclick="refreshHistory()">🔄 Refresh</button>
+                    </div>
+                    <div class="po-alerts-table-container">
+                        <table class="po-alerts-table">
+                            <thead>
+                                <tr>
+                                    <th>Invoice #</th>
+                                    <th>Customer</th>
+                                    <th>Site</th>
+                                    <th>Job Code</th>
+                                    <th>Towers</th>
+                                    <th>Total</th>
+                                    <th>Approved By</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historyTable"></tbody>
+                        </table>
+                    </div>
+                    <div id="historyLoading" style="text-align:center; padding:40px; color:var(--text-secondary);">
+                        Loading invoice history...
+                    </div>
+                    <div id="historyEmpty" style="text-align:center; padding:40px; color:var(--text-secondary); display:none;">
+                        No invoices found. Approved invoices will appear here.
+                    </div>
+                </div>
+            </div>
+            
+            <!-- PO Alerts View -->
+            <div class="view" id="viewPoalerts">
+                <div class="po-alerts-container">
+                    <div class="po-alerts-header">
+                        <h2>🔔 Purchase Order Alerts</h2>
+                        <p>POs expiring within the next 30 days</p>
+                    </div>
+                    <div class="po-stats-row" id="poStatsRow">
+                        <div class="po-stat critical">
+                            <div class="po-stat-value" id="poExpired">0</div>
+                            <div class="po-stat-label">Expired</div>
+                        </div>
+                        <div class="po-stat warning">
+                            <div class="po-stat-value" id="poExpiring7">0</div>
+                            <div class="po-stat-label">≤7 Days</div>
+                        </div>
+                        <div class="po-stat caution">
+                            <div class="po-stat-value" id="poExpiring30">0</div>
+                            <div class="po-stat-label">≤30 Days</div>
+                        </div>
+                        <div class="po-stat ok">
+                            <div class="po-stat-value" id="poOk">0</div>
+                            <div class="po-stat-label">OK</div>
+                        </div>
+                    </div>
+                    <div class="po-filter-row">
+                        <button class="po-filter-btn active" onclick="filterPOAlerts('all')">All</button>
+                        <button class="po-filter-btn" onclick="filterPOAlerts('critical')">Critical</button>
+                        <button class="po-filter-btn" onclick="filterPOAlerts('warning')">Warning</button>
+                        <button class="po-filter-btn" onclick="filterPOAlerts('ok')">OK</button>
+                    </div>
+                    <div class="po-alerts-table-container">
+                        <table class="po-alerts-table">
+                            <thead>
+                                <tr>
+                                    <th>Status</th>
+                                    <th>PO Number</th>
+                                    <th>Customer</th>
+                                    <th>Description</th>
+                                    <th>End Date</th>
+                                    <th>Days Left</th>
+                                </tr>
+                            </thead>
+                            <tbody id="poAlertsTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Admin View -->
+            <div class="view" id="viewAdmin">
+                <div class="admin-grid">
+                    <!-- Customers -->
+                    <div class="admin-card">
+                        <div class="admin-card-title">👥 Customers</div>
+                        <div class="admin-list" id="adminCustomerList"></div>
+                        <button class="btn primary" onclick="showAddCustomerModal()" style="width:100%">+ Add Customer</button>
+                    </div>
+                    
+                    <!-- Sites -->
+                    <div class="admin-card">
+                        <div class="admin-card-title">📍 Sites</div>
+                        <div class="form-group" style="margin-bottom:12px">
+                            <select class="form-select" id="adminSiteCustomer" onchange="renderAdminSites()">
+                                <option value="">Select customer...</option>
+                            </select>
+                        </div>
+                        <div class="admin-list" id="adminSiteList"></div>
+                        <button class="btn primary" onclick="showAddSiteModal()" style="width:100%">+ Add Site</button>
+                    </div>
+                    
+                    <!-- Jobs -->
+                    <div class="admin-card">
+                        <div class="admin-card-title">📋 Jobs / POs</div>
+                        <div class="form-group" style="margin-bottom:12px">
+                            <select class="form-select" id="adminJobCustomer" onchange="updateAdminJobSites()">
+                                <option value="">Select customer...</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-bottom:12px">
+                            <select class="form-select" id="adminJobSite" onchange="renderAdminJobs()">
+                                <option value="">Select site...</option>
+                            </select>
+                        </div>
+                        <div class="admin-list" id="adminJobList"></div>
+                        <button class="btn primary" onclick="showAddJobModal()" style="width:100%">+ Add Job</button>
+                    </div>
+                </div>
+                
+                <!-- Audit Logs Section -->
+                <div class="audit-logs-section" style="margin-top: 24px;">
+                    <div class="section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <h3 style="margin: 0; font-size: 18px;">📋 Audit Logs</h3>
+                        <div style="display: flex; gap: 12px; align-items: center;">
+                            <input type="text" id="auditSearch" class="form-input" placeholder="Search logs..." style="width: 200px;" oninput="filterAuditLogs()">
+                            <select id="auditActionFilter" class="form-select" style="width: 150px;" onchange="filterAuditLogs()">
+                                <option value="">All Actions</option>
+                                <option value="LOGIN">Login</option>
+                                <option value="LOGOUT">Logout</option>
+                                <option value="SESSION_RESUME">Session Resume</option>
+                                <option value="VIEW_CHANGE">View Change</option>
+                                <option value="INVOICE_APPROVED">Invoice Approved</option>
+                                <option value="LOGIN_FAILED">Login Failed</option>
+                            </select>
+                            <button class="btn" onclick="refreshAuditLogs()">🔄 Refresh</button>
+                        </div>
+                    </div>
+                    <div class="table-container" style="max-height: 400px; overflow-y: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width: 160px;">Timestamp</th>
+                                    <th style="width: 100px;">User</th>
+                                    <th style="width: 140px;">Action</th>
+                                    <th>Details</th>
+                                </tr>
+                            </thead>
+                            <tbody id="auditLogsTable">
+                                <tr><td colspan="4" style="text-align: center; padding: 40px; color: var(--text-muted);">Loading audit logs...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div style="margin-top: 12px; display: flex; justify-content: space-between; align-items: center;">
+                        <span id="auditLogCount" style="color: var(--text-secondary); font-size: 13px;">0 entries</span>
+                        <button class="btn" onclick="loadMoreAuditLogs()" id="loadMoreBtn" style="display: none;">Load More</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Customer Modal -->
+    <div class="modal-overlay hidden" id="addCustomerModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Add Customer</h3>
+                <button class="modal-close" onclick="closeModal('addCustomerModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Customer Name</label>
+                    <input type="text" class="form-input" id="newCustomerName" placeholder="e.g. BHP, Glencore">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('addCustomerModal')">Cancel</button>
+                <button class="btn primary" onclick="addCustomer()">Add Customer</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Site Modal -->
+    <div class="modal-overlay hidden" id="addSiteModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Add Site</h3>
+                <button class="modal-close" onclick="closeModal('addSiteModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group" style="margin-bottom:16px">
+                    <label class="form-label">Customer</label>
+                    <select class="form-select" id="newSiteCustomer"></select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Site Name</label>
+                    <input type="text" class="form-input" id="newSiteName" placeholder="e.g. Goonyella Mine">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('addSiteModal')">Cancel</button>
+                <button class="btn primary" onclick="addSite()">Add Site</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Job Modal -->
+    <div class="modal-overlay hidden" id="addJobModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Add Job / PO</h3>
+                <button class="modal-close" onclick="closeModal('addJobModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-grid" style="margin-bottom:16px">
+                    <div class="form-group">
+                        <label class="form-label">Customer</label>
+                        <select class="form-select" id="newJobCustomer" onchange="updateNewJobSites()"></select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Site</label>
+                        <select class="form-select" id="newJobSite"></select>
+                    </div>
+                </div>
+                <div class="form-grid" style="margin-bottom:16px">
+                    <div class="form-group">
+                        <label class="form-label">Job Code</label>
+                        <input type="text" class="form-input" id="newJobCode" placeholder="e.g. 6G25001">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">PO Number</label>
+                        <input type="text" class="form-input" id="newJobPO" placeholder="Client's PO number">
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom:16px">
+                    <label class="form-label">Description</label>
+                    <input type="text" class="form-input" id="newJobDesc" placeholder="e.g. Tower Hire, Shutdown">
+                </div>
+                <div class="form-grid" style="margin-bottom:16px">
+                    <div class="form-group">
+                        <label class="form-label">Start Date</label>
+                        <input type="date" class="form-input" id="newJobStart">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">End Date</label>
+                        <input type="date" class="form-input" id="newJobEnd">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Daily Rate ($)</label>
+                    <input type="number" class="form-input" id="newJobRate" placeholder="e.g. 45.00" step="0.01">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('addJobModal')">Cancel</button>
+                <button class="btn primary" onclick="addJob()">Add Job</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // =============================================
+        // CONFIG & STATE
+        // =============================================
+        const validCodes = {
+            'MICK-RRMB-AUD5-4HA7': { name: 'Damien', role: 'admin' },
+            'MICK-Y2SK-48XE-PB66': { name: 'Debbie', role: 'operations' }
+        };
+        
+        let currentUser = null;
+        let fleetData = [];
+        let poData = [];
+        let customData = { customers: [], sites: [], jobs: [] };
+        let movements = [];
+        let auditLog = [];
+        
+        // Supabase client
+        const SUPABASE_URL = 'https://fntqwckvrdbemjadcpcz.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZudHF3Y2t2cmRiZW1qYWRjcGN6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxNjQxOTEsImV4cCI6MjA5Nzc0MDE5MX0.RkrUugZ4Jain6O2Z8XziNjRzWfcKRQcdFSrVb8NnBl4';
+        const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+        
+        let selectedCustomer = null;
+        let selectedSite = null;
+        let selectedJob = null;
+        
+        // =============================================
+        // AUDIT LOGGING
+        // =============================================
+        async function logAudit(action, details = {}) {
+            if (!supabaseClient || !currentUser) return;
+            try {
+                await supabaseClient.from('audit_log').insert({
+                    user_name: currentUser.name,
+                    user_code: currentUser.code,
+                    action: action,
+                    details: details
+                });
+            } catch (e) {
+                console.warn('Audit log failed:', e);
+            }
+        }
+        
+        // =============================================
+        // AUTH
+        // =============================================
+        function handleLogin() {
+            const code = document.getElementById('loginCode').value.trim().toUpperCase();
+            const user = validCodes[code];
+            
+            if (user) {
+                currentUser = { ...user, code };
+                localStorage.setItem('mlt_tracker_session', JSON.stringify({
+                    user: currentUser,
+                    expires: Date.now() + (8 * 60 * 60 * 1000)
+                }));
+                logAudit('LOGIN', { method: 'manual' });
+                showApp();
+            } else {
+                document.getElementById('loginError').style.display = 'block';
+                // Log failed attempt
+                if (supabaseClient) {
+                    supabaseClient.from('audit_log').insert({
+                        user_name: 'UNKNOWN',
+                        user_code: code,
+                        action: 'LOGIN_FAILED',
+                        details: { attempted_code: code }
+                    });
+                }
+            }
+        }
+        
+        function checkSession() {
+            const session = localStorage.getItem('mlt_tracker_session');
+            if (session) {
+                const parsed = JSON.parse(session);
+                if (parsed.expires > Date.now()) {
+                    currentUser = parsed.user;
+                    logAudit('SESSION_RESUME', { method: 'cached' });
+                    return true;
+                }
+                localStorage.removeItem('mlt_tracker_session');
+            }
+            return false;
+        }
+        
+        function handleLogout() {
+            logAudit('LOGOUT', {});
+            localStorage.removeItem('mlt_tracker_session');
+            currentUser = null;
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('appContainer').classList.add('hidden');
+            document.getElementById('loginCode').value = '';
+            document.getElementById('loginError').style.display = 'none';
+        }
+        
+        // =============================================
+        // APP INIT
+        // =============================================
+        async function showApp() {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('appContainer').classList.remove('hidden');
+            
+            document.getElementById('userName').textContent = currentUser.name;
+            document.getElementById('userRole').textContent = currentUser.role.toUpperCase();
+            document.getElementById('userAvatar').textContent = currentUser.name.charAt(0);
+            
+            await loadData();
+            
+            renderCustomers();
+            renderMovements();
+            renderAuditLog();
+            renderAdminData();
+            renderDashboard();
+            renderPOAlerts();
+            
+            // Nav tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.addEventListener('click', () => switchView(tab.dataset.view));
+            });
+            
+            // Tower lookup for reassign
+            document.getElementById('reassignTowerId').addEventListener('blur', lookupTowerJob);
+            
+            // Set default dates
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('moveDate').value = today;
+            document.getElementById('reassignDate').value = today;
+            
+            document.getElementById('loginCode').addEventListener('keyup', e => {
+                if (e.key === 'Enter') handleLogin();
+            });
+        }
+        
+        async function loadData() {
+            try {
+                const [fleetRes, poRes] = await Promise.all([
+                    fetch('fleet-data.json'),
+                    fetch('po-data.json').catch(() => ({ ok: false }))
+                ]);
+                
+                fleetData = await fleetRes.json();
+                if (poRes.ok) poData = await poRes.json();
+            } catch (err) {
+                console.log('Data load error:', err);
+                fleetData = [];
+            }
+            
+            // Load custom data
+            const saved = localStorage.getItem('mlt_custom_data');
+            if (saved) customData = JSON.parse(saved);
+            
+            const savedMovements = localStorage.getItem('mlt_movements');
+            if (savedMovements) movements = JSON.parse(savedMovements);
+            
+            const savedAudit = localStorage.getItem('mlt_audit');
+            if (savedAudit) auditLog = JSON.parse(savedAudit);
+        }
+        
+        function saveCustomData() {
+            localStorage.setItem('mlt_custom_data', JSON.stringify(customData));
+        }
+        
+        function saveMovements() {
+            localStorage.setItem('mlt_movements', JSON.stringify(movements));
+        }
+        
+        function saveAudit() {
+            localStorage.setItem('mlt_audit', JSON.stringify(auditLog));
+        }
+        
+        function addAuditEntry(action, detail) {
+            auditLog.unshift({
+                timestamp: new Date().toISOString(),
+                user: currentUser.name,
+                action,
+                detail
+            });
+            if (auditLog.length > 500) auditLog = auditLog.slice(0, 500);
+            saveAudit();
+        }
+        
+        // =============================================
+        // DATA HELPERS
+        // =============================================
+        function getCustomers() {
+            const fromFleet = [...new Set(fleetData.map(t => t.customer).filter(Boolean))];
+            const fromCustom = customData.customers.map(c => c.name);
+            return [...new Set([...fromFleet, ...fromCustom])].sort();
+        }
+        
+        function getSitesForCustomer(customer) {
+            const fromFleet = [...new Set(
+                fleetData
+                    .filter(t => t.customer === customer)
+                    .map(t => t.site)
+                    .filter(Boolean)
+            )];
+            const fromCustom = customData.sites
+                .filter(s => s.customer === customer)
+                .map(s => s.name);
+            return [...new Set([...fromFleet, ...fromCustom])].sort();
+        }
+        
+        function getJobsForSite(customer, site) {
+            // Get jobs from fleet data (visionJob field)
+            const towersAtSite = fleetData.filter(t => 
+                t.customer === customer && 
+                t.site === site && 
+                (t.status || '').toUpperCase().includes('ON HIRE')
+            );
+            
+            const jobsFromFleet = {};
+            towersAtSite.forEach(t => {
+                const job = t.visionJob || 'UNASSIGNED';
+                if (!jobsFromFleet[job]) {
+                    jobsFromFleet[job] = {
+                        code: job,
+                        description: t.jobDescription || '',
+                        towerCount: 0,
+                        rate: t.rateDaily || t.daily_rate || 0
+                    };
+                }
+                jobsFromFleet[job].towerCount++;
+            });
+            
+            // Get jobs from custom data
+            const jobsFromCustom = customData.jobs
+                .filter(j => j.customer === customer && j.site === site)
+                .map(j => ({
+                    code: j.code,
+                    description: j.description,
+                    poNumber: j.poNumber,
+                    startDate: j.startDate,
+                    endDate: j.endDate,
+                    rate: j.rate,
+                    towerCount: towersAtSite.filter(t => t.visionJob === j.code).length,
+                    isCustom: true
+                }));
+            
+            // Merge - custom jobs take precedence for metadata
+            const result = [];
+            const addedCodes = new Set();
+            
+            jobsFromCustom.forEach(j => {
+                result.push(j);
+                addedCodes.add(j.code);
+            });
+            
+            Object.values(jobsFromFleet).forEach(j => {
+                if (!addedCodes.has(j.code)) {
+                    // Try to find PO info
+                    const poMatch = poData.find(p => 
+                        p.poNumber === j.code || 
+                        (p.filename && p.filename.includes(j.code))
+                    );
+                    if (poMatch) {
+                        j.poNumber = poMatch.poNumber;
+                        j.startDate = poMatch.startDate;
+                        j.endDate = poMatch.endDate;
+                    }
+                    result.push(j);
+                }
+            });
+            
+            return result.sort((a, b) => (b.towerCount || 0) - (a.towerCount || 0));
+        }
+        
+        function getTowersForJob(customer, site, jobCode) {
+            return fleetData.filter(t => 
+                t.customer === customer && 
+                t.site === site && 
+                (t.visionJob === jobCode || (!t.visionJob && jobCode === 'UNASSIGNED')) &&
+                (t.status || '').toUpperCase().includes('ON HIRE')
+            );
+        }
+        
+        function getAllSites() {
+            const fromFleet = [...new Set(fleetData.map(t => t.site).filter(Boolean))];
+            const fromCustom = customData.sites.map(s => s.name);
+            return [...new Set([...fromFleet, ...fromCustom])].sort();
+        }
+        
+        // =============================================
+        // FINANCE VIEW
+        // =============================================
+        function renderCustomers() {
+            const customers = getCustomers();
+            document.getElementById('customerCount').textContent = customers.length;
+            
+            let html = '';
+            customers.forEach(name => {
+                const towerCount = fleetData.filter(t => 
+                    t.customer === name && 
+                    (t.status || '').toUpperCase().includes('ON HIRE')
+                ).length;
+                
+                html += `
+                    <div class="column-item ${selectedCustomer === name ? 'active' : ''}" 
+                         onclick="selectCustomer('${name.replace(/'/g, "\\'")}')">
+                        <div>
+                            <div class="column-item-name">${name}</div>
+                        </div>
+                        <span class="column-item-count">${towerCount}</span>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('customerList').innerHTML = html || '<div class="empty-state"><div class="empty-state-text">No customers</div></div>';
+        }
+        
+        function selectCustomer(name) {
+            selectedCustomer = name;
+            selectedSite = null;
+            selectedJob = null;
+            
+            renderCustomers();
+            renderSites();
+            
+            document.getElementById('jobList').innerHTML = '<div class="empty-state"><div class="empty-state-icon">&larr;</div><div class="empty-state-text">Select a site</div></div>';
+            document.getElementById('jobCount').textContent = '0';
+            
+            document.getElementById('invoiceEmpty').classList.remove('hidden');
+            document.getElementById('invoiceContent').classList.add('hidden');
+        }
+        
+        function renderSites() {
+            if (!selectedCustomer) return;
+            
+            const sites = getSitesForCustomer(selectedCustomer);
+            document.getElementById('siteCount').textContent = sites.length;
+            
+            let html = '';
+            sites.forEach(name => {
+                const towerCount = fleetData.filter(t => 
+                    t.customer === selectedCustomer && 
+                    t.site === name && 
+                    (t.status || '').toUpperCase().includes('ON HIRE')
+                ).length;
+                
+                html += `
+                    <div class="column-item ${selectedSite === name ? 'active' : ''}" 
+                         onclick="selectSite('${name.replace(/'/g, "\\'")}')">
+                        <div>
+                            <div class="column-item-name">${name}</div>
+                        </div>
+                        <span class="column-item-count">${towerCount}</span>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('siteList').innerHTML = html || '<div class="empty-state"><div class="empty-state-text">No sites</div></div>';
+        }
+        
+        function selectSite(name) {
+            selectedSite = name;
+            selectedJob = null;
+            
+            renderSites();
+            renderJobs();
+            
+            document.getElementById('invoiceEmpty').classList.remove('hidden');
+            document.getElementById('invoiceContent').classList.add('hidden');
+        }
+        
+        function renderJobs() {
+            if (!selectedCustomer || !selectedSite) return;
+            
+            const jobs = getJobsForSite(selectedCustomer, selectedSite);
+            document.getElementById('jobCount').textContent = jobs.length;
+            
+            let html = '';
+            jobs.forEach(job => {
+                const weeklyTotal = job.towerCount * (job.rate || 50) * 7;
+                
+                html += `
+                    <div class="column-item ${selectedJob === job.code ? 'active' : ''}" 
+                         onclick="selectJob('${job.code.replace(/'/g, "\\'")}')">
+                        <div>
+                            <div class="column-item-name">${job.code}</div>
+                            <div class="column-item-sub">${job.description || 'No description'} • ${job.towerCount} towers</div>
+                        </div>
+                        <span class="column-item-count money">$${weeklyTotal.toLocaleString()}</span>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('jobList').innerHTML = html || '<div class="empty-state"><div class="empty-state-text">No jobs</div></div>';
+        }
+        
+        function selectJob(code) {
+            selectedJob = code;
+            renderJobs();
+            renderInvoice();
+        }
+        
+        function renderInvoice() {
+            if (!selectedCustomer || !selectedSite || !selectedJob) return;
+            
+            const jobs = getJobsForSite(selectedCustomer, selectedSite);
+            const job = jobs.find(j => j.code === selectedJob);
+            if (!job) return;
+            
+            const towers = getTowersForJob(selectedCustomer, selectedSite, selectedJob);
+            const days = 7;
+            const rate = job.rate || 50;
+            const totalDays = towers.length * days;
+            const total = towers.reduce((sum, t) => sum + (t.rateDaily || t.daily_rate || rate) * days, 0);
+            
+            document.getElementById('invoiceEmpty').classList.add('hidden');
+            document.getElementById('invoiceContent').classList.remove('hidden');
+            
+            document.getElementById('invoiceTitle').textContent = `${selectedCustomer} - ${selectedSite}`;
+            document.getElementById('invoiceSubtitle').textContent = `Job: ${job.code} - ${job.description || 'Tower Hire'}`;
+            document.getElementById('invoicePO').textContent = job.poNumber ? `PO: ${job.poNumber}` : 'No PO on file';
+            
+            document.getElementById('statTowers').textContent = towers.length;
+            document.getElementById('statDays').textContent = totalDays;
+            document.getElementById('statRate').textContent = `$${rate.toFixed(2)}`;
+            document.getElementById('statTotal').textContent = `$${total.toLocaleString()}`;
+            
+            let html = '';
+            towers.forEach(tower => {
+                const towerId = tower.id || tower.tower_id;
+                const config = tower.config || 'Standard';
+                const towerRate = tower.rateDaily || tower.daily_rate || rate;
+                const lineTotal = towerRate * days;
+                
+                html += `
+                    <tr>
+                        <td class="tower-id">${towerId}</td>
+                        <td><span class="config-badge">${config}</span></td>
+                        <td>${tower.site}</td>
+                        <td>${days}</td>
+                        <td class="money">$${towerRate.toFixed(2)}</td>
+                        <td class="money">$${lineTotal.toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+            
+            html += `
+                <tr class="total-row">
+                    <td colspan="5">Total (${towers.length} towers × ${days} days)</td>
+                    <td class="money">$${total.toLocaleString()}.00</td>
+                </tr>
+            `;
+            
+            document.getElementById('invoiceTable').innerHTML = html;
+        }
+        
+        // =============================================
+        // OPERATIONS VIEW
+        // =============================================
+        function showOpsTab(tab) {
+            document.querySelectorAll('.ops-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            document.getElementById('movementsTab').classList.toggle('hidden', tab !== 'movements');
+            document.getElementById('auditTab').classList.toggle('hidden', tab !== 'audit');
+        }
+        
+        function showMovementForm() {
+            document.getElementById('movementForm').classList.remove('hidden');
+            document.getElementById('jobReassignForm').classList.add('hidden');
+            
+            // Clear the form
+            document.getElementById('moveTowerId').value = '';
+            document.getElementById('moveFromSite').value = '';
+            document.getElementById('moveToSite').innerHTML = '<option value="">Enter Tower ID first...</option>';
+        }
+        
+        function lookupTowerForMovement() {
+            const towerId = document.getElementById('moveTowerId').value.trim().toUpperCase();
+            const fromSiteInput = document.getElementById('moveFromSite');
+            const toSiteSelect = document.getElementById('moveToSite');
+            
+            if (towerId.length < 3) {
+                fromSiteInput.value = '';
+                toSiteSelect.innerHTML = '<option value="">Enter Tower ID first...</option>';
+                return;
+            }
+            
+            // Find the tower in fleet data
+            const tower = fleetData.find(t => {
+                const id = (t.tower_id || t.id || '').toUpperCase();
+                return id === towerId || id === 'MLT' + towerId || towerId === 'MLT' + id;
+            });
+            
+            if (tower) {
+                // Get current job/site from tower's visionJob
+                const currentJob = tower.visionJob || tower.site || 'Unknown';
+                fromSiteInput.value = currentJob;
+                
+                // Build dropdown with Jobs/POs grouped by customer, then Sites
+                let html = '<option value="">Select destination...</option>';
+                html += '<option value="__NEW__">➕ Add New Job/Location...</option>';
+                
+                // Get all jobs grouped by customer
+                const allJobs = getAllJobs().filter(j => j.code !== currentJob);
+                const jobsByCustomer = {};
+                allJobs.forEach(j => {
+                    const cust = j.customer || 'Other';
+                    if (!jobsByCustomer[cust]) jobsByCustomer[cust] = [];
+                    jobsByCustomer[cust].push(j);
+                });
+                
+                // Add jobs grouped by customer
+                Object.keys(jobsByCustomer).sort().forEach(customer => {
+                    html += `<optgroup label="📋 ${customer} Jobs">`;
+                    jobsByCustomer[customer].forEach(j => {
+                        html += `<option value="${j.code}">${j.code} - ${j.site || 'No site'}</option>`;
+                    });
+                    html += '</optgroup>';
+                });
+                
+                // Add physical sites section
+                const sites = getAllSites().filter(s => s !== currentJob && s !== tower.site);
+                if (sites.length > 0) {
+                    html += '<optgroup label="📍 Physical Sites">';
+                    sites.forEach(s => {
+                        html += `<option value="${s}">${s}</option>`;
+                    });
+                    html += '</optgroup>';
+                }
+                
+                toSiteSelect.innerHTML = html;
+                
+                // Add change handler to show/hide new destination fields
+                toSiteSelect.onchange = function() {
+                    const newDestSection = document.getElementById('newDestSection');
+                    if (this.value === '__NEW__') {
+                        newDestSection.classList.remove('hidden');
+                    } else {
+                        newDestSection.classList.add('hidden');
+                    }
+                };
+            } else {
+                fromSiteInput.value = 'Tower not found';
+                toSiteSelect.innerHTML = '<option value="">Tower not found</option>';
+            }
+        }
+        
+        function hideMovementForm() {
+            document.getElementById('movementForm').classList.add('hidden');
+        }
+        
+        function submitMovement() {
+            const towerId = document.getElementById('moveTowerId').value.trim().toUpperCase();
+            const fromSite = document.getElementById('moveFromSite').value;
+            let toSite = document.getElementById('moveToSite').value;
+            const date = document.getElementById('moveDate').value;
+            
+            // Handle new job/location creation
+            if (toSite === '__NEW__') {
+                const newCode = document.getElementById('newDestCode').value.trim();
+                const newCustomer = document.getElementById('newDestCustomer').value.trim();
+                const newSite = document.getElementById('newDestSite').value.trim();
+                
+                if (!newCode || !newCustomer || !newSite) {
+                    showToast('Please fill in all new job fields', 'error');
+                    return;
+                }
+                
+                // Add new job to custom data
+                customData.jobs.push({
+                    code: newCode,
+                    customer: newCustomer,
+                    site: newSite,
+                    description: 'Tower Hire'
+                });
+                saveCustomData();
+                toSite = newCode;
+            }
+            
+            if (!towerId || !toSite || !date) {
+                showToast('Please fill in all required fields', 'error');
+                return;
+            }
+            
+            if (fromSite === 'Tower not found' || fromSite === '') {
+                showToast('Tower not found in fleet data', 'error');
+                return;
+            }
+            
+            movements.unshift({
+                id: Date.now(),
+                towerId,
+                fromSite,
+                toSite,
+                date,
+                loggedBy: currentUser.name,
+                loggedAt: new Date().toISOString()
+            });
+            
+            saveMovements();
+            addAuditEntry('MOVEMENT', `${towerId}: ${fromSite || 'Unknown'} → ${toSite}`);
+            
+            // Update fleet data in memory - update both site and visionJob
+            const tower = fleetData.find(t => 
+                (t.id || t.tower_id || '').toUpperCase().replace('MLT', '') === towerId.replace('MLT', '')
+            );
+            if (tower) {
+                tower.visionJob = toSite;
+                tower.site = toSite;
+            }
+            
+            hideMovementForm();
+            renderMovements();
+            renderAuditLog();
+            showToast('Tower moved successfully');
+            
+            // Clear form
+            document.getElementById('moveTowerId').value = '';
+            document.getElementById('moveFromSite').value = '';
+            document.getElementById('moveToSite').value = '';
+            document.getElementById('newDestSection').classList.add('hidden');
+            document.getElementById('newDestCode').value = '';
+            document.getElementById('newDestCustomer').value = '';
+            document.getElementById('newDestSite').value = '';
+        }
+        
+        function showJobReassignForm() {
+            document.getElementById('jobReassignForm').classList.remove('hidden');
+            document.getElementById('movementForm').classList.add('hidden');
+        }
+        
+        function hideJobReassignForm() {
+            document.getElementById('jobReassignForm').classList.add('hidden');
+        }
+        
+        function lookupTowerJob() {
+                    const towerId = document.getElementById('reassignTowerId').value.trim().toUpperCase();
+                    if (!towerId) return;
+            
+                    const tower = fleetData.find(t => 
+                        (t.id || t.tower_id || '').toUpperCase().replace('MLT', '') === towerId.replace('MLT', '')
+                    );
+            
+                    if (tower) {
+                        document.getElementById('reassignCurrentJob').value = tower.visionJob || 'UNASSIGNED';
+                
+                        // Populate ALL jobs across all customers
+                        const allJobs = getAllJobs();
+                        let options = '<option value="">Select job...</option>';
+                        options += '<option value="__NEW__">+ Add New Job/Location...</option>';
+                        options += allJobs.map(j => `<option value="${j.code}">${j.code} - ${j.customer} - ${j.site} - ${j.description || 'No desc'}</option>`).join('');
+                        document.getElementById('reassignNewJob').innerHTML = options;
+                    } else {
+                        document.getElementById('reassignCurrentJob').value = 'Tower not found';
+                        document.getElementById('reassignNewJob').innerHTML = '<option value="">Select job...</option>';
+                    }
+                }
+        
+                function getAllJobs() {
+                    // Get all unique jobs from fleet data
+                    const jobsMap = {};
+                    fleetData.filter(t => (t.status || '').toUpperCase().includes('ON HIRE')).forEach(t => {
+                        const job = t.visionJob;
+                        if (job && !jobsMap[job]) {
+                            jobsMap[job] = {
+                                code: job,
+                                customer: t.customer,
+                                site: t.site,
+                                description: t.jobDescription || ''
+                            };
+                        }
+                    });
+            
+                    // Add custom jobs
+                    customData.jobs.forEach(j => {
+                        if (!jobsMap[j.code]) {
+                            jobsMap[j.code] = j;
+                        }
+                    });
+            
+                    // Sort by customer then job code
+                    return Object.values(jobsMap).sort((a, b) => {
+                        if (a.customer !== b.customer) return a.customer.localeCompare(b.customer);
+                        return a.code.localeCompare(b.code);
+                    });
+                }
+        
+                function onNewJobChange() {
+                    const select = document.getElementById('reassignNewJob');
+                    if (select.value === '__NEW__') {
+                        // Show custom job input
+                        document.getElementById('customJobSection').classList.remove('hidden');
+                        select.value = '';
+                    } else {
+                        document.getElementById('customJobSection').classList.add('hidden');
+                    }
+                }
+        
+        function submitJobReassign() {
+            const towerId = document.getElementById('reassignTowerId').value.trim().toUpperCase();
+            let newJob = document.getElementById('reassignNewJob').value;
+            const date = document.getElementById('reassignDate').value;
+            
+            // Check if using custom job
+            const customJobCode = document.getElementById('customJobCode').value.trim();
+            const customJobCustomer = document.getElementById('customJobCustomer').value.trim();
+            const customJobSite = document.getElementById('customJobSite').value.trim();
+            const customJobDesc = document.getElementById('customJobDesc').value.trim();
+            
+            // If custom job section is visible and has data, use that
+            if (!document.getElementById('customJobSection').classList.contains('hidden') && customJobCode) {
+                newJob = customJobCode;
+                
+                // Save new job to customData
+                customData.jobs.push({
+                    code: customJobCode,
+                    customer: customJobCustomer || 'Unknown',
+                    site: customJobSite || 'Unknown',
+                    description: customJobDesc || ''
+                });
+                saveCustomData();
+            }
+            
+            if (!towerId || !newJob || !date) {
+                showToast('Please fill in all required fields', 'error');
+                return;
+            }
+            
+            const tower = fleetData.find(t => 
+                (t.id || t.tower_id || '').toUpperCase().replace('MLT', '') === towerId.replace('MLT', '')
+            );
+            
+            if (!tower) {
+                showToast('Tower not found', 'error');
+                return;
+            }
+            
+            const oldJob = tower.visionJob || 'UNASSIGNED';
+            tower.visionJob = newJob;
+            
+            // If custom job, also update the tower's customer/site
+            if (customJobCode && customJobCustomer) {
+                tower.customer = customJobCustomer;
+            }
+            if (customJobCode && customJobSite) {
+                tower.site = customJobSite;
+            }
+            
+            addAuditEntry('JOB_REASSIGN', `${towerId}: ${oldJob} → ${newJob}`);
+            
+            hideJobReassignForm();
+            renderAuditLog();
+            renderDashboard();
+            showToast('Tower reassigned successfully');
+            
+            // Refresh invoice if viewing
+            if (selectedJob) renderInvoice();
+            
+            // Clear form
+            document.getElementById('reassignTowerId').value = '';
+            document.getElementById('reassignCurrentJob').value = '';
+            document.getElementById('reassignNewJob').innerHTML = '<option value="">Select job...</option>';
+            document.getElementById('customJobSection').classList.add('hidden');
+            document.getElementById('customJobCode').value = '';
+            document.getElementById('customJobCustomer').value = '';
+            document.getElementById('customJobSite').value = '';
+            document.getElementById('customJobDesc').value = '';
+        }
+        
+        function renderMovements() {
+            const recent = movements.slice(0, 50);
+            
+            if (!recent.length) {
+                document.getElementById('movementsTable').innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:40px">No movements recorded yet</td></tr>';
+                return;
+            }
+            
+            let html = '';
+            recent.forEach(m => {
+                html += `
+                    <tr>
+                        <td>${m.date}</td>
+                        <td class="tower-id">${m.towerId}</td>
+                        <td>${m.fromSite || '-'}</td>
+                        <td>${m.toSite}</td>
+                        <td>${m.loggedBy}</td>
+                    </tr>
+                `;
+            });
+            
+            document.getElementById('movementsTable').innerHTML = html;
+        }
+        
+        function renderAuditLog() {
+            const recent = auditLog.slice(0, 100);
+            
+            if (!recent.length) {
+                document.getElementById('auditLog').innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:40px">No audit entries yet</div>';
+                return;
+            }
+            
+            let html = '';
+            recent.forEach(entry => {
+                const date = new Date(entry.timestamp);
+                const timeStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                
+                html += `
+                    <div class="audit-item">
+                        <span class="audit-time">${timeStr}</span>
+                        <span class="audit-user">${entry.user}</span>
+                        <span class="audit-action"> • ${entry.action}</span>
+                        <div class="audit-detail">${entry.detail}</div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('auditLog').innerHTML = html;
+        }
+        
+        // =============================================
+        // DASHBOARD VIEW
+        // =============================================
+        function renderDashboard() {
+            const onHireTowers = fleetData.filter(t => (t.status || '').toUpperCase().includes('ON HIRE'));
+            const customers = getCustomers();
+            
+            // Calculate totals
+            let totalRevenue = 0;
+            let totalJobs = 0;
+            const customerData = [];
+            const allJobs = [];
+            
+            customers.forEach(custName => {
+                let custRevenue = 0;
+                let custTowers = 0;
+                let custJobs = 0;
+                
+                const sites = getSitesForCustomer(custName);
+                const custSites = sites.length;
+                
+                sites.forEach(siteName => {
+                    const jobs = getJobsForSite(custName, siteName);
+                    custJobs += jobs.length;
+                    
+                    jobs.forEach(job => {
+                        const towers = getTowersForJob(custName, siteName, job.code);
+                        const rate = job.rate || 50;
+                        const jobRevenue = towers.length * rate * 7;
+                        custRevenue += jobRevenue;
+                        custTowers += towers.length;
+                        
+                        if (towers.length > 0) {
+                            allJobs.push({
+                                code: job.code,
+                                customer: custName,
+                                site: siteName,
+                                description: job.description,
+                                towers: towers.length,
+                                revenue: jobRevenue
+                            });
+                        }
+                    });
+                });
+                
+                totalJobs += custJobs;
+                totalRevenue += custRevenue;
+                
+                if (custTowers > 0) {
+                    customerData.push({
+                        name: custName,
+                        sites: custSites,
+                        jobs: custJobs,
+                        towers: custTowers,
+                        revenue: custRevenue
+                    });
+                }
+            });
+            
+            // Sort customer data by revenue
+            customerData.sort((a, b) => b.revenue - a.revenue);
+            
+            // Update stats
+            document.getElementById('dashTotalTowers').textContent = onHireTowers.length.toLocaleString();
+            document.getElementById('dashTotalCustomers').textContent = customerData.length;
+            document.getElementById('dashTotalJobs').textContent = totalJobs;
+            document.getElementById('dashTotalRevenue').textContent = '$' + totalRevenue.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0});
+            
+            // Render customer bars (top 10)
+            const maxRevenue = customerData.length > 0 ? customerData[0].revenue : 1;
+            let barsHtml = '';
+            customerData.slice(0, 10).forEach(c => {
+                const pct = (c.revenue / maxRevenue) * 100;
+                barsHtml += `
+                    <div class="customer-bar">
+                        <div class="customer-bar-name" title="${c.name}">${c.name}</div>
+                        <div class="customer-bar-track">
+                            <div class="customer-bar-fill" style="width: ${pct}%">${c.towers}</div>
+                        </div>
+                        <div class="customer-bar-value">$${c.revenue.toLocaleString()}</div>
+                    </div>
+                `;
+            });
+            document.getElementById('customerBars').innerHTML = barsHtml || '<div class="empty-state">No data</div>';
+            
+            // Render top jobs
+            allJobs.sort((a, b) => b.revenue - a.revenue);
+            let jobsHtml = '';
+            allJobs.slice(0, 10).forEach((j, i) => {
+                jobsHtml += `
+                    <div class="top-job-item">
+                        <div class="top-job-rank">${i + 1}</div>
+                        <div class="top-job-info">
+                            <div class="top-job-code">${j.code}</div>
+                            <div class="top-job-customer">${j.customer} - ${j.site} (${j.towers} towers)</div>
+                        </div>
+                        <div class="top-job-value">$${j.revenue.toLocaleString()}</div>
+                    </div>
+                `;
+            });
+            document.getElementById('topJobsList').innerHTML = jobsHtml || '<div class="empty-state">No data</div>';
+            
+            // Store for table
+            window.dashboardCustomerData = customerData;
+            renderDashboardTable();
+        }
+        
+        function renderDashboardTable() {
+            const search = (document.getElementById('dashboardSearch')?.value || '').toLowerCase();
+            const data = (window.dashboardCustomerData || []).filter(c => 
+                c.name.toLowerCase().includes(search)
+            );
+            
+            let html = '';
+            data.forEach(c => {
+                html += `
+                    <tr>
+                        <td><strong>${c.name}</strong></td>
+                        <td>${c.sites}</td>
+                        <td>${c.jobs}</td>
+                        <td>${c.towers}</td>
+                        <td class="money">$${c.revenue.toLocaleString()}</td>
+                        <td>
+                            <button class="btn small" onclick="viewCustomerInvoices('${c.name}')">View</button>
+                            <button class="btn small" onclick="exportCustomerCSV('${c.name}')">CSV</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            document.getElementById('dashboardTable').innerHTML = html || '<tr><td colspan="6" class="empty-state">No customers found</td></tr>';
+        }
+        
+        function viewCustomerInvoices(customer) {
+            selectedCustomer = customer;
+            selectedSite = null;
+            selectedJob = null;
+            renderSites();
+            document.getElementById('jobsColumn').innerHTML = '<div class="empty-state">Select a site</div>';
+            document.getElementById('invoicePreview').innerHTML = '<div class="empty-state">Select a job to view invoice</div>';
+            switchView('finance');
+            showToast(`Viewing ${customer}`);
+        }
+        
+        function exportCustomerCSV(customer) {
+            const sites = getSitesForCustomer(customer);
+            let csv = 'Customer,Site,Job,PO,Tower ID,Configuration,Days,Daily Rate,Line Total\n';
+            let total = 0;
+            let towerCount = 0;
+            
+            sites.forEach(site => {
+                const jobs = getJobsForSite(customer, site.name);
+                jobs.forEach(job => {
+                    const towers = getTowersForJob(customer, site.name, job.code);
+                    towers.forEach(tower => {
+                        const towerId = tower.id || tower.tower_id;
+                        const config = (tower.config || 'Standard').replace(/,/g, ' ');
+                        const rate = tower.rateDaily || tower.daily_rate || job.rate || 50;
+                        const lineTotal = rate * 7;
+                        total += lineTotal;
+                        towerCount++;
+                        csv += `"${customer}","${site.name}","${job.code}","${job.poNumber || ''}","${towerId}","${config}",7,${rate.toFixed(2)},${lineTotal.toFixed(2)}\n`;
+                    });
+                });
+            });
+            
+            csv += `\nTotal,,,,,${towerCount} towers,,,${total.toFixed(2)}\n`;
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Invoice_${customer}_ALL_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showToast(`CSV exported for ${customer}`);
+        }
+        
+        function exportAllCSV() {
+            const customers = getCustomers();
+            let csv = 'Customer,Site,Job,PO,Tower ID,Configuration,Days,Daily Rate,Line Total\n';
+            let total = 0;
+            let towerCount = 0;
+            
+            customers.forEach(custName => {
+                const sites = getSitesForCustomer(custName);
+                sites.forEach(siteName => {
+                    const jobs = getJobsForSite(custName, siteName);
+                    jobs.forEach(job => {
+                        const towers = getTowersForJob(custName, siteName, job.code);
+                        towers.forEach(tower => {
+                            const towerId = tower.id || tower.tower_id;
+                            const config = (tower.config || 'Standard').replace(/,/g, ' ');
+                            const rate = tower.rateDaily || tower.daily_rate || job.rate || 50;
+                            const lineTotal = rate * 7;
+                            total += lineTotal;
+                            towerCount++;
+                            csv += `"${custName}","${siteName}","${job.code}","${job.poNumber || ''}","${towerId}","${config}",7,${rate.toFixed(2)},${lineTotal.toFixed(2)}\n`;
+                        });
+                    });
+                });
+            });
+            
+            csv += `\nTotal,,,,,${towerCount} towers,,,${total.toFixed(2)}\n`;
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Invoice_ALL_CUSTOMERS_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showToast('All customers CSV exported');
+        }
+        
+        function invoiceAll() {
+            const data = window.dashboardCustomerData || [];
+            const totalRevenue = data.reduce((sum, c) => sum + c.revenue, 0);
+            const totalTowers = data.reduce((sum, c) => sum + c.towers, 0);
+            
+            if (confirm(`Generate invoices for ALL customers?\n\n${data.length} Customers\n${totalTowers} Towers\nTotal: $${totalRevenue.toLocaleString()}\n\nThis will export a master CSV with all billing data.`)) {
+                exportAllCSV();
+                
+                // Log to audit
+                addAuditEntry('BULK_INVOICE', `All customers - ${data.length} customers, ${totalTowers} towers, $${totalRevenue.toLocaleString()}`);
+            }
+        }
+        
+        // =============================================
+        // PO ALERTS VIEW
+        // =============================================
+        let currentPOFilter = 'all';
+        
+        function renderPOAlerts() {
+            let expired = 0, expiring7 = 0, expiring30 = 0, ok = 0;
+            const poAlerts = [];
+            
+            poData.forEach(po => {
+                const daysLeft = po.daysUntil !== undefined ? po.daysUntil : 999;
+                
+                let status, statusClass;
+                if (daysLeft < 0) {
+                    status = 'EXPIRED';
+                    statusClass = 'expired';
+                    expired++;
+                } else if (daysLeft <= 7) {
+                    status = 'CRITICAL';
+                    statusClass = 'critical';
+                    expiring7++;
+                } else if (daysLeft <= 30) {
+                    status = 'WARNING';
+                    statusClass = 'warning';
+                    expiring30++;
+                } else {
+                    status = 'OK';
+                    statusClass = 'ok';
+                    ok++;
+                }
+                
+                // Get description from filename
+                const desc = po.filename ? po.filename.split(' - ').slice(-1)[0].replace('.pdf','').replace('.PDF','') : '-';
+                
+                poAlerts.push({
+                    status,
+                    statusClass,
+                    customer: po.customer || 'Unknown',
+                    poNumber: po.poNumber || '-',
+                    description: desc,
+                    endDate: po.endDate || 'TBC',
+                    daysLeft
+                });
+            });
+            
+            // Update stats
+            document.getElementById('poExpired').textContent = expired;
+            document.getElementById('poExpiring7').textContent = expiring7;
+            document.getElementById('poExpiring30').textContent = expiring30;
+            document.getElementById('poOk').textContent = ok;
+            
+            // Sort by days left (most urgent first)
+            poAlerts.sort((a, b) => a.daysLeft - b.daysLeft);
+            
+            // Store for filtering
+            window.allPOAlerts = poAlerts;
+            
+            // Render table
+            filterPOAlerts(currentPOFilter);
+        }
+        
+        function filterPOAlerts(filter) {
+            currentPOFilter = filter;
+            const alerts = window.allPOAlerts || [];
+            
+            // Update active button
+            document.querySelectorAll('.po-filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent.toLowerCase().includes(filter) || 
+                    (filter === 'all' && btn.textContent === 'All')) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Filter alerts
+            let filtered = alerts;
+            if (filter === 'critical') {
+                filtered = alerts.filter(a => a.statusClass === 'expired' || a.statusClass === 'critical');
+            } else if (filter === 'warning') {
+                filtered = alerts.filter(a => a.statusClass === 'warning');
+            } else if (filter === 'ok') {
+                filtered = alerts.filter(a => a.statusClass === 'ok');
+            }
+            
+            // Render
+            const tbody = document.getElementById('poAlertsTable');
+            if (!filtered.length) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:40px">No PO alerts in this category</td></tr>';
+                return;
+            }
+            
+            let html = '';
+            filtered.forEach(po => {
+                const daysText = po.daysLeft < 0 ? `${Math.abs(po.daysLeft)} days ago` : `${po.daysLeft} days`;
+                html += `
+                    <tr>
+                        <td><span class="po-status-badge ${po.statusClass}">${po.status}</span></td>
+                        <td style="font-weight:600;color:var(--accent)">${po.poNumber}</td>
+                        <td>${po.customer}</td>
+                        <td>${po.description}</td>
+                        <td>${po.endDate}</td>
+                        <td style="color:${po.daysLeft < 0 ? '#ef4444' : po.daysLeft <= 7 ? '#f59e0b' : 'inherit'};font-weight:600">${daysText}</td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        }
+        
+        // =============================================
+        // ADMIN VIEW
+        // =============================================
+        function renderAdminData() {
+            // Customer list
+            const customers = getCustomers();
+            let custHtml = '';
+            customers.forEach(name => {
+                custHtml += `
+                    <div class="admin-list-item">
+                        <span>${name}</span>
+                    </div>
+                `;
+            });
+            document.getElementById('adminCustomerList').innerHTML = custHtml || '<div style="color:var(--text-muted);padding:12px">No customers</div>';
+            
+            // Populate customer dropdowns
+            const custOptions = '<option value="">Select customer...</option>' + 
+                customers.map(c => `<option value="${c}">${c}</option>`).join('');
+            document.getElementById('adminSiteCustomer').innerHTML = custOptions;
+            document.getElementById('adminJobCustomer').innerHTML = custOptions;
+            document.getElementById('newSiteCustomer').innerHTML = custOptions;
+            document.getElementById('newJobCustomer').innerHTML = custOptions;
+        }
+        
+        function renderAdminSites() {
+            const customer = document.getElementById('adminSiteCustomer').value;
+            if (!customer) {
+                document.getElementById('adminSiteList').innerHTML = '<div style="color:var(--text-muted);padding:12px">Select a customer</div>';
+                return;
+            }
+            
+            const sites = getSitesForCustomer(customer);
+            let html = '';
+            sites.forEach(name => {
+                html += `
+                    <div class="admin-list-item">
+                        <span>${name}</span>
+                    </div>
+                `;
+            });
+            document.getElementById('adminSiteList').innerHTML = html || '<div style="color:var(--text-muted);padding:12px">No sites</div>';
+        }
+        
+        function updateAdminJobSites() {
+            const customer = document.getElementById('adminJobCustomer').value;
+            const siteSelect = document.getElementById('adminJobSite');
+            
+            if (!customer) {
+                siteSelect.innerHTML = '<option value="">Select site...</option>';
+                document.getElementById('adminJobList').innerHTML = '<div style="color:var(--text-muted);padding:12px">Select a customer and site</div>';
+                return;
+            }
+            
+            const sites = getSitesForCustomer(customer);
+            siteSelect.innerHTML = '<option value="">Select site...</option>' + 
+                sites.map(s => `<option value="${s}">${s}</option>`).join('');
+        }
+        
+        function renderAdminJobs() {
+            const customer = document.getElementById('adminJobCustomer').value;
+            const site = document.getElementById('adminJobSite').value;
+            
+            if (!customer || !site) {
+                document.getElementById('adminJobList').innerHTML = '<div style="color:var(--text-muted);padding:12px">Select a customer and site</div>';
+                return;
+            }
+            
+            const jobs = getJobsForSite(customer, site);
+            let html = '';
+            jobs.forEach(job => {
+                html += `
+                    <div class="admin-list-item">
+                        <div>
+                            <div>${job.code}</div>
+                            <div style="font-size:11px;color:var(--text-muted)">${job.description || 'No description'}</div>
+                        </div>
+                        <span style="color:var(--text-muted)">${job.towerCount} towers</span>
+                    </div>
+                `;
+            });
+            document.getElementById('adminJobList').innerHTML = html || '<div style="color:var(--text-muted);padding:12px">No jobs</div>';
+        }
+        
+        function updateNewJobSites() {
+            const customer = document.getElementById('newJobCustomer').value;
+            const siteSelect = document.getElementById('newJobSite');
+            
+            if (!customer) {
+                siteSelect.innerHTML = '<option value="">Select site...</option>';
+                return;
+            }
+            
+            const sites = getSitesForCustomer(customer);
+            siteSelect.innerHTML = '<option value="">Select site...</option>' + 
+                sites.map(s => `<option value="${s}">${s}</option>`).join('');
+        }
+        
+        // =============================================
+        // MODALS
+        // =============================================
+        function showAddCustomerModal() {
+            document.getElementById('addCustomerModal').classList.remove('hidden');
+            document.getElementById('newCustomerName').value = '';
+            document.getElementById('newCustomerName').focus();
+        }
+        
+        function showAddSiteModal() {
+            document.getElementById('addSiteModal').classList.remove('hidden');
+            document.getElementById('newSiteName').value = '';
+            
+            const customers = getCustomers();
+            document.getElementById('newSiteCustomer').innerHTML = '<option value="">Select customer...</option>' + 
+                customers.map(c => `<option value="${c}">${c}</option>`).join('');
+        }
+        
+        function showAddJobModal() {
+            document.getElementById('addJobModal').classList.remove('hidden');
+            
+            const customers = getCustomers();
+            document.getElementById('newJobCustomer').innerHTML = '<option value="">Select customer...</option>' + 
+                customers.map(c => `<option value="${c}">${c}</option>`).join('');
+            document.getElementById('newJobSite').innerHTML = '<option value="">Select site...</option>';
+            
+            // Clear form
+            document.getElementById('newJobCode').value = '';
+            document.getElementById('newJobPO').value = '';
+            document.getElementById('newJobDesc').value = '';
+            document.getElementById('newJobStart').value = '';
+            document.getElementById('newJobEnd').value = '';
+            document.getElementById('newJobRate').value = '';
+        }
+        
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+        
+        function addCustomer() {
+            const name = document.getElementById('newCustomerName').value.trim();
+            if (!name) {
+                showToast('Please enter a customer name', 'error');
+                return;
+            }
+            
+            if (getCustomers().includes(name)) {
+                showToast('Customer already exists', 'error');
+                return;
+            }
+            
+            customData.customers.push({ name, createdAt: new Date().toISOString() });
+            saveCustomData();
+            addAuditEntry('ADD_CUSTOMER', name);
+            
+            closeModal('addCustomerModal');
+            renderCustomers();
+            renderAdminData();
+            showToast('Customer added successfully');
+        }
+        
+        function addSite() {
+            const customer = document.getElementById('newSiteCustomer').value;
+            const name = document.getElementById('newSiteName').value.trim();
+            
+            if (!customer || !name) {
+                showToast('Please fill in all fields', 'error');
+                return;
+            }
+            
+            if (getSitesForCustomer(customer).includes(name)) {
+                showToast('Site already exists for this customer', 'error');
+                return;
+            }
+            
+            customData.sites.push({ customer, name, createdAt: new Date().toISOString() });
+            saveCustomData();
+            addAuditEntry('ADD_SITE', `${name} (${customer})`);
+            
+            closeModal('addSiteModal');
+            renderAdminData();
+            if (selectedCustomer === customer) renderSites();
+            showToast('Site added successfully');
+        }
+        
+        function addJob() {
+            const customer = document.getElementById('newJobCustomer').value;
+            const site = document.getElementById('newJobSite').value;
+            const code = document.getElementById('newJobCode').value.trim();
+            const poNumber = document.getElementById('newJobPO').value.trim();
+            const description = document.getElementById('newJobDesc').value.trim();
+            const startDate = document.getElementById('newJobStart').value;
+            const endDate = document.getElementById('newJobEnd').value;
+            const rate = parseFloat(document.getElementById('newJobRate').value) || 0;
+            
+            if (!customer || !site || !code) {
+                showToast('Please fill in customer, site, and job code', 'error');
+                return;
+            }
+            
+            customData.jobs.push({
+                customer,
+                site,
+                code,
+                poNumber,
+                description,
+                startDate,
+                endDate,
+                rate,
+                createdAt: new Date().toISOString()
+            });
+            saveCustomData();
+            addAuditEntry('ADD_JOB', `${code} - ${description} (${customer} / ${site})`);
+            
+            closeModal('addJobModal');
+            renderAdminData();
+            if (selectedCustomer === customer && selectedSite === site) renderJobs();
+            showToast('Job added successfully');
+        }
+        
+        // =============================================
+        // UTILITIES
+        // =============================================
+        function switchView(view) {
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`.nav-tab[data-view="${view}"]`).classList.add('active');
+            
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById('view' + view.charAt(0).toUpperCase() + view.slice(1)).classList.add('active');
+            
+            // Audit log view change
+            logAudit('VIEW_CHANGE', { view: view });
+            
+            // Load history when switching to history tab
+            if (view === 'history') {
+                renderHistory();
+            }
+        }
+        
+        // =============================================
+        // EXPORT FUNCTIONS
+        // =============================================
+        function exportCSV() {
+            if (!selectedCustomer || !selectedSite || !selectedJob) {
+                showToast('Please select a job first', 'error');
+                return;
+            }
+            
+            const jobs = getJobsForSite(selectedCustomer, selectedSite);
+            const job = jobs.find(j => j.code === selectedJob);
+            const towers = getTowersForJob(selectedCustomer, selectedSite, selectedJob);
+            const days = 7;
+            const rate = job?.rate || 50;
+            
+            // Build CSV content
+            let csv = 'Tower ID,Configuration,Site,Days,Daily Rate,Line Total\n';
+            let total = 0;
+            
+            towers.forEach(tower => {
+                const towerId = tower.id || tower.tower_id;
+                const config = (tower.config || 'Standard').replace(/,/g, ' ');
+                const site = (tower.site || '').replace(/,/g, ' ');
+                const towerRate = tower.rateDaily || tower.daily_rate || rate;
+                const lineTotal = towerRate * days;
+                total += lineTotal;
+                
+                csv += `${towerId},${config},${site},${days},${towerRate.toFixed(2)},${lineTotal.toFixed(2)}\n`;
+            });
+            
+            csv += `\nTotal,,,${towers.length * days},,${total.toFixed(2)}\n`;
+            
+            // Download
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Invoice_${selectedCustomer}_${selectedJob}_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showToast('CSV exported successfully');
+        }
+        
+        function previewPDF() {
+            if (!selectedCustomer || !selectedSite || !selectedJob) {
+                showToast('Please select a job first', 'error');
+                return;
+            }
+            
+            const jobs = getJobsForSite(selectedCustomer, selectedSite);
+            const job = jobs.find(j => j.code === selectedJob);
+            const towers = getTowersForJob(selectedCustomer, selectedSite, selectedJob);
+            const days = 7;
+            const rate = job?.rate || 50;
+            
+            // Calculate totals
+            let total = 0;
+            towers.forEach(tower => {
+                const towerRate = tower.rateDaily || tower.daily_rate || rate;
+                total += towerRate * days;
+            });
+            
+            // Build printable HTML
+            const printContent = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Invoice - ${selectedCustomer} - ${selectedJob}</title>
+                    <style>
+                        * { margin: 0; padding: 0; box-sizing: border-box; }
+                        body { font-family: Arial, sans-serif; padding: 40px; color: #333; }
+                        .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px; border-bottom: 3px solid #f97316; padding-bottom: 20px; }
+                        .logo { font-size: 32px; font-weight: bold; color: #f97316; }
+                        .logo-sub { font-size: 12px; color: #666; }
+                        .invoice-title { text-align: right; }
+                        .invoice-title h1 { font-size: 24px; color: #333; }
+                        .invoice-title p { color: #666; font-size: 14px; }
+                        .details { display: flex; justify-content: space-between; margin-bottom: 30px; }
+                        .details-box { background: #f5f5f5; padding: 16px; border-radius: 8px; min-width: 200px; }
+                        .details-box h3 { font-size: 11px; color: #666; text-transform: uppercase; margin-bottom: 8px; }
+                        .details-box p { font-size: 14px; margin: 4px 0; }
+                        table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+                        th { background: #f5f5f5; text-align: left; padding: 12px; font-size: 11px; text-transform: uppercase; color: #666; border-bottom: 2px solid #ddd; }
+                        td { padding: 10px 12px; border-bottom: 1px solid #eee; font-size: 13px; }
+                        .tower-id { color: #f97316; font-weight: 600; }
+                        .money { text-align: right; }
+                        .total-row { background: #f5f5f5; font-weight: bold; }
+                        .total-row td { border-top: 2px solid #ddd; font-size: 14px; }
+                        .summary { display: flex; justify-content: flex-end; }
+                        .summary-box { background: #1a1a1a; color: white; padding: 20px 30px; border-radius: 8px; text-align: right; }
+                        .summary-box .label { font-size: 11px; color: #aaa; text-transform: uppercase; }
+                        .summary-box .value { font-size: 28px; font-weight: bold; color: #22c55e; }
+                        .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; font-size: 12px; color: #666; text-align: center; }
+                        @media print { body { padding: 20px; } }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <div>
+                            <div class="logo">MLT</div>
+                            <div class="logo-sub">Mickala Lighting Towers</div>
+                        </div>
+                        <div class="invoice-title">
+                            <h1>INVOICE</h1>
+                            <p>Date: ${new Date().toLocaleDateString()}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="details">
+                        <div class="details-box">
+                            <h3>Customer</h3>
+                            <p><strong>${selectedCustomer}</strong></p>
+                            <p>${selectedSite}</p>
+                        </div>
+                        <div class="details-box">
+                            <h3>Job Details</h3>
+                            <p><strong>Job: ${selectedJob}</strong></p>
+                            <p>PO: ${job?.poNumber || selectedJob}</p>
+                            <p>${job?.description || 'Tower Hire'}</p>
+                        </div>
+                        <div class="details-box">
+                            <h3>Billing Period</h3>
+                            <p>7 Days</p>
+                            <p>${towers.length} Towers</p>
+                        </div>
+                    </div>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Tower ID</th>
+                                <th>Configuration</th>
+                                <th>Site</th>
+                                <th>Days</th>
+                                <th class="money">Daily Rate</th>
+                                <th class="money">Line Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${towers.map(tower => {
+                                const towerId = tower.id || tower.tower_id;
+                                const config = tower.config || 'Standard';
+                                const towerRate = tower.rateDaily || tower.daily_rate || rate;
+                                const lineTotal = towerRate * days;
+                                return `
+                                    <tr>
+                                        <td class="tower-id">${towerId}</td>
+                                        <td>${config}</td>
+                                        <td>${tower.site}</td>
+                                        <td>${days}</td>
+                                        <td class="money">$${towerRate.toFixed(2)}</td>
+                                        <td class="money">$${lineTotal.toFixed(2)}</td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                            <tr class="total-row">
+                                <td colspan="5">Total (${towers.length} towers × ${days} days)</td>
+                                <td class="money">$${total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <div class="summary">
+                        <div class="summary-box">
+                            <div class="label">Total Amount Due</div>
+                            <div class="value">$${total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="footer">
+                        <p>Mickala Lighting Towers Pty Ltd | ABN: 60 828 345 | Generated: ${new Date().toLocaleString()}</p>
+                    </div>
+                </body>
+                </html>
+            `;
+            
+            // Open in new window for print/PDF
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(printContent);
+            printWindow.document.close();
+            printWindow.focus();
+            
+            // Trigger print dialog after content loads
+            printWindow.onload = () => {
+                printWindow.print();
+            };
+            
+            showToast('PDF preview opened - use Print to save as PDF');
+        }
+        
+        function emailClient() {
+            if (!selectedCustomer || !selectedSite || !selectedJob) {
+                showToast('Please select a job first', 'error');
+                return;
+            }
+            
+            const jobs = getJobsForSite(selectedCustomer, selectedSite);
+            const job = jobs.find(j => j.code === selectedJob);
+            const towers = getTowersForJob(selectedCustomer, selectedSite, selectedJob);
+            const days = 7;
+            const rate = job?.rate || 50;
+            
+            let total = 0;
+            towers.forEach(tower => {
+                const towerRate = tower.rateDaily || tower.daily_rate || rate;
+                total += towerRate * days;
+            });
+            
+            const subject = encodeURIComponent(`Invoice - ${selectedCustomer} - ${selectedJob} - ${new Date().toLocaleDateString()}`);
+            const body = encodeURIComponent(`Dear Customer,
+
+Please find attached your weekly invoice for tower hire services.
+
+Customer: ${selectedCustomer}
+Site: ${selectedSite}
+Job: ${selectedJob}
+PO: ${job?.poNumber || selectedJob}
+
+Towers on Hire: ${towers.length}
+Billing Period: 7 days
+Total Amount: $${total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+
+Please export the CSV or PDF invoice from the Asset Tracker and attach to this email.
+
+Regards,
+Mickala Lighting Towers`);
+            
+            window.open(`mailto:?subject=${subject}&body=${body}`, '_blank');
+            showToast('Email client opened');
+        }
+        
+        function approveInvoice() {
+                    if (!selectedCustomer || !selectedSite || !selectedJob) {
+                        showToast('Please select a job first', 'error');
+                        return;
+                    }
+            
+                    const jobs = getJobsForSite(selectedCustomer, selectedSite);
+                    const job = jobs.find(j => j.code === selectedJob);
+                    const towers = getTowersForJob(selectedCustomer, selectedSite, selectedJob);
+                    const days = 7;
+                    const rate = job?.rate || 50;
+            
+                    let total = 0;
+                    const lineItems = [];
+                    towers.forEach(tower => {
+                        const towerRate = tower.rateDaily || tower.daily_rate || rate;
+                        const lineTotal = towerRate * days;
+                        total += lineTotal;
+                        lineItems.push({
+                            tower_id: tower.id || tower.tower_id,
+                            config: tower.config || 'Standard',
+                            days: days,
+                            daily_rate: towerRate,
+                            line_total: lineTotal
+                        });
+                    });
+            
+                    // Generate invoice number
+                    const invoiceNum = `INV-${selectedJob}-${Date.now().toString(36).toUpperCase()}`;
+            
+                    // Save to Supabase (async) and localStorage (sync fallback)
+                    saveInvoiceToSupabase(invoiceNum, selectedJob, selectedCustomer, selectedSite, total, towers.length, lineItems);
+            
+                    // Also save to localStorage as fallback
+                    const approvedInvoices = JSON.parse(localStorage.getItem('mlt_approved_invoices') || '[]');
+                    approvedInvoices.unshift({
+                        invoiceNumber: invoiceNum,
+                        customer: selectedCustomer,
+                        site: selectedSite,
+                        jobCode: selectedJob,
+                        poNumber: job?.poNumber || selectedJob,
+                        description: job?.description || 'Tower Hire',
+                        towerCount: towers.length,
+                        days: days,
+                        total: total,
+                        approvedBy: currentUser.name,
+                        approvedAt: new Date().toISOString()
+                    });
+                    localStorage.setItem('mlt_approved_invoices', JSON.stringify(approvedInvoices));
+                    
+                    // Audit log
+                    logAudit('INVOICE_APPROVED', {
+                        invoice_number: invoiceNum,
+                        customer: selectedCustomer,
+                        site: selectedSite,
+                        job_code: selectedJob,
+                        tower_count: towers.length,
+                        total: total
+                    });
+            
+                    // Add audit entry
+                    addAuditEntry('INVOICE_APPROVED', `${invoiceNum}: ${selectedCustomer} - ${selectedJob} - $${total.toLocaleString()}`);
+            
+                    // Show confirmation and offer PDF
+                    if (confirm(`Invoice Approved!\n\nInvoice #: ${invoiceNum}\nCustomer: ${selectedCustomer}\nJob: ${selectedJob}\nTotal: $${total.toLocaleString()}\n\nWould you like to generate the PDF now?`)) {
+                        previewPDF();
+                    }
+            
+                    showToast(`Invoice ${invoiceNum} approved`);
+                }
+        
+                // Save invoice to Supabase
+                async function saveInvoiceToSupabase(invoiceNumber, jobCode, customer, site, total, towerCount, lineItems) {
+                    if (!supabaseClient) {
+                        console.warn('Supabase not available - invoice saved locally only');
+                        return;
+                    }
+            
+                    try {
+                        // Insert main invoice record
+                        const { data: invoice, error: invoiceError } = await supabaseClient
+                            .from('invoices')
+                            .insert({
+                                invoice_number: invoiceNumber,
+                                job_code: jobCode,
+                                customer: customer,
+                                site: site,
+                                total_amount: total,
+                                tower_count: towerCount,
+                                approved_by: currentUser.name
+                            })
+                            .select()
+                            .single();
+                
+                        if (invoiceError) {
+                            console.error('Invoice save error:', invoiceError);
+                            return;
+                        }
+                
+                        // Insert line items
+                        const itemsWithInvoiceId = lineItems.map(item => ({
+                            ...item,
+                            invoice_id: invoice.id
+                        }));
+                
+                        const { error: itemsError } = await supabaseClient
+                            .from('invoice_line_items')
+                            .insert(itemsWithInvoiceId);
+                
+                        if (itemsError) {
+                            console.error('Line items save error:', itemsError);
+                        }
+                
+                        console.log('Invoice saved to Supabase:', invoiceNumber);
+                    } catch (err) {
+                        console.error('Supabase error:', err);
+                    }
+                }
+        
+                // Load invoice history from Supabase
+                async function loadInvoiceHistory() {
+                    if (!supabaseClient) {
+                        return JSON.parse(localStorage.getItem('mlt_approved_invoices') || '[]');
+                    }
+            
+                    try {
+                        const { data, error } = await supabaseClient
+                            .from('invoices')
+                            .select('*')
+                            .order('approved_at', { ascending: false })
+                            .limit(100);
+                
+                        if (error) {
+                            console.error('Load history error:', error);
+                            return JSON.parse(localStorage.getItem('mlt_approved_invoices') || '[]');
+                        }
+                
+                        return data || [];
+                    } catch (err) {
+                        console.error('Supabase error:', err);
+                        return JSON.parse(localStorage.getItem('mlt_approved_invoices') || '[]');
+                    }
+                }
+        
+        // Invoice history data cache
+        let invoiceHistoryCache = [];
+        
+        // Render invoice history
+        async function renderHistory() {
+            const table = document.getElementById('historyTable');
+            const loading = document.getElementById('historyLoading');
+            const empty = document.getElementById('historyEmpty');
+            
+            loading.style.display = 'block';
+            table.innerHTML = '';
+            empty.style.display = 'none';
+            
+            try {
+                invoiceHistoryCache = await loadInvoiceHistory();
+                loading.style.display = 'none';
+                
+                if (invoiceHistoryCache.length === 0) {
+                    empty.style.display = 'block';
+                    return;
+                }
+                
+                displayHistoryRows(invoiceHistoryCache);
+            } catch (err) {
+                console.error('Error loading history:', err);
+                loading.textContent = 'Error loading history. Using local data...';
+                invoiceHistoryCache = JSON.parse(localStorage.getItem('mlt_approved_invoices') || '[]');
+                setTimeout(() => {
+                    loading.style.display = 'none';
+                    if (invoiceHistoryCache.length === 0) {
+                        empty.style.display = 'block';
+                    } else {
+                        displayHistoryRows(invoiceHistoryCache);
+                    }
+                }, 1000);
+            }
+        }
+        
+        function displayHistoryRows(invoices) {
+            const table = document.getElementById('historyTable');
+            table.innerHTML = invoices.map(inv => {
+                // Handle both Supabase format and localStorage format
+                const invoiceNum = inv.invoice_number || inv.invoiceNumber;
+                const customer = inv.customer;
+                const site = inv.site;
+                const jobCode = inv.job_code || inv.jobCode;
+                const towerCount = inv.tower_count || inv.towerCount || '-';
+                const total = inv.total_amount || inv.total || 0;
+                const approvedBy = inv.approved_by || inv.approvedBy;
+                const approvedAt = inv.approved_at || inv.approvedAt;
+                const dateStr = approvedAt ? new Date(approvedAt).toLocaleDateString('en-AU', { 
+                    day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' 
+                }) : '-';
+                
+                return `<tr>
+                    <td><code style="background:var(--bg-tertiary);padding:4px 8px;border-radius:4px;font-size:12px;">${invoiceNum}</code></td>
+                    <td>${customer}</td>
+                    <td>${site}</td>
+                    <td>${jobCode}</td>
+                    <td style="text-align:center">${towerCount}</td>
+                    <td style="font-weight:600;color:var(--success)">$${Number(total).toLocaleString()}</td>
+                    <td>${approvedBy}</td>
+                    <td style="color:var(--text-secondary);font-size:13px">${dateStr}</td>
+                </tr>`;
+            }).join('');
+        }
+        
+        function filterHistory() {
+            const search = document.getElementById('historySearch').value.toLowerCase().trim();
+            if (!search) {
+                displayHistoryRows(invoiceHistoryCache);
+                return;
+            }
+            
+            const filtered = invoiceHistoryCache.filter(inv => {
+                const invoiceNum = (inv.invoice_number || inv.invoiceNumber || '').toLowerCase();
+                const customer = (inv.customer || '').toLowerCase();
+                const jobCode = (inv.job_code || inv.jobCode || '').toLowerCase();
+                const site = (inv.site || '').toLowerCase();
+                return invoiceNum.includes(search) || customer.includes(search) || jobCode.includes(search) || site.includes(search);
+            });
+            
+            displayHistoryRows(filtered);
+            
+            const empty = document.getElementById('historyEmpty');
+            if (filtered.length === 0) {
+                empty.textContent = 'No invoices match your search.';
+                empty.style.display = 'block';
+            } else {
+                empty.style.display = 'none';
+            }
+        }
+        
+        function refreshHistory() {
+            document.getElementById('historySearch').value = '';
+            renderHistory();
+            showToast('History refreshed');
+        }
+        
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast active' + (type === 'error' ? ' error' : '');
+            setTimeout(() => toast.classList.remove('active'), 3000);
+        }
+        
+        // =============================================
+        // INIT
+        // =============================================
+        document.addEventListener('DOMContentLoaded', () => {
+            if (checkSession()) {
+                showApp();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,2941 @@
+{
+  "summary": {
+    "total_mickala_towers": 293,
+    "towers_to_reassign": 42,
+    "towers_to_keep_as_mickala": 251
+  },
+  "reassignments": [
+    {
+      "tower_id": "MLT036",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Peak Downs Mine",
+      "status": "OFF HIRE - Repairs Required",
+      "current_customer": "Mickala",
+      "action": "REASSIGN",
+      "reason": "Located at Peak Downs Mine",
+      "new_customer": "BMA"
+    },
+    {
+      "tower_id": "MLT051",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Peak Downs Mine",
+      "status": "OFF HIRE - Repairs Required",
+      "current_customer": "Mickala",
+      "action": "REASSIGN",
+      "reason": "Located at Peak Downs Mine",
+      "new_customer": "BMA"
+    },
+    {
+      "tower_id": "MLT057",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Peak Downs Mine",
+      "status": "OFF HIRE - Repairs Required",
+      "current_customer": "Mickala",
+      "action": "REASSIGN",
+      "reason": "Located at Peak Downs Mine",
+      "new_customer": "BMA"
+    },
+    {
+      "tower_id": "MLT058",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Peak Downs Mine",
+      "status": "OFF HIRE - Repairs Required",
+      "current_customer": "Mickala",
+      "action": "REASSIGN",
+      "reason": "Located at Peak Downs Mine",
+      "new_customer": "BMA"
+    },
+    {
+      "tower_id": "MLT098",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Peak Downs Mine",
+      "status": "OFF HIRE - Repairs Required",
+      "current_customer": "Mickala",
+      "action": "REASSIGN",
+      "reason": "Located at Peak Downs Mine",
+      "new_customer": "BMA"
+    },
+    {
+      "tower_id": "MLT099",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Peak Downs Mine",
+      "status": "OFF HIRE - Repairs Required",
+      "current_customer": "Mickala",
+      "action": "REASSIGN",
+      "reason": "Located at Peak Downs Mine",
+      "new_customer": "BMA"
+    },
+    {
+      "tower_id": "MLT100",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Peak Downs Mine",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "REASSIGN",
+      "reason": "Located at Peak Downs Mine",
+      "new_customer": "BMA"
+    },
+    {
+      "tower_id": "MLT1001",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Saraji Mine",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "REASSIGN",
+      "reason": "Located at Saraji Mine",
+      "new_customer": "BMA"
+    },
+    {
+      "tower_id": "MLT104",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Peak Downs Mine",
+      "status": "OFF HIRE - Repairs Required",
+      "current_customer": "Mickala",
+      "action": "REASSIGN",
+      "reason": "Located at Peak Downs Mine",
+      "new_customer": "BMA"
+    },
+    {
+      "tower_id": "MLT106",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Peak Downs Mine",
+      "status": "OFF HIRE - Repairs Required",
+      "current_customer": "Mickala",
+      "action": "REASSIGN",
+      "reason": "Located at Peak Downs Mine",
+      "new_customer": "BMA"
+    },
+    {
+      "tower_id": "MLT109",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Peak Downs Mine",
+      "status": "OFF HIRE - Repairs Required",
+      "current_customer": "Mickala",
+      "action": "REASSIGN",
+      "reason": "Located at Peak Downs Mine",
+      "new_customer": "BMA"
+    },
+    {
+      "tower_id": "MLT110",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Peak Downs Mine",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "REASSIGN",
+      "reason": "Located at Peak Downs Mine",
+      "new_customer": "BMA"
+    },
+    {
+      "tower_id": "MLT131",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Peak Downs Mine",
+      "status": "OFF HIRE - Repairs Required",
+      "current_customer": "Mickala",
+      "action": "REASSIGN",
+      "reason": "Located at Peak Downs Mine",
+      "new_customer": "BMA"
+    },
+    {
+      "tower_id": "MLT147",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Peak Downs Mine",
+      "status": "OFF HIRE - Repairs Required",
+      "current_customer": "Mickala",
+      "action": "REASSIGN",
+      "reason": "Located at Peak Downs Mine",
+      "new_customer": "BMA"
+    },
+    {
+      "tower_id": "MLT150",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Peak Downs Mine",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "REASSIGN",
+      "reason": "Located at Peak Downs Mine",
+      "new_customer": "BMA"
+    },
+    {
+      "tower_id": "MLT157",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Peak Downs Mine",
+      "status": "OFF HIRE - Repairs Required",
+      "current_customer": "Mickala",
+      "action": "REASSIGN",
+      "reason": "Located at Peak Downs Mine",
+      "new_customer": "BMA"
+    },
+    {
+      "tower_id": "MLT264",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Peak Downs Mine",
+      "status": "OFF HIRE - Repairs Required",
+      "current_customer": "Mickala",
+      "action": "REASSIGN",
+      "reason": "Located at Peak Downs Mine",
+      "new_customer": "BMA"
+    },
+    {
+      "tower_id": "MLT678",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Saraji Mine",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "REASSIGN",
+      "reason": "Located at Saraji Mine",
+      "new_customer": "BMA"
+    },
+    {
+      "tower_id": "MLT690",
+      "job_desc": "BMA Peak Downs - MLT690 Damage Repairs",
+      "site": "Mickala QLD",
+      "status": "OFF HIRE - Repairs Required",
+      "current_customer": "Mickala",
+      "action": "REASSIGN",
+      "reason": "Job description: BMA Peak Downs",
+      "new_customer": "BMA"
+    },
+    {
+      "tower_id": "MLT744",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Peak Downs Mine",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "REASSIGN",
+      "reason": "Located at Peak Downs Mine",
+      "new_customer": "BMA"
+    },
+    {
+      "tower_id": "MLT768",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Saraji Mine",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "REASSIGN",
+      "reason": "Located at Saraji Mine",
+      "new_customer": "BMA"
+    },
+    {
+      "tower_id": "MLT777",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Saraji Mine",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "REASSIGN",
+      "reason": "Located at Saraji Mine",
+      "new_customer": "BMA"
+    },
+    {
+      "tower_id": "MLT794",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Saraji Mine",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "REASSIGN",
+      "reason": "Located at Saraji Mine",
+      "new_customer": "BMA"
+    },
+    {
+      "tower_id": "MLT806",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Saraji Mine",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "REASSIGN",
+      "reason": "Located at Saraji Mine",
+      "new_customer": "BMA"
+    },
+    {
+      "tower_id": "MLT809",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Saraji Mine",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "REASSIGN",
+      "reason": "Located at Saraji Mine",
+      "new_customer": "BMA"
+    },
+    {
+      "tower_id": "MLT880",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Saraji Mine",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "REASSIGN",
+      "reason": "Located at Saraji Mine",
+      "new_customer": "BMA"
+    },
+    {
+      "tower_id": "MLT881",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Saraji Mine",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "REASSIGN",
+      "reason": "Located at Saraji Mine",
+      "new_customer": "BMA"
+    },
+    {
+      "tower_id": "MLT883",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Goonyella Mine",
+      "status": "OFF HIRE - Repairs Required",
+      "current_customer": "Mickala",
+      "action": "REASSIGN",
+      "reason": "Located at Goonyella Mine",
+      "new_customer": "BMA"
+    },
+    {
+      "tower_id": "MLT1148",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Hail Creek Mine",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "REASSIGN",
+      "reason": "Located at Hail Creek Mine",
+      "new_customer": "Glencore"
+    },
+    {
+      "tower_id": "MLT1149",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Hail Creek Mine",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "REASSIGN",
+      "reason": "Located at Hail Creek Mine",
+      "new_customer": "Glencore"
+    },
+    {
+      "tower_id": "MLT1258",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Hail Creek Mine",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "REASSIGN",
+      "reason": "Located at Hail Creek Mine",
+      "new_customer": "Glencore"
+    },
+    {
+      "tower_id": "MLT1322",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Clermont Coal Mine",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "REASSIGN",
+      "reason": "Located at Clermont Coal Mine",
+      "new_customer": "Glencore"
+    },
+    {
+      "tower_id": "MLT886",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Hail Creek Mine",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "REASSIGN",
+      "reason": "Located at Hail Creek Mine",
+      "new_customer": "Glencore"
+    },
+    {
+      "tower_id": "MLT669",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "MacKellar - Sunshine Coast",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "REASSIGN",
+      "reason": "Located at MacKellar - Sunshine Coast",
+      "new_customer": "MacKellar Mining"
+    },
+    {
+      "tower_id": "MLT670",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "MacKellar - Sunshine Coast",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "REASSIGN",
+      "reason": "Located at MacKellar - Sunshine Coast",
+      "new_customer": "MacKellar Mining"
+    },
+    {
+      "tower_id": "MLT1442",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Mackay Junior Motorcross",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "REASSIGN",
+      "reason": "Located at Mackay Junior Motorcross",
+      "new_customer": "Mackay Junior Motorcross"
+    },
+    {
+      "tower_id": "MLT1443",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Mackay Junior Motorcross",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "REASSIGN",
+      "reason": "Located at Mackay Junior Motorcross",
+      "new_customer": "Mackay Junior Motorcross"
+    },
+    {
+      "tower_id": "MLT1444",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Mackay Junior Motorcross",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "REASSIGN",
+      "reason": "Located at Mackay Junior Motorcross",
+      "new_customer": "Mackay Junior Motorcross"
+    },
+    {
+      "tower_id": "MLT1445",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Mackay Junior Motorcross",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "REASSIGN",
+      "reason": "Located at Mackay Junior Motorcross",
+      "new_customer": "Mackay Junior Motorcross"
+    },
+    {
+      "tower_id": "MLT1446",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Mackay Junior Motorcross",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "REASSIGN",
+      "reason": "Located at Mackay Junior Motorcross",
+      "new_customer": "Mackay Junior Motorcross"
+    },
+    {
+      "tower_id": "MLT1449",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Mackay Junior Motorcross",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "REASSIGN",
+      "reason": "Located at Mackay Junior Motorcross",
+      "new_customer": "Mackay Junior Motorcross"
+    },
+    {
+      "tower_id": "MLT822",
+      "job_desc": "Terracom - Blair Athol - MLT822 Tower Damages",
+      "site": "Mickala QLD",
+      "status": "OFF HIRE - Repairs Required",
+      "current_customer": "Mickala",
+      "action": "REASSIGN",
+      "reason": "Job description: Terracom - Blair Athol",
+      "new_customer": "Terracom Australia"
+    }
+  ],
+  "keep_as_mickala": [
+    {
+      "tower_id": "MVT560",
+      "job_desc": "",
+      "site": "Mickala Brisbane",
+      "status": "OFF HIRE - Demo",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "DEMO",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLR114",
+      "job_desc": "Mickala - Moranbah Holding Yard",
+      "site": "Moranbah Holding Yard",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "HOLDING YARD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLR115",
+      "job_desc": "Mickala - Moranbah Holding Yard",
+      "site": "Moranbah Holding Yard",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "HOLDING YARD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT103",
+      "job_desc": "Mickala - Moranbah Holding Yard",
+      "site": "Moranbah Holding Yard",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "HOLDING YARD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT117",
+      "job_desc": "Mickala - Moranbah Holding Yard",
+      "site": "Moranbah Holding Yard",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "HOLDING YARD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT118",
+      "job_desc": "Mickala - Moranbah Holding Yard",
+      "site": "Moranbah Holding Yard",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "HOLDING YARD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT119",
+      "job_desc": "Mickala - Moranbah Holding Yard",
+      "site": "Moranbah Holding Yard",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "HOLDING YARD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT120",
+      "job_desc": "Mickala - Moranbah Holding Yard",
+      "site": "Moranbah Holding Yard",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "HOLDING YARD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT121",
+      "job_desc": "Mickala - Moranbah Holding Yard",
+      "site": "Moranbah Holding Yard",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "HOLDING YARD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT122",
+      "job_desc": "Mickala - Moranbah Holding Yard",
+      "site": "Moranbah Holding Yard",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "HOLDING YARD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT123",
+      "job_desc": "Mickala - Moranbah Holding Yard",
+      "site": "Moranbah Holding Yard",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "HOLDING YARD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT124",
+      "job_desc": "Mickala - Moranbah Holding Yard",
+      "site": "Moranbah Holding Yard",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "HOLDING YARD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT133",
+      "job_desc": "Mickala - Moranbah Holding Yard",
+      "site": "Moranbah Holding Yard",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "HOLDING YARD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT135",
+      "job_desc": "Mickala - Moranbah Holding Yard",
+      "site": "Moranbah Holding Yard",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "HOLDING YARD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT203",
+      "job_desc": "Mickala - Moranbah Holding Yard",
+      "site": "Moranbah Holding Yard",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "HOLDING YARD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT204",
+      "job_desc": "Mickala - Moranbah Holding Yard",
+      "site": "Moranbah Holding Yard",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "HOLDING YARD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT205",
+      "job_desc": "Mickala - Moranbah Holding Yard",
+      "site": "Moranbah Holding Yard",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "HOLDING YARD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT210",
+      "job_desc": "Mickala - Moranbah Holding Yard",
+      "site": "Moranbah Holding Yard",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "HOLDING YARD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT211",
+      "job_desc": "Mickala - Moranbah Holding Yard",
+      "site": "Moranbah Holding Yard",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "HOLDING YARD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT212",
+      "job_desc": "Mickala - Moranbah Holding Yard",
+      "site": "Moranbah Holding Yard",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "HOLDING YARD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT214",
+      "job_desc": "Mickala - Moranbah Holding Yard",
+      "site": "Moranbah Holding Yard",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "HOLDING YARD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT215",
+      "job_desc": "Mickala - Moranbah Holding Yard",
+      "site": "Moranbah Holding Yard",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "HOLDING YARD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT229",
+      "job_desc": "Mickala - Moranbah Holding Yard",
+      "site": "Moranbah Holding Yard",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "HOLDING YARD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT242",
+      "job_desc": "Mickala - Moranbah Holding Yard",
+      "site": "Moranbah Holding Yard",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "HOLDING YARD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT244",
+      "job_desc": "Mickala - Moranbah Holding Yard",
+      "site": "Moranbah Holding Yard",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "HOLDING YARD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT304",
+      "job_desc": "Mickala - Moranbah Holding Yard",
+      "site": "Moranbah Holding Yard",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "HOLDING YARD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT315",
+      "job_desc": "Mickala - Moranbah Holding Yard",
+      "site": "Moranbah Holding Yard",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "HOLDING YARD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT317",
+      "job_desc": "Mickala - Moranbah Holding Yard",
+      "site": "Moranbah Holding Yard",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "HOLDING YARD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT324",
+      "job_desc": "Mickala - Moranbah Holding Yard",
+      "site": "Moranbah Holding Yard",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "HOLDING YARD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT331",
+      "job_desc": "Mickala - Moranbah Holding Yard",
+      "site": "Moranbah Holding Yard",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "HOLDING YARD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT336",
+      "job_desc": "Mickala - Moranbah Holding Yard",
+      "site": "Moranbah Holding Yard",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "HOLDING YARD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT337",
+      "job_desc": "Mickala - Moranbah Holding Yard",
+      "site": "Moranbah Holding Yard",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "HOLDING YARD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT340",
+      "job_desc": "Mickala - Moranbah Holding Yard",
+      "site": "Moranbah Holding Yard",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "HOLDING YARD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT467",
+      "job_desc": "Mickala - Moranbah Holding Yard",
+      "site": "Moranbah Holding Yard",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "HOLDING YARD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT468",
+      "job_desc": "Mickala - Moranbah Holding Yard",
+      "site": "Moranbah Holding Yard",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "HOLDING YARD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT576",
+      "job_desc": "Mickala - Moranbah Holding Yard",
+      "site": "Moranbah Holding Yard",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "HOLDING YARD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT578",
+      "job_desc": "Mickala - Moranbah Holding Yard",
+      "site": "Moranbah Holding Yard",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "HOLDING YARD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT640",
+      "job_desc": "Mickala - Moranbah Holding Yard",
+      "site": "Moranbah Holding Yard",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "HOLDING YARD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT642",
+      "job_desc": "Mickala - Moranbah Holding Yard",
+      "site": "Moranbah Holding Yard",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "HOLDING YARD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLR1438",
+      "job_desc": "AWAITING FROM FACTORY",
+      "site": "FACTORY",
+      "status": "AWAITING FROM FACTORY",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLR1439",
+      "job_desc": "AWAITING FROM FACTORY",
+      "site": "FACTORY",
+      "status": "AWAITING FROM FACTORY",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLR1440",
+      "job_desc": "AWAITING FROM FACTORY",
+      "site": "FACTORY",
+      "status": "AWAITING FROM FACTORY",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLR1441",
+      "job_desc": "AWAITING FROM FACTORY",
+      "site": "FACTORY",
+      "status": "AWAITING FROM FACTORY",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLS1213",
+      "job_desc": "AWAITING FROM FACTORY",
+      "site": "FACTORY",
+      "status": "AWAITING FROM FACTORY",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1380",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1382",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1383",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1384",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1385",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1386",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1387",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1388",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1389",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1390",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1391",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1392",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1393",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1394",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1395",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1396",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1397",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1402",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1403",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1404",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1405",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1406",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1407",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1408",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1409",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1410",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1411",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1412",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1413",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1416",
+      "job_desc": "AWAITING FROM FACTORY",
+      "site": "FACTORY",
+      "status": "AWAITING FROM FACTORY",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1418",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1419",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1421",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1423",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1424",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1425",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1427",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1428",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1429",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1430",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1431",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1432",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1433",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1434",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1435",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1436",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1437",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1450",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1451",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1452",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1453",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1454",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1460",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1461",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1462",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1463",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1465",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1466",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1467",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1468",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1469",
+      "job_desc": "BUILD - not ready for hire",
+      "site": "Mickala QLD",
+      "status": "BUILD - not ready for hire",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NOT READY/BUILD",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLS1301",
+      "job_desc": "Mickala Hire Fleet - NSW",
+      "site": "Mickala NSW",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NSW DEPOT HIRE FLEET",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLS502",
+      "job_desc": "Mickala Hire Fleet - NSW",
+      "site": "Mickala NSW",
+      "status": "OFF HIRE - Repairs Required",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NSW DEPOT HIRE FLEET",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1016",
+      "job_desc": "Mickala Hire Fleet - NSW",
+      "site": "Mickala NSW",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NSW DEPOT HIRE FLEET",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1045",
+      "job_desc": "Mickala Hire Fleet - NSW",
+      "site": "Mickala NSW",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NSW DEPOT HIRE FLEET",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1143",
+      "job_desc": "Mickala Hire Fleet - NSW",
+      "site": "Mickala NSW",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NSW DEPOT HIRE FLEET",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1144",
+      "job_desc": "Mickala Hire Fleet - NSW",
+      "site": "Mickala NSW",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NSW DEPOT HIRE FLEET",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1150",
+      "job_desc": "Mickala Hire Fleet - NSW",
+      "site": "Mickala NSW",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NSW DEPOT HIRE FLEET",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1151",
+      "job_desc": "Mickala Hire Fleet - NSW",
+      "site": "Mickala NSW",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NSW DEPOT HIRE FLEET",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1152",
+      "job_desc": "Mickala Hire Fleet - NSW",
+      "site": "Mickala NSW",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NSW DEPOT HIRE FLEET",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1153",
+      "job_desc": "Mickala Hire Fleet - NSW",
+      "site": "Mickala NSW",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NSW DEPOT HIRE FLEET",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1154",
+      "job_desc": "Mickala Hire Fleet - NSW",
+      "site": "Mickala NSW",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NSW DEPOT HIRE FLEET",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1155",
+      "job_desc": "Mickala Hire Fleet - NSW",
+      "site": "Mickala NSW",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NSW DEPOT HIRE FLEET",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1156",
+      "job_desc": "Mickala Hire Fleet - NSW",
+      "site": "Mickala NSW",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NSW DEPOT HIRE FLEET",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1157",
+      "job_desc": "Mickala Hire Fleet - NSW",
+      "site": "Mickala NSW",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NSW DEPOT HIRE FLEET",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1158",
+      "job_desc": "Mickala Hire Fleet - NSW",
+      "site": "Mickala NSW",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NSW DEPOT HIRE FLEET",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1161",
+      "job_desc": "Mickala Hire Fleet - NSW",
+      "site": "Mickala NSW",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NSW DEPOT HIRE FLEET",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1256",
+      "job_desc": "Mickala Hire Fleet - NSW",
+      "site": "Mickala NSW",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NSW DEPOT HIRE FLEET",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1257",
+      "job_desc": "Mickala Hire Fleet - NSW",
+      "site": "Mickala NSW",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NSW DEPOT HIRE FLEET",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1284",
+      "job_desc": "Mickala Hire Fleet - NSW",
+      "site": "Mickala NSW",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NSW DEPOT HIRE FLEET",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1287",
+      "job_desc": "Mickala Hire Fleet - NSW",
+      "site": "Mickala NSW",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NSW DEPOT HIRE FLEET",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1302",
+      "job_desc": "Mickala Hire Fleet - NSW",
+      "site": "Mickala NSW",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NSW DEPOT HIRE FLEET",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1303",
+      "job_desc": "Mickala Hire Fleet - NSW",
+      "site": "Mickala NSW",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NSW DEPOT HIRE FLEET",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1329",
+      "job_desc": "Mickala Hire Fleet - NSW",
+      "site": "Mickala NSW",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NSW DEPOT HIRE FLEET",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1373",
+      "job_desc": "Mickala Hire Fleet - NSW",
+      "site": "Mickala NSW",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NSW DEPOT HIRE FLEET",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1374",
+      "job_desc": "Mickala Hire Fleet - NSW",
+      "site": "Mickala NSW",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NSW DEPOT HIRE FLEET",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1376",
+      "job_desc": "Mickala Hire Fleet - NSW",
+      "site": "Mickala NSW",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NSW DEPOT HIRE FLEET",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1379",
+      "job_desc": "Mickala Hire Fleet - NSW",
+      "site": "Mickala NSW",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "NSW DEPOT HIRE FLEET",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT003",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Mickala QLD",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "QLD DEPOT HIRE FLEET",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT090",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Mickala QLD",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "QLD DEPOT HIRE FLEET",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1027",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Mickala QLD",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "QLD DEPOT HIRE FLEET",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT134",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Mickala QLD",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "QLD DEPOT HIRE FLEET",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1455",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Mickala QLD",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "QLD DEPOT HIRE FLEET",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1456",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Mickala QLD",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "QLD DEPOT HIRE FLEET",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1457",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Mickala QLD",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "QLD DEPOT HIRE FLEET",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1458",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Mickala QLD",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "QLD DEPOT HIRE FLEET",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1459",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Mickala QLD",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "QLD DEPOT HIRE FLEET",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1464",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Mickala QLD",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "QLD DEPOT HIRE FLEET",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT238",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Mickala QLD",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "QLD DEPOT HIRE FLEET",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT239",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Mickala QLD",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "QLD DEPOT HIRE FLEET",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT245",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Mickala QLD",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "QLD DEPOT HIRE FLEET",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT341",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Mickala QLD",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "QLD DEPOT HIRE FLEET",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT539",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Mickala QLD",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "QLD DEPOT HIRE FLEET",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT589",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Mickala QLD",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "QLD DEPOT HIRE FLEET",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT626",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Mickala QLD",
+      "status": "OFF HIRE - Repairs Required",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "QLD DEPOT HIRE FLEET",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT643",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Mickala QLD",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "QLD DEPOT HIRE FLEET",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT917",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Mickala QLD",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "QLD DEPOT HIRE FLEET",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT922",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Mickala QLD",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "QLD DEPOT HIRE FLEET",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MVT671",
+      "job_desc": "Mickala Hire Fleet - QLD",
+      "site": "Mickala QLD",
+      "status": "OFF HIRE",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "QLD DEPOT HIRE FLEET",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MGT342",
+      "job_desc": "WRITTEN OFF",
+      "site": "FACTORY",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLS179",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLS180",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLS181",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLS364",
+      "job_desc": "WRITTEN OFF",
+      "site": "FACTORY",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLS365",
+      "job_desc": "WRITTEN OFF",
+      "site": "FACTORY",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLS366",
+      "job_desc": "WRITTEN OFF",
+      "site": "FACTORY",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLS367",
+      "job_desc": "WRITTEN OFF",
+      "site": "FACTORY",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT015",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT016",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT017",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT025",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT027",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT030",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT034",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT038",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT040",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT052",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT055",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT059",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT061",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT062",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT064",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT069",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT070",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT071",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT072",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT073",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT074",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT075",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT077",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT084",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT086",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT087",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT088",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT089",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1004",
+      "job_desc": "WRITTEN OFF",
+      "site": "NSW",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1005",
+      "job_desc": "WRITTEN OFF",
+      "site": "NSW",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT102",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT108",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT113",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT116",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1168",
+      "job_desc": "WRITTEN OFF",
+      "site": "NZ",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT126",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT130",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT136",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT137",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT140",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT141",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT142",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT144",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT145",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT146",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT1472",
+      "job_desc": "WRITTEN OFF",
+      "site": "Netherlands",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT149",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT151",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT152",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT154",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT155",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT156",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT159",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT160",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT162",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT163",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT166",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT168",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT169",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT170",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT175",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT206",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT207",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT213",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT219",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT273",
+      "job_desc": "WRITTEN OFF",
+      "site": "FACTORY",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT274",
+      "job_desc": "WRITTEN OFF",
+      "site": "FACTORY",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT275",
+      "job_desc": "WRITTEN OFF",
+      "site": "FACTORY",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT276",
+      "job_desc": "WRITTEN OFF",
+      "site": "FACTORY",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT319",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT335",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT343",
+      "job_desc": "WRITTEN OFF",
+      "site": "FACTORY",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT435",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT437",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT521",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT526",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT558",
+      "job_desc": "WRITTEN OFF",
+      "site": "FACTORY",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT577",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT583",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT601",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT624",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT652",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT741",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT743",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT764",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT791",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT797",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT804",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT866",
+      "job_desc": "WRITTEN OFF",
+      "site": "",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    },
+    {
+      "tower_id": "MLT984",
+      "job_desc": "WRITTEN OFF",
+      "site": "NSW",
+      "status": "WRITTEN OFF",
+      "current_customer": "Mickala",
+      "action": "KEEP",
+      "reason": "WRITTEN OFF",
+      "new_customer": "Mickala"
+    }
+  ]
+}
