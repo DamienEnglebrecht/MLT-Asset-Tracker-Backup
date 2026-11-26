@@ -4249,12 +4249,18 @@
                 
                 if (data && data.valid) {
                     // Login successful - code is validated server-side
+                    // IMPORTANT: Clear any existing session first to prevent session bleeding
+                    localStorage.removeItem('mlt_tracker_session');
+                    
                     currentUser = { 
                         name: data.name, 
                         role: data.role,
                         userId: data.userId,
                         code: code  // Store for session but NOT exposed in source
                     };
+                    
+                    console.log('[LOGIN] New session created for:', currentUser.name, 'Role:', currentUser.role);
+                    
                     localStorage.setItem('mlt_tracker_session', JSON.stringify({
                         user: currentUser,
                         expires: Date.now() + (8 * 60 * 60 * 1000)
@@ -4282,11 +4288,14 @@
                 const parsed = JSON.parse(session);
                 if (parsed.expires > Date.now()) {
                     currentUser = parsed.user;
+                    console.log('[SESSION] Restored session for:', currentUser.name, 'Role:', currentUser.role, 'Expires in:', Math.round((parsed.expires - Date.now()) / 60000), 'minutes');
                     logAudit('SESSION_RESUME', { method: 'cached' });
                     return true;
                 }
+                console.log('[SESSION] Session expired, clearing');
                 localStorage.removeItem('mlt_tracker_session');
             }
+            console.log('[SESSION] No valid session found');
             return false;
         }
         
@@ -5509,6 +5518,45 @@
         
         // Submit new PO
         async function submitNewPO() {
+            // CRITICAL: Verify currentUser is valid before upload
+            // This ensures we use the ACTUAL logged-in user, not stale cached data
+            const sessionData = localStorage.getItem('mlt_tracker_session');
+            if (sessionData) {
+                try {
+                    const parsed = JSON.parse(sessionData);
+                    if (parsed.user && parsed.expires > Date.now()) {
+                        // Update currentUser from the stored session to ensure consistency
+                        currentUser = parsed.user;
+                        console.log('[PO Upload] Session verified - User:', currentUser.name, 'Role:', currentUser.role);
+                    } else {
+                        console.error('[PO Upload] Session expired - cannot upload');
+                        alert('Your session has expired. Please log in again.');
+                        handleLogout();
+                        return;
+                    }
+                } catch (e) {
+                    console.error('[PO Upload] Invalid session data:', e);
+                    alert('Session error. Please log in again.');
+                    handleLogout();
+                    return;
+                }
+            } else {
+                console.error('[PO Upload] No session found');
+                alert('You must be logged in to upload POs.');
+                return;
+            }
+            
+            // Double-check currentUser is valid
+            if (!currentUser || !currentUser.name) {
+                console.error('[PO Upload] No valid currentUser');
+                alert('Session error. Please log in again.');
+                handleLogout();
+                return;
+            }
+            
+            const uploaderName = currentUser.name;
+            console.log('[PO Upload] Will upload as:', uploaderName);
+            
             const poMonth = document.getElementById('newPOMonth').value;
             const poNumber = document.getElementById('newPONumber').value;
             const poValue = document.getElementById('newPOValue').value;
@@ -5563,7 +5611,7 @@
                             file_path: `po_documents/${selectedPOJob}/${file.name}`,
                             file_type: file.type,
                             file_url: base64Data,
-                            uploaded_by: currentUser?.name || 'unknown',
+                            uploaded_by: uploaderName,
                             uploaded_at: new Date().toISOString(),
                             po_start_date: startDate,
                             po_end_date: endDate,
