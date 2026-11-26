@@ -5305,6 +5305,8 @@
             const po = currentJobPOList.find(p => p.id === poId);
             if (po && po.file_url) {
                 window.open(po.file_url, '_blank');
+                // Log activity (non-blocking)
+                logActivity('Viewed PO', `${po.po_number || 'Unknown'} for job ${selectedPOJob}`, null, selectedPOCustomer, 'Management');
             }
         }
         
@@ -5317,6 +5319,8 @@
                 a.href = po.file_url;
                 a.download = fileName;
                 a.click();
+                // Log activity (non-blocking)
+                logActivity('Downloaded PO', `${po.po_number || 'Unknown'} for job ${selectedPOJob}`, null, selectedPOCustomer, 'Management');
             }
         }
         
@@ -5445,6 +5449,11 @@
                 console.log('PO updated successfully');
                 hideEditPOForm();
                 
+                // Log activity
+                const poNumber = updateData.po_number || 'Unknown';
+                const poMonth = updateData.po_month || '';
+                await logActivity('Edited PO', `${poNumber} (${poMonth}) for job ${selectedPOJob}`, null, selectedPOCustomer, 'Management');
+                
                 // Show success toast
                 showToast('PO updated successfully!', 'success');
                 
@@ -5546,6 +5555,12 @@
                     
                     console.log('PO uploaded successfully');
                     hideAddPOForm();
+                    
+                    // Log activity
+                    await logActivity('Uploaded new PO', `${poNumber} (${poMonth}) for job ${selectedPOJob}`, null, selectedPOCustomer, 'Management');
+                    
+                    // Show success toast
+                    showToast('PO uploaded successfully!', 'success');
                     
                     // Reload PO list
                     await loadAllPOsForJob(selectedPOJob);
@@ -8186,7 +8201,7 @@
             if (!globalFeedEl) return;
             
             try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/activity_feed?action=not.ilike.*login*&action=not.ilike.*logged*&order=created_at.desc&limit=20`, {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/activity_feed?action=not.ilike.*login*&action=not.ilike.*logged*&order=created_at.desc`, {
                     headers: {
                         'apikey': SUPABASE_ANON_KEY,
                         'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
@@ -8214,7 +8229,7 @@
                 return;
             }
             
-            globalFeedEl.innerHTML = activities.slice(0, 15).map((item, idx) => {
+            globalFeedEl.innerHTML = activities.map((item, idx) => {
                 const time = new Date(item.created_at);
                 const timeAgo = getActivityTimeAgo(time);
                 
