@@ -3,8 +3,9 @@
 *.sh
 !deploy.py
 
-# SQL files
+# SQL files (except migrations)
 *.sql
+!migrations/*.sql
 
 # Environment
 .env
