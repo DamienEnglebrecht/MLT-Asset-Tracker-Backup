@@ -3205,7 +3205,7 @@
                                         <div class="invoice-stat-value" id="poDetailsTowers">-</div>
                                     </div>
                                     <div class="invoice-stat">
-                                        <div class="invoice-stat-label">Active POs</div>
+                                        <div class="invoice-stat-label">Valid POs</div>
                                         <div class="invoice-stat-value" id="poDetailsActivePOs">-</div>
                                     </div>
                                     <div class="invoice-stat">
@@ -5243,7 +5243,8 @@
             
             currentJobPOList.forEach(po => {
                 const statusInfo = calculatePOStatus(po.po_start_date, po.po_end_date);
-                if (statusInfo.status === 'active') activePOs++;
+                // Count both active and upcoming as valid POs (not expired)
+                if (statusInfo.status === 'active' || statusInfo.status === 'upcoming') activePOs++;
                 if (po.po_value) totalValue += parseFloat(po.po_value) || 0;
                 
                 if (po.po_end_date) {
