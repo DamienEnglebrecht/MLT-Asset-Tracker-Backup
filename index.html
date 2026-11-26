@@ -6,11 +6,11 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="app-version" content="2026.11.26.18-ux-fixes">
+    <meta name="app-version" content="2026.11.26.28-po-realtime-sync">
     <title>MLT Asset Tracker</title>
     <script>
         // Force reload if version changed
-        const APP_VERSION = '2026.11.26.19-supabase-towers';
+        const APP_VERSION = '2026.11.26.28-po-realtime-sync';
         const storedVersion = localStorage.getItem('mlt_app_version');
         if (storedVersion && storedVersion !== APP_VERSION) {
             localStorage.setItem('mlt_app_version', APP_VERSION);
@@ -3995,16 +3995,34 @@
             try {
                 // Try Supabase first for tower data
                 if (supabaseClient) {
-                    const { data, error } = await supabaseClient
-                        .from('towers_compat')
-                        .select('*');
+                    // Load all towers using pagination (Supabase limits to 1000 per request)
+                    let allTowers = [];
+                    let page = 0;
+                    const pageSize = 1000;
+                    let hasMore = true;
                     
-                    if (!error && data && data.length > 0) {
-                        fleetData = data;
-                        console.log('Loaded ' + data.length + ' towers from Supabase');
+                    while (hasMore) {
+                        const { data, error } = await supabaseClient
+                            .from('towers_compat')
+                            .select('*')
+                            .range(page * pageSize, (page + 1) * pageSize - 1);
+                        
+                        if (error || !data) {
+                            console.log('Supabase error:', error?.message);
+                            break;
+                        }
+                        
+                        allTowers = allTowers.concat(data);
+                        hasMore = data.length === pageSize;
+                        page++;
+                    }
+                    
+                    if (allTowers.length > 0) {
+                        fleetData = allTowers;
+                        console.log('Loaded ' + allTowers.length + ' towers from Supabase');
                     } else {
                         // Fall back to JSON
-                        console.log('Supabase error or empty, falling back to JSON:', error?.message || 'no data');
+                        console.log('Supabase empty, falling back to JSON');
                         const fleetRes = await fetch('fleet-data-0db4182c82029f0f5796175f1b11a26d.json');
                         fleetData = await fleetRes.json();
                         console.log('Loaded ' + fleetData.length + ' towers from JSON fallback');
@@ -4017,8 +4035,17 @@
                 }
                 
                 // PO data still from JSON (not migrated yet)
-                const poRes = await fetch('po-data-7aa0e49555cbafae84ac50c1f8222203.json').catch(() => ({ ok: false }));
-                if (poRes.ok) poData = await poRes.json();
+                try {
+                    const poRes = await fetch('po-data-7aa0e49555cbafae84ac50c1f8222203.json');
+                    if (poRes.ok) {
+                        poData = await poRes.json();
+                        console.log('Loaded ' + poData.length + ' POs from JSON');
+                    } else {
+                        console.log('PO data fetch failed with status:', poRes.status);
+                    }
+                } catch (poErr) {
+                    console.log('PO data load error:', poErr);
+                }
             } catch (err) {
                 console.log('Data load error:', err);
                 fleetData = [];
@@ -4153,7 +4180,7 @@
             
             Object.values(latestByTower).forEach(m => {
                 const tower = fleetData.find(t => 
-                    (t.id || t.tower_id || '').toUpperCase().replace('MLT', '') === m.towerId.replace('MLT', '')
+                    String(t.id || t.tower_id || '').toUpperCase().replace('MLT', '') === String(m.towerId || '').replace('MLT', '')
                 );
                 if (tower) {
                     tower.visionJob = m.visionJob;
@@ -5534,7 +5561,7 @@
                 
                 html += `
                     <tr>
-                        <td class="tower-id">${towerId}</td>
+                        <td class="tower-id">${formatTowerId(towerId)}</td>
                         <td>${model}</td>
                         <td><span class="config-badge">${config}</span></td>
                         <td><span class="status-badge ${statusClass}">${statusText}</span></td>
@@ -5883,7 +5910,7 @@
                 
                 html += `
                     <tr>
-                        <td class="tower-id">${towerId}</td>
+                        <td class="tower-id">${formatTowerId(towerId)}</td>
                         <td>${model}</td>
                         <td><span class="config-badge">${config}</span></td>
                         <td><span class="status-badge status-repairs">IN REPAIR</span></td>
@@ -6068,7 +6095,7 @@
                 
                 html += `
                     <tr>
-                        <td class="tower-id">${towerId}</td>
+                        <td class="tower-id">${formatTowerId(towerId)}</td>
                         <td>${model}</td>
                         <td><span class="config-badge">${config}</span></td>
                         <td>${location}</td>
@@ -7458,6 +7485,19 @@
             return div.innerHTML;
         }
         
+        // Format tower ID to MLT001, MLT1044 format
+        function formatTowerId(id) {
+            if (!id) return '–';
+            const str = String(id).trim().toUpperCase();
+            // If already has MLT prefix, return as-is
+            if (str.startsWith('MLT')) return str;
+            // Otherwise parse as number and format
+            const num = parseInt(str, 10);
+            if (isNaN(num)) return str; // Return original if not a number
+            // Pad to 3 digits minimum (1 → 001, 44 → 044, 1044 → 1044)
+            return 'MLT' + String(num).padStart(3, '0');
+        }
+        
         async function logActivity(action, details = null, towerId = null, customer = null, tab = null) {
             if (!currentUser) return;
             
@@ -7539,7 +7579,7 @@
                         const lineTotal = rate * 7;
                         total += lineTotal;
                         towerCount++;
-                        csv += `"${customer}","${site.name}","${job.code}","${job.poNumber || ''}","${towerId}","${config}",7,${rate.toFixed(2)},${lineTotal.toFixed(2)}\n`;
+                        csv += `"${customer}","${site.name}","${job.code}","${job.poNumber || ''}","${formatTowerId(towerId)}","${config}",7,${rate.toFixed(2)},${lineTotal.toFixed(2)}\n`;
                     });
                 });
             });
@@ -7578,7 +7618,7 @@
                             const lineTotal = rate * 7;
                             total += lineTotal;
                             towerCount++;
-                            csv += `"${custName}","${siteName}","${job.code}","${job.poNumber || ''}","${towerId}","${config}",7,${rate.toFixed(2)},${lineTotal.toFixed(2)}\n`;
+                            csv += `"${custName}","${siteName}","${job.code}","${job.poNumber || ''}","${formatTowerId(towerId)}","${config}",7,${rate.toFixed(2)},${lineTotal.toFixed(2)}\n`;
                         });
                     });
                 });
@@ -7807,7 +7847,7 @@
                 
                 return `
                     <tr>
-                        <td class="tower-id-cell">${t.id || t.tower_id || '–'}</td>
+                        <td class="tower-id-cell">${formatTowerId(t.id || t.tower_id)}</td>
                         <td><span class="status-badge ${statusClass}">${statusText}</span></td>
                         <td>${t.customer || '<span class="empty-cell">–</span>'}</td>
                         <td>${t.site || t.location || '<span class="empty-cell">–</span>'}</td>
@@ -7861,7 +7901,7 @@
         function exportTowerListCSV() {
             const headers = ['Tower ID', 'Status', 'Customer', 'Site', 'Job Code', 'Rate/Day', 'Rate/Month', 'Config', 'PO Number'];
             const rows = towerListFiltered.map(t => [
-                t.id || t.tower_id || '',
+                formatTowerId(t.id || t.tower_id),
                 t.status || '',
                 t.customer || '',
                 t.site || t.location || '',
@@ -8298,7 +8338,7 @@
                 const lineTotal = towerRate * days;
                 total += lineTotal;
                 
-                csv += `${towerId},${config},${site},${days},${towerRate.toFixed(2)},${lineTotal.toFixed(2)}\n`;
+                csv += `${formatTowerId(towerId)},${config},${site},${days},${towerRate.toFixed(2)},${lineTotal.toFixed(2)}\n`;
             });
             
             csv += `\nTotal,,,${towers.length * days},,${total.toFixed(2)}\n`;
@@ -8419,7 +8459,7 @@
                                 const lineTotal = towerRate * days;
                                 return `
                                     <tr>
-                                        <td class="tower-id">${towerId}</td>
+                                        <td class="tower-id">${formatTowerId(towerId)}</td>
                                         <td>${config}</td>
                                         <td>${tower.site}</td>
                                         <td>${days}</td>
@@ -8547,25 +8587,69 @@ Mickala Lighting Towers`);
                 supabaseClient
                     .channel('po_documents_changes')
                     .on('postgres_changes', { event: '*', schema: 'public', table: 'po_documents' }, (payload) => {
-                        console.log('PO document change:', payload);
-                        if (payload.new) {
-                            poDocuments[payload.new.job_code] = {
-                                url: payload.new.file_url,
-                                fileName: payload.new.file_name,
-                                uploadedAt: payload.new.uploaded_at,
-                                uploadedBy: payload.new.uploaded_by,
+                        console.log('PO document realtime change:', payload);
+                        
+                        // Handle INSERT (new upload) and UPDATE events
+                        if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+                            const docData = payload.new;
+                            if (!docData) return;
+                            
+                            const jobCode = docData.job_code;
+                            const uploadedBy = docData.uploaded_by || 'Unknown';
+                            const fileName = docData.file_name || 'document';
+                            const isOwnUpload = currentUser && uploadedBy === currentUser.name;
+                            
+                            // Update local cache
+                            poDocuments[jobCode] = {
+                                url: docData.file_url,
+                                fileName: fileName,
+                                uploadedAt: docData.uploaded_at,
+                                uploadedBy: uploadedBy,
                                 fromSupabase: true
                             };
                             localStorage.setItem('mlt_po_documents', JSON.stringify(poDocuments));
-                            if (selectedJob === payload.new.job_code) {
+                            
+                            // Refresh UI if this job is currently selected
+                            if (selectedJob === jobCode) {
                                 loadPODocForJob(selectedJob);
                             }
-                            showToast(`PO document synced: ${payload.new.file_name}`, 'success');
+                            
+                            // Show notification for OTHER users' uploads (not your own)
+                            if (!isOwnUpload) {
+                                if (payload.eventType === 'INSERT') {
+                                    showToast(`📄 New PO uploaded for job ${jobCode} by ${uploadedBy}`, 'info');
+                                } else {
+                                    showToast(`📄 PO updated for job ${jobCode} by ${uploadedBy}`, 'info');
+                                }
+                            }
+                        }
+                        
+                        // Handle DELETE events
+                        if (payload.eventType === 'DELETE' && payload.old) {
+                            const jobCode = payload.old.job_code;
+                            const deletedBy = payload.old.uploaded_by || 'Unknown';
+                            const isOwnDelete = currentUser && deletedBy === currentUser.name;
+                            
+                            // Remove from local cache
+                            delete poDocuments[jobCode];
+                            localStorage.setItem('mlt_po_documents', JSON.stringify(poDocuments));
+                            
+                            // Refresh UI if this job is currently selected
+                            if (selectedJob === jobCode) {
+                                loadPODocForJob(selectedJob);
+                            }
+                            
+                            // Show notification for OTHER users' deletes
+                            if (!isOwnDelete) {
+                                showToast(`📄 PO removed for job ${jobCode}`, 'warning');
+                            }
                         }
                     })
-                    .subscribe();
+                    .subscribe((status) => {
+                        console.log('PO documents realtime subscription status:', status);
+                    });
             } catch (err) {
-                console.log('Realtime subscription not available for po_documents');
+                console.log('Realtime subscription not available for po_documents:', err);
             }
         }
         
@@ -8576,7 +8660,7 @@ Mickala Lighting Towers`);
         // =============================================
         // PO DOCUMENT UPLOAD - SUPABASE STORAGE BUCKET
         // =============================================
-        const PO_STORAGE_BUCKET = 'po-documents';
+        const PO_STORAGE_BUCKET = 'purchase-orders';
         
         async function uploadPODocument(event) {
             const file = event.target.files[0];
@@ -8685,6 +8769,7 @@ Mickala Lighting Towers`);
                     site: selectedSite,
                     filename: docData.fileName,
                     file_url: docData.url,
+                    file_path: docData.storagePath,  // REQUIRED - storage path without bucket
                     storage_path: docData.storagePath || null,
                     file_name: docData.fileName,
                     uploaded_by: docData.uploadedBy,
