@@ -5509,10 +5509,15 @@
         // Perform the actual PO update
         async function performPOUpdate(poId, updateData) {
             try {
+                console.log('[PO-UPDATE] Updating PO with ID:', poId);
+                console.log('[PO-UPDATE] Update data:', JSON.stringify(updateData, null, 2));
+                console.log('[PO-UPDATE] edited_by value:', updateData.edited_by);
+                
                 const { data, error } = await supabaseClient
                     .from('po_documents')
                     .update(updateData)
-                    .eq('id', poId);
+                    .eq('id', poId)
+                    .select();
                 
                 if (error) {
                     console.error('Error updating PO:', error);
@@ -5520,7 +5525,10 @@
                     return;
                 }
                 
-                console.log('PO updated successfully');
+                console.log('[PO-UPDATE] PO updated successfully, returned data:', data);
+                if (data && data[0]) {
+                    console.log('[PO-UPDATE] Returned edited_by:', data[0].edited_by);
+                }
                 hideEditPOForm();
                 
                 // Log activity
@@ -10000,6 +10008,7 @@ Mickala Lighting Towers`);
         function handlePODocChange(payload, eventType) {
             console.log('[PO-DEBUG] handlePODocChange called, eventType:', eventType);
             console.log('[PO-DEBUG] currentUser at event time:', currentUser ? currentUser.name : 'NOT SET');
+            console.log('[PO-DEBUG] Raw payload:', JSON.stringify(payload, null, 2));
             
             const docData = payload.new;
             if (!docData) {
@@ -10008,17 +10017,21 @@ Mickala Lighting Towers`);
             }
             
             const jobCode = docData.job_code;
-            const uploadedBy = docData.uploaded_by || 'Unknown';
-            const editedBy = docData.edited_by || uploadedBy; // Fall back to uploadedBy if edited_by not set
+            // Ensure uploadedBy is always a non-empty string
+            const uploadedBy = (docData.uploaded_by && docData.uploaded_by.trim()) ? docData.uploaded_by.trim() : 'Unknown';
+            // For edited_by, explicitly check for truthy value (not null, undefined, or empty string)
+            const editedBy = (docData.edited_by && docData.edited_by.trim()) ? docData.edited_by.trim() : uploadedBy;
             const fileName = docData.file_name || 'document';
             const verifiedUser = getVerifiedCurrentUser();
             // For INSERT: check against uploadedBy; For UPDATE: check against editedBy
             const actionUser = eventType === 'UPDATE' ? editedBy : uploadedBy;
             const isOwnAction = verifiedUser && actionUser === verifiedUser.name;
             
+            console.log('[PO-DEBUG] docData.edited_by raw value:', docData.edited_by, 'type:', typeof docData.edited_by);
+            console.log('[PO-DEBUG] docData.uploaded_by raw value:', docData.uploaded_by, 'type:', typeof docData.uploaded_by);
             console.log('[PO-DEBUG] jobCode:', jobCode);
-            console.log('[PO-DEBUG] uploadedBy:', uploadedBy);
-            console.log('[PO-DEBUG] editedBy:', editedBy);
+            console.log('[PO-DEBUG] uploadedBy (processed):', uploadedBy);
+            console.log('[PO-DEBUG] editedBy (processed):', editedBy);
             console.log('[PO-DEBUG] actionUser:', actionUser);
             console.log('[PO-DEBUG] currentUser.name:', verifiedUser ? verifiedUser.name : 'NOT SET');
             console.log('[PO-DEBUG] isOwnAction:', isOwnAction);
