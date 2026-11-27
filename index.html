@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="app-version" content="2026.11.27.3">
+    <meta name="app-version" content="2026.11.27.1">
     <title>MLT Asset Tracker</title>
     <script>
         // =============================================
@@ -73,7 +73,7 @@
         })();
         
         // Force reload if version changed
-        const APP_VERSION = '2026.11.27.3';
+        const APP_VERSION = '2026.11.27.1';
         const storedVersion = localStorage.getItem('mlt_app_version');
         if (storedVersion && storedVersion !== APP_VERSION) {
             localStorage.setItem('mlt_app_version', APP_VERSION);
@@ -4736,7 +4736,7 @@
         // =============================================
         // AUTO-UPDATE SYSTEM
         // =============================================
-        const CURRENT_VERSION = '2026.11.27.3';
+        const CURRENT_VERSION = '2026.11.27.1';
         let serverVersion = CURRENT_VERSION;
         let updateAvailable = false;
         let lastActivityTime = Date.now();
@@ -11088,6 +11088,7 @@ Mickala Lighting Towers`);
         }
         
         // Load PO docs from Supabase on startup
+        // OPTIMIZED: Select only needed columns, paginate to avoid timeouts
         async function loadPODocsFromSupabase() {
             if (!supabaseClient) return;
             
@@ -11096,19 +11097,40 @@ Mickala Lighting Towers`);
                 // This is critical when localStorage has been cleared or corrupted
                 poDocuments = {};
                 
-                const { data, error } = await supabaseClient
-                    .from('po_documents')
-                    .select('*');
+                // Paginate to avoid timeout - fetch in batches of 50
+                let allData = [];
+                let page = 0;
+                const pageSize = 50;
+                let hasMore = true;
+                
+                console.log('[PO Docs] Starting paginated load from Supabase...');
+                
+                while (hasMore) {
+                    const { data, error } = await supabaseClient
+                        .from('po_documents')
+                        .select('job_code, file_url, file_name, filename, uploaded_at, uploaded_by')
+                        .range(page * pageSize, (page + 1) * pageSize - 1)
+                        .order('uploaded_at', { ascending: false });
                     
-                if (error) {
-                    console.log('po_documents table may not exist yet:', error.message);
-                    return;
+                    if (error) {
+                        console.log('po_documents table may not exist yet:', error.message);
+                        return;
+                    }
+                    
+                    if (data && data.length > 0) {
+                        allData = allData.concat(data);
+                        console.log(`[PO Docs] Loaded batch ${page + 1}: ${data.length} documents`);
+                        hasMore = data.length === pageSize;
+                        page++;
+                    } else {
+                        hasMore = false;
+                    }
                 }
                 
-                if (data && data.length > 0) {
-                    data.forEach(doc => {
+                if (allData.length > 0) {
+                    allData.forEach(doc => {
                         poDocuments[doc.job_code] = {
-                            url: doc.file_url || doc.dataUrl,
+                            url: doc.file_url,
                             fileName: doc.file_name || doc.filename,
                             uploadedAt: doc.uploaded_at,
                             uploadedBy: doc.uploaded_by,
@@ -11117,7 +11139,7 @@ Mickala Lighting Towers`);
                     });
                     // Try to cache locally but don't fail if localStorage is unavailable
                     safeSavePODocsToLocalStorage();
-                    console.log(`[PO Docs] Loaded ${data.length} PO documents from Supabase (source of truth)`);
+                    console.log(`[PO Docs] Loaded ${allData.length} PO documents from Supabase (source of truth)`);
                 } else {
                     console.log('[PO Docs] No PO documents found in Supabase');
                 }
