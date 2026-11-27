@@ -1,0 +1,13 @@
+{
+  "timestamp": "2026-11-27T16:22:06+10:00",
+  "tag": "pre-sold-towers-integration",
+  "git_commit": "d4e5136a1696e1350ee62222fd648bd6f135ed42",
+  "files": [
+    "index.html",
+    "fleet-data-*.json",
+    "po-data.json",
+    "invoices_backup.json",
+    "tower_movements_backup.json",
+    "po_documents_backup.json"
+  ]
+}

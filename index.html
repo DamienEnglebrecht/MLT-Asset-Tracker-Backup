@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="app-version" content="2026.11.27.1">
+    <meta name="app-version" content="2026.11.27.2">
     <title>MLT Asset Tracker</title>
     <script>
         // =============================================
@@ -73,7 +73,7 @@
         })();
         
         // Force reload if version changed
-        const APP_VERSION = '2026.11.27.1';
+        const APP_VERSION = '2026.11.27.2';
         const storedVersion = localStorage.getItem('mlt_app_version');
         if (storedVersion && storedVersion !== APP_VERSION) {
             localStorage.setItem('mlt_app_version', APP_VERSION);
@@ -1953,8 +1953,12 @@
             color: #fff; 
         }
         .status-sold { 
-            background: #ef4444; 
+            background: #6b7280; 
             color: #fff; 
+        }
+        .status-written-off { 
+            background: #374151; 
+            color: #9ca3af; 
         }
         .billing-badge {
             padding: 3px 8px;
@@ -4297,12 +4301,15 @@
                 <div class="tower-list-container">
                     <div class="tower-list-toolbar">
                         <input type="text" class="form-input" id="towerSearchInput" placeholder="🔍 Search towers, customers, sites, job codes..." oninput="filterTowerList()" style="max-width:350px">
-                        <select class="form-select" id="towerStatusFilter" onchange="filterTowerList()" style="max-width:140px">
-                            <option value="">All Status</option>
+                        <select class="form-select" id="towerStatusFilter" onchange="filterTowerList()" style="max-width:160px">
+                            <option value="ACTIVE">Active Fleet</option>
                             <option value="ON HIRE">On Hire</option>
                             <option value="OFF HIRE">Off Hire</option>
-                            <option value="Repair">In Repairs</option>
+                            <option value="REPAIR">In Repairs</option>
                             <option value="BUILD">In Build</option>
+                            <option value="SOLD">Sold</option>
+                            <option value="WRITTEN OFF">Written Off</option>
+                            <option value="ALL">All Assets (1472)</option>
                         </select>
                         <select class="form-select" id="towerCustomerFilter" onchange="filterTowerList()" style="max-width:160px">
                             <option value="">All Customers</option>
@@ -4729,6 +4736,82 @@
         </div>
     </div>
 
+    <!-- Sale Details Modal -->
+    <div class="modal-overlay hidden" id="saleDetailsModal">
+        <div class="modal" style="max-width:500px;">
+            <div class="modal-header">
+                <h3>💰 Sale Details</h3>
+                <button class="modal-close" onclick="closeModal('saleDetailsModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Tower ID</label>
+                    <input type="text" class="form-input" id="saleTowerId" readonly style="background:#1a1a1a;">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Sold To (Purchaser)</label>
+                    <input type="text" class="form-input" id="saleSoldTo" placeholder="Enter purchaser name...">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Sale Date</label>
+                    <input type="date" class="form-input" id="saleSoldDate">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Sale Price ($)</label>
+                    <input type="number" class="form-input" id="saleSoldPrice" placeholder="0.00" step="0.01" min="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Notes</label>
+                    <textarea class="form-input" id="saleSoldNotes" rows="3" placeholder="Additional sale details..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn secondary" onclick="closeModal('saleDetailsModal')">Cancel</button>
+                <button class="btn primary" onclick="saveSaleDetails()">Save Sale Details</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Write-Off Details Modal -->
+    <div class="modal-overlay hidden" id="writeOffDetailsModal">
+        <div class="modal" style="max-width:500px;">
+            <div class="modal-header">
+                <h3>📋 Write-Off Details</h3>
+                <button class="modal-close" onclick="closeModal('writeOffDetailsModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Tower ID</label>
+                    <input type="text" class="form-input" id="writeOffTowerId" readonly style="background:#1a1a1a;">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Write-Off Date</label>
+                    <input type="date" class="form-input" id="writeOffDate">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Reason</label>
+                    <select class="form-select" id="writeOffReason">
+                        <option value="">Select reason...</option>
+                        <option value="Damaged beyond repair">Damaged beyond repair</option>
+                        <option value="End of life">End of life</option>
+                        <option value="Obsolete">Obsolete</option>
+                        <option value="Stolen">Stolen</option>
+                        <option value="Insurance write-off">Insurance write-off</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Notes</label>
+                    <textarea class="form-input" id="writeOffNotes" rows="3" placeholder="Additional details..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn secondary" onclick="closeModal('writeOffDetailsModal')">Cancel</button>
+                <button class="btn primary" onclick="saveWriteOffDetails()">Save Write-Off Details</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast -->
     <div class="toast" id="toast"></div>
 
@@ -4736,7 +4819,7 @@
         // =============================================
         // AUTO-UPDATE SYSTEM
         // =============================================
-        const CURRENT_VERSION = '2026.11.27.1';
+        const CURRENT_VERSION = '2026.11.27.2';
         let serverVersion = CURRENT_VERSION;
         let updateAvailable = false;
         let lastActivityTime = Date.now();
@@ -5289,6 +5372,21 @@
             
             const savedAudit = localStorage.getItem('mlt_audit');
             if (savedAudit) auditLog = JSON.parse(savedAudit);
+            
+            // Load saved sale/writeoff data and merge into fleetData
+            const savedSaleData = JSON.parse(localStorage.getItem('mlt_sale_data') || '{}');
+            const savedWriteOffData = JSON.parse(localStorage.getItem('mlt_writeoff_data') || '{}');
+            
+            fleetData.forEach(tower => {
+                const towerId = tower.tower_id || tower.id;
+                if (savedSaleData[towerId]) {
+                    Object.assign(tower, savedSaleData[towerId]);
+                }
+                if (savedWriteOffData[towerId]) {
+                    Object.assign(tower, savedWriteOffData[towerId]);
+                }
+            });
+            console.log('Merged sale/writeoff data: ' + Object.keys(savedSaleData).length + ' sales, ' + Object.keys(savedWriteOffData).length + ' write-offs');
         }
         
         // =============================================
@@ -10300,16 +10398,35 @@
         
         function filterTowerList() {
             const search = (document.getElementById('towerSearchInput')?.value || '').toLowerCase();
-            const statusFilter = document.getElementById('towerStatusFilter')?.value || '';
+            const statusFilter = document.getElementById('towerStatusFilter')?.value || 'ACTIVE';
             const customerFilter = document.getElementById('towerCustomerFilter')?.value || '';
             const siteFilter = document.getElementById('towerSiteFilter')?.value || '';
             const configFilter = document.getElementById('towerConfigFilter')?.value || '';
             const rateFilter = document.getElementById('towerRateFilter')?.value || '';
             
             towerListFiltered = fleetData.filter(t => {
-                // Exclude sold/written off by default
                 const status = (t.status || '').toUpperCase();
-                if (status.includes('SOLD') || status.includes('WRITTEN')) return false;
+                
+                // Status filter logic
+                if (statusFilter === 'ACTIVE') {
+                    // Exclude sold/written off
+                    if (status.includes('SOLD') || status.includes('WRITTEN')) return false;
+                } else if (statusFilter === 'ALL') {
+                    // Include everything
+                } else if (statusFilter === 'SOLD') {
+                    if (!status.includes('SOLD')) return false;
+                } else if (statusFilter === 'WRITTEN OFF') {
+                    if (!status.includes('WRITTEN')) return false;
+                } else if (statusFilter === 'ON HIRE') {
+                    if (!status.includes('ON HIRE')) return false;
+                } else if (statusFilter === 'OFF HIRE') {
+                    // OFF HIRE but not repairs
+                    if (!status.includes('OFF HIRE') || status.includes('REPAIR')) return false;
+                } else if (statusFilter === 'REPAIR') {
+                    if (!status.includes('REPAIR')) return false;
+                } else if (statusFilter === 'BUILD') {
+                    if (!status.includes('BUILD') && !status.includes('FACTORY')) return false;
+                }
                 
                 // Search
                 if (search) {
@@ -10318,13 +10435,12 @@
                         t.customer || '',
                         t.site || t.location || '',
                         t.visionJob || '',
-                        t.config || t.configuration || ''
+                        t.config || t.configuration || '',
+                        t.soldTo || '',
+                        t.writeOffReason || ''
                     ].join(' ').toLowerCase();
                     if (!searchFields.includes(search)) return false;
                 }
-                
-                // Status filter
-                if (statusFilter && !status.includes(statusFilter.toUpperCase())) return false;
                 
                 // Customer filter
                 if (customerFilter && t.customer !== customerFilter) return false;
@@ -10388,19 +10504,69 @@
             const end = start + towerListPageSize;
             const pageData = towerListFiltered.slice(start, end);
             
-            // Update counts
-            const total = fleetData.filter(t => {
-                const s = (t.status || '').toUpperCase();
-                return !s.includes('SOLD') && !s.includes('WRITTEN');
-            }).length;
+            // Update counts based on current filter
+            const statusFilter = document.getElementById('towerStatusFilter')?.value || 'ACTIVE';
+            let total;
+            if (statusFilter === 'ALL') {
+                total = fleetData.length;
+            } else if (statusFilter === 'ACTIVE') {
+                total = fleetData.filter(t => {
+                    const s = (t.status || '').toUpperCase();
+                    return !s.includes('SOLD') && !s.includes('WRITTEN');
+                }).length;
+            } else {
+                total = towerListFiltered.length;
+            }
             
             document.getElementById('towerShowingCount').textContent = towerListFiltered.length.toLocaleString();
             document.getElementById('towerTotalCount').textContent = total.toLocaleString();
             
+            // Check if viewing SOLD or WRITTEN OFF for special columns
+            const showSaleInfo = statusFilter === 'SOLD' || statusFilter === 'ALL';
+            const showWriteOffInfo = statusFilter === 'WRITTEN OFF' || statusFilter === 'ALL';
+            
+            // Update table headers for different views
+            const thead = document.querySelector('#viewPoalerts .tower-table-container thead tr');
+            if (statusFilter === 'SOLD') {
+                thead.innerHTML = `
+                    <th onclick="sortTowerList('id')" style="cursor:pointer">Tower ID ↕</th>
+                    <th>Status</th>
+                    <th onclick="sortTowerList('soldTo')" style="cursor:pointer">Sold To ↕</th>
+                    <th onclick="sortTowerList('soldDate')" style="cursor:pointer">Sale Date ↕</th>
+                    <th onclick="sortTowerList('soldPrice')" style="cursor:pointer">Sale Price ↕</th>
+                    <th>Last Site</th>
+                    <th>Config</th>
+                    <th>Actions</th>
+                `;
+            } else if (statusFilter === 'WRITTEN OFF') {
+                thead.innerHTML = `
+                    <th onclick="sortTowerList('id')" style="cursor:pointer">Tower ID ↕</th>
+                    <th>Status</th>
+                    <th onclick="sortTowerList('writeOffDate')" style="cursor:pointer">Write-Off Date ↕</th>
+                    <th>Reason</th>
+                    <th>Last Customer</th>
+                    <th>Last Site</th>
+                    <th>Config</th>
+                    <th>Actions</th>
+                `;
+            } else {
+                thead.innerHTML = `
+                    <th onclick="sortTowerList('id')" style="cursor:pointer">Tower ID ↕</th>
+                    <th onclick="sortTowerList('status')" style="cursor:pointer">Status ↕</th>
+                    <th onclick="sortTowerList('customer')" style="cursor:pointer">Customer ↕</th>
+                    <th onclick="sortTowerList('site')" style="cursor:pointer">Site ↕</th>
+                    <th onclick="sortTowerList('visionJob')" style="cursor:pointer">Job Code ↕</th>
+                    <th onclick="sortTowerList('billingType')" style="cursor:pointer">Billing ↕</th>
+                    <th onclick="sortTowerList('rate')" style="cursor:pointer">Rate ↕</th>
+                    <th>Config</th>
+                `;
+            }
+            
             // Render table
             const tbody = document.getElementById('towerListTable');
             if (!pageData.length) {
-                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:40px">No towers match your filters</td></tr>';
+                const colSpan = statusFilter === 'SOLD' || statusFilter === 'WRITTEN OFF' ? 8 : 8;
+                tbody.innerHTML = `<tr><td colspan="${colSpan}" style="text-align:center;color:var(--text-muted);padding:40px">No towers match your filters</td></tr>`;
                 return;
             }
             
@@ -10415,6 +10581,46 @@
                 else if (status.includes('BUILD') || status.includes('FACTORY')) { statusClass = 'status-build'; statusText = 'IN BUILD'; }
                 else if (status.includes('OFF HIRE')) { statusClass = 'status-off-hire'; statusText = 'OFF HIRE'; }
                 else if (status.includes('SOLD')) { statusClass = 'status-sold'; statusText = 'SOLD'; }
+                else if (status.includes('WRITTEN')) { statusClass = 'status-written-off'; statusText = 'WRITTEN OFF'; }
+                
+                // SOLD view - show sale info
+                if (statusFilter === 'SOLD') {
+                    const soldPrice = t.soldPrice ? `$${parseFloat(t.soldPrice).toLocaleString('en-AU', {minimumFractionDigits: 2})}` : '<span class="empty-cell">Not recorded</span>';
+                    const soldDate = t.soldDate || '<span class="empty-cell">Not recorded</span>';
+                    const soldTo = t.soldTo || t.customer || '<span class="empty-cell">Unknown</span>';
+                    return `
+                        <tr>
+                            <td class="tower-id-cell">${formatTowerId(t.tower_id || t.id)}</td>
+                            <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                            <td>${soldTo}</td>
+                            <td>${soldDate}</td>
+                            <td class="money">${soldPrice}</td>
+                            <td>${t.site || t.location || '<span class="empty-cell">–</span>'}</td>
+                            <td>${t.config || t.configuration || '<span class="empty-cell">–</span>'}</td>
+                            <td><button class="btn secondary" onclick="editSaleDetails('${t.tower_id || t.id}')" style="padding:4px 8px;font-size:11px">Edit Sale</button></td>
+                        </tr>
+                    `;
+                }
+                
+                // WRITTEN OFF view
+                if (statusFilter === 'WRITTEN OFF') {
+                    const writeOffDate = t.writeOffDate || '<span class="empty-cell">Not recorded</span>';
+                    const writeOffReason = t.writeOffReason || '<span class="empty-cell">Not recorded</span>';
+                    return `
+                        <tr>
+                            <td class="tower-id-cell">${formatTowerId(t.tower_id || t.id)}</td>
+                            <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                            <td>${writeOffDate}</td>
+                            <td>${writeOffReason}</td>
+                            <td>${t.customer || '<span class="empty-cell">–</span>'}</td>
+                            <td>${t.site || t.location || '<span class="empty-cell">–</span>'}</td>
+                            <td>${t.config || t.configuration || '<span class="empty-cell">–</span>'}</td>
+                            <td><button class="btn secondary" onclick="editWriteOffDetails('${t.tower_id || t.id}')" style="padding:4px 8px;font-size:11px">Edit</button></td>
+                        </tr>
+                    `;
+                }
+                
+                // Standard view (active fleet)
                 
                 const dailyRate = parseFloat(t.rateDaily || t.daily_rate) || 0;
                 const monthlyRate = parseFloat(t.rateMonthly || t.monthly_rate) || 0;
@@ -10532,6 +10738,134 @@
         // Keep legacy functions for backwards compatibility
         function renderPOAlerts() {
             renderTowerList();
+        }
+        
+        // =============================================
+        // SALE & WRITE-OFF MANAGEMENT
+        // =============================================
+        
+        let currentEditTowerId = null;
+        
+        function editSaleDetails(towerId) {
+            currentEditTowerId = towerId;
+            const tower = fleetData.find(t => (t.tower_id || t.id) === towerId);
+            if (!tower) {
+                showToast('Tower not found', 'error');
+                return;
+            }
+            
+            document.getElementById('saleTowerId').value = formatTowerId(towerId);
+            document.getElementById('saleSoldTo').value = tower.soldTo || tower.customer || '';
+            document.getElementById('saleSoldDate').value = tower.soldDate || '';
+            document.getElementById('saleSoldPrice').value = tower.soldPrice || '';
+            document.getElementById('saleSoldNotes').value = tower.soldNotes || '';
+            
+            showModal('saleDetailsModal');
+        }
+        
+        async function saveSaleDetails() {
+            if (!currentEditTowerId) return;
+            
+            const tower = fleetData.find(t => (t.tower_id || t.id) === currentEditTowerId);
+            if (!tower) {
+                showToast('Tower not found', 'error');
+                return;
+            }
+            
+            const soldTo = document.getElementById('saleSoldTo').value.trim();
+            const soldDate = document.getElementById('saleSoldDate').value;
+            const soldPrice = parseFloat(document.getElementById('saleSoldPrice').value) || 0;
+            const soldNotes = document.getElementById('saleSoldNotes').value.trim();
+            
+            // Update local data
+            tower.soldTo = soldTo;
+            tower.soldDate = soldDate;
+            tower.soldPrice = soldPrice;
+            tower.soldNotes = soldNotes;
+            
+            // Persist to localStorage
+            const saleData = JSON.parse(localStorage.getItem('mlt_sale_data') || '{}');
+            saleData[currentEditTowerId] = { soldTo, soldDate, soldPrice, soldNotes };
+            localStorage.setItem('mlt_sale_data', JSON.stringify(saleData));
+            
+            // Also try to update Supabase if columns exist
+            if (typeof supabase !== 'undefined') {
+                supabase.from('towers').update({
+                    sold_to: soldTo,
+                    sold_date: soldDate || null,
+                    sold_price: soldPrice || null,
+                    sold_notes: soldNotes || null
+                }).eq('tower_id', currentEditTowerId).then(res => {
+                    if (res.error) console.log('Supabase sale update skipped (columns may not exist yet)');
+                });
+            }
+            
+            // Log activity
+            logActivity('Sale details updated', `${currentEditTowerId}: Sold to ${soldTo} for $${soldPrice.toLocaleString()} on ${soldDate || 'date not set'}`, currentEditTowerId, soldTo, 'Asset Management');
+            
+            showToast(`Sale details saved for ${formatTowerId(currentEditTowerId)}`);
+            closeModal('saleDetailsModal');
+            renderTowerTable();
+            currentEditTowerId = null;
+        }
+        
+        function editWriteOffDetails(towerId) {
+            currentEditTowerId = towerId;
+            const tower = fleetData.find(t => (t.tower_id || t.id) === towerId);
+            if (!tower) {
+                showToast('Tower not found', 'error');
+                return;
+            }
+            
+            document.getElementById('writeOffTowerId').value = formatTowerId(towerId);
+            document.getElementById('writeOffDate').value = tower.writeOffDate || '';
+            document.getElementById('writeOffReason').value = tower.writeOffReason || '';
+            document.getElementById('writeOffNotes').value = tower.writeOffNotes || '';
+            
+            showModal('writeOffDetailsModal');
+        }
+        
+        async function saveWriteOffDetails() {
+            if (!currentEditTowerId) return;
+            
+            const tower = fleetData.find(t => (t.tower_id || t.id) === currentEditTowerId);
+            if (!tower) {
+                showToast('Tower not found', 'error');
+                return;
+            }
+            
+            const writeOffDate = document.getElementById('writeOffDate').value;
+            const writeOffReason = document.getElementById('writeOffReason').value;
+            const writeOffNotes = document.getElementById('writeOffNotes').value.trim();
+            
+            // Update local data
+            tower.writeOffDate = writeOffDate;
+            tower.writeOffReason = writeOffReason;
+            tower.writeOffNotes = writeOffNotes;
+            
+            // Persist to localStorage
+            const writeOffData = JSON.parse(localStorage.getItem('mlt_writeoff_data') || '{}');
+            writeOffData[currentEditTowerId] = { writeOffDate, writeOffReason, writeOffNotes };
+            localStorage.setItem('mlt_writeoff_data', JSON.stringify(writeOffData));
+            
+            // Also try to update Supabase if columns exist
+            if (typeof supabase !== 'undefined') {
+                supabase.from('towers').update({
+                    write_off_date: writeOffDate || null,
+                    write_off_reason: writeOffReason || null,
+                    write_off_notes: writeOffNotes || null
+                }).eq('tower_id', currentEditTowerId).then(res => {
+                    if (res.error) console.log('Supabase write-off update skipped (columns may not exist yet)');
+                });
+            }
+            
+            // Log activity
+            logActivity('Write-off details updated', `${currentEditTowerId}: ${writeOffReason || 'No reason'} on ${writeOffDate || 'date not set'}`, currentEditTowerId, '', 'Asset Management');
+            
+            showToast(`Write-off details saved for ${formatTowerId(currentEditTowerId)}`);
+            closeModal('writeOffDetailsModal');
+            renderTowerTable();
+            currentEditTowerId = null;
         }
         
         // =============================================
@@ -10777,6 +11111,10 @@
         
         function closeModal(id) {
             document.getElementById(id).classList.add('hidden');
+        }
+        
+        function showModal(id) {
+            document.getElementById(id).classList.remove('hidden');
         }
         
         function addCustomer() {

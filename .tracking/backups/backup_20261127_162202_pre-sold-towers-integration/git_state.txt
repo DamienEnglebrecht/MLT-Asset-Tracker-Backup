@@ -1,0 +1,5 @@
+d4e5136 Add full testing infrastructure: daily backups, notifications, E2E tests
+c561754 Add tracking infrastructure: test suite, backup system, activity logging
+92d4783 Fix: saveInvoiceToSupabase was using undefined user variable
+664bc2e Fix: add try/catch to approveInvoice, improve history logging
+b628c75 Fix: Remove dangerous delete that wiped all POs for a job when uploading new one
