@@ -1,0 +1,13 @@
+{
+  "timestamp": "2026-11-27T15:46:38+10:00",
+  "tag": "working-state-27nov",
+  "git_commit": "92d4783e5fb0ece57e6ce236750c640cbe891c1c",
+  "files": [
+    "index.html",
+    "fleet-data-*.json",
+    "po-data.json",
+    "invoices_backup.json",
+    "tower_movements_backup.json",
+    "po_documents_backup.json"
+  ]
+}

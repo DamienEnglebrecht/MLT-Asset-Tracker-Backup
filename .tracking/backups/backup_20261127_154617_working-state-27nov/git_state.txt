@@ -1,0 +1,5 @@
+92d4783 Fix: saveInvoiceToSupabase was using undefined user variable
+664bc2e Fix: add try/catch to approveInvoice, improve history logging
+b628c75 Fix: Remove dangerous delete that wiped all POs for a job when uploading new one
+c36498a fix: restore PO display functions to working state
+1982a2f Add automatic localStorage cleanup and improve PO document loading
