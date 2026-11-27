@@ -6005,6 +6005,11 @@
             document.getElementById('poDetailsNextExpiry').textContent = nextExpiry ? formatDateDisplay(nextExpiry) : '-';
             
             // Build PO cards
+            // Check edit permission ONCE outside the loop for efficiency
+            // Use currentUser (set at login) or getVerifiedCurrentUser() as fallback
+            const poEditUser = currentUser || getVerifiedCurrentUser();
+            const canEditPO = poEditUser && (poEditUser.role === 'admin' || poEditUser.name.includes('Damien') || poEditUser.name.includes('Debbie') || poEditUser.name.includes('Letisha') || poEditUser.name.includes('Vicki'));
+            
             let html = '';
             currentJobPOList.forEach((po, index) => {
                 const statusInfo = calculatePOStatus(po.po_start_date, po.po_end_date);
@@ -6015,9 +6020,6 @@
                 const startDate = formatDateDisplay(po.po_start_date);
                 const endDate = formatDateDisplay(po.po_end_date);
                 const value = po.po_value ? '$' + parseFloat(po.po_value).toLocaleString() : '-';
-                // Use verified user to check admin access
-                const user = getVerifiedCurrentUser();
-                const canEditPO = user && (user.role === 'admin' || user.name.includes('Damien') || user.name.includes('Debbie') || user.name.includes('Letisha') || user.name.includes('Vicki'));
                 
                 html += `
                     <div class="po-card" style="background:var(--bg-secondary);border-radius:8px;padding:16px;margin-bottom:12px;border-left:4px solid ${statusInfo.color};">
@@ -11453,8 +11455,8 @@ Mickala Lighting Towers`);
                 throw new Error('Not connected to server');
             }
             
-            // Delete existing record first to avoid constraint issues
-            await supabaseClient.from('po_documents').delete().eq('job_code', jobCode);
+            // NOTE: Removed dangerous delete that was wiping ALL POs for a job
+            // The po_documents table now supports multiple POs per job
             
             const { error } = await supabaseClient
                 .from('po_documents')
