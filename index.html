@@ -10972,6 +10972,47 @@ Mickala Lighting Towers`);
         // PO Document Upload Functions
         let poDocuments = JSON.parse(localStorage.getItem('mlt_po_documents') || '{}');
         let currentPODocUrl = null;
+        let localStorageDisabled = false; // Flag to skip localStorage if quota exceeded
+        
+        // Safe localStorage helper - handles quota exceeded errors gracefully
+        function safeSavePODocsToLocalStorage() {
+            if (localStorageDisabled) {
+                console.log('[localStorage] Skipping save - localStorage disabled due to quota');
+                return false;
+            }
+            
+            try {
+                localStorage.setItem('mlt_po_documents', JSON.stringify(poDocuments));
+                return true;
+            } catch (err) {
+                if (err.name === 'QuotaExceededError' || err.code === 22 || err.code === 1014) {
+                    console.warn('[localStorage] Quota exceeded for PO documents, trying to clear old data...');
+                    
+                    // Try clearing old/unnecessary localStorage data
+                    try {
+                        // Clear old PO documents cache (we have Supabase as source of truth)
+                        localStorage.removeItem('mlt_po_documents');
+                        // Clear other non-critical cached data
+                        localStorage.removeItem('mlt_jobs_cache');
+                        localStorage.removeItem('mlt_sites_cache');
+                        localStorage.removeItem('mlt_customers_cache');
+                        
+                        // Try again after cleanup
+                        localStorage.setItem('mlt_po_documents', JSON.stringify(poDocuments));
+                        console.log('[localStorage] Successfully saved after clearing old data');
+                        return true;
+                    } catch (retryErr) {
+                        // If still failing, disable localStorage for PO docs
+                        console.warn('[localStorage] Still failing after cleanup, disabling localStorage for PO docs');
+                        localStorageDisabled = true;
+                        // App will continue working with Supabase data directly
+                        return false;
+                    }
+                }
+                console.error('[localStorage] Error saving PO docs:', err);
+                return false;
+            }
+        }
         
         // Load PO docs from Supabase on startup
         async function loadPODocsFromSupabase() {
@@ -10997,7 +11038,7 @@ Mickala Lighting Towers`);
                             fromSupabase: true
                         };
                     });
-                    localStorage.setItem('mlt_po_documents', JSON.stringify(poDocuments));
+                    safeSavePODocsToLocalStorage();
                     console.log(`Loaded ${data.length} PO documents from Supabase`);
                 }
             } catch (err) {
@@ -11125,7 +11166,7 @@ Mickala Lighting Towers`);
                 uploadedBy: uploadedBy,
                 fromSupabase: true
             };
-            localStorage.setItem('mlt_po_documents', JSON.stringify(poDocuments));
+            safeSavePODocsToLocalStorage();
             console.log('[PO-DEBUG] Local cache updated for job:', jobCode);
             
             // Refresh UI if this job is currently selected in Finance tab
@@ -11176,7 +11217,7 @@ Mickala Lighting Towers`);
             
             // Remove from local cache
             delete poDocuments[jobCode];
-            localStorage.setItem('mlt_po_documents', JSON.stringify(poDocuments));
+            safeSavePODocsToLocalStorage();
             
             // Refresh UI if this job is currently selected in Finance tab
             if (selectedJob === jobCode) {
@@ -11286,7 +11327,7 @@ Mickala Lighting Towers`);
                 
                 // 4. Update local cache
                 poDocuments[selectedJob] = docData;
-                localStorage.setItem('mlt_po_documents', JSON.stringify(poDocuments));
+                safeSavePODocsToLocalStorage();
                 
                 // 5. Log to activity feed
                 await logActivity('Uploaded PO document', `${file.name} for job ${selectedJob}`, null, selectedCustomer, 'Finance');
@@ -11454,7 +11495,7 @@ Mickala Lighting Towers`);
                             type: record.file_type,
                             isBase64: record.file_url?.startsWith('data:')
                         };
-                        localStorage.setItem('mlt_po_documents', JSON.stringify(poDocuments));
+                        safeSavePODocsToLocalStorage();
                         
                         currentPODocUrl = record.file_url;
                         updatePODocUI(true, record.file_name || record.filename);
