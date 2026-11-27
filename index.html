@@ -11998,8 +11998,14 @@ Mickala Lighting Towers`);
                         console.warn('Supabase not available - invoice saved locally only');
                         return;
                     }
+                    
+                    // Get current user for approved_by field
+                    const currentUserForSave = getVerifiedCurrentUser();
+                    const approvedByName = currentUserForSave?.name || 'Unknown';
             
                     try {
+                        console.log('[saveInvoiceToSupabase] Saving invoice:', invoiceNumber, 'by', approvedByName);
+                        
                         // Insert main invoice record with billing dates
                         const { data: invoice, error: invoiceError } = await supabaseClient
                             .from('invoices')
@@ -12010,7 +12016,7 @@ Mickala Lighting Towers`);
                                 site: site,
                                 total_amount: total,
                                 tower_count: towerCount,
-                                approved_by: user.name,
+                                approved_by: approvedByName,
                                 billing_from: billingFrom,
                                 billing_to: billingTo,
                                 billing_days: billingDays
