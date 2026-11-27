@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="app-version" content="2026.11.27.2">
+    <meta name="app-version" content="2026.11.27.3">
     <title>MLT Asset Tracker</title>
     <script>
         // =============================================
@@ -73,7 +73,7 @@
         })();
         
         // Force reload if version changed
-        const APP_VERSION = '2026.11.27.2';
+        const APP_VERSION = '2026.11.27.3';
         const storedVersion = localStorage.getItem('mlt_app_version');
         if (storedVersion && storedVersion !== APP_VERSION) {
             localStorage.setItem('mlt_app_version', APP_VERSION);
@@ -4819,7 +4819,7 @@
         // =============================================
         // AUTO-UPDATE SYSTEM
         // =============================================
-        const CURRENT_VERSION = '2026.11.27.2';
+        const CURRENT_VERSION = '2026.11.27.3';
         let serverVersion = CURRENT_VERSION;
         let updateAvailable = false;
         let lastActivityTime = Date.now();
@@ -4836,21 +4836,27 @@
             return (Date.now() - lastActivityTime) > 2 * 60 * 1000; // 2 minutes
         }
         
-        // Show update banner
-        function showUpdateBanner() {
-            const banner = document.getElementById('updateBanner');
-            if (banner) {
-                banner.classList.add('visible');
-                document.body.classList.add('has-update-banner');
-            }
-        }
+        // Hide update banner and remember dismissal
+        let bannerDismissedForVersion = localStorage.getItem('mlt_banner_dismissed_version');
         
-        // Hide update banner
         function dismissUpdateBanner() {
             const banner = document.getElementById('updateBanner');
             if (banner) {
                 banner.classList.remove('visible');
                 document.body.classList.remove('has-update-banner');
+            }
+            // Remember we dismissed this version
+            bannerDismissedForVersion = serverVersion;
+            localStorage.setItem('mlt_banner_dismissed_version', serverVersion);
+        }
+        
+        function showUpdateBanner() {
+            // Don't show if already dismissed for this version
+            if (bannerDismissedForVersion === serverVersion) return;
+            const banner = document.getElementById('updateBanner');
+            if (banner) {
+                banner.classList.add('visible');
+                document.body.classList.add('has-update-banner');
             }
         }
         
