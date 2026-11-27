@@ -1,0 +1,45 @@
+{
+  "timestamp": "2026-11-27T15:56:01.667515",
+  "url": "https://mlt-asset-tracker.vercel.app",
+  "passed": 5,
+  "failed": 1,
+  "total": 6,
+  "results": [
+    {
+      "name": "Page Loads",
+      "passed": true,
+      "message": "Login page loaded",
+      "duration_ms": 757
+    },
+    {
+      "name": "Login",
+      "passed": true,
+      "message": "Logged in successfully",
+      "duration_ms": 291
+    },
+    {
+      "name": "Finance Tab Loads Customers",
+      "passed": true,
+      "message": "16 customers loaded",
+      "duration_ms": 2064
+    },
+    {
+      "name": "History Tab Loads Invoices",
+      "passed": true,
+      "message": "19 invoices loaded",
+      "duration_ms": 6302
+    },
+    {
+      "name": "No Console Errors",
+      "passed": false,
+      "message": "1 errors: Failed to load resource: the server resp...",
+      "duration_ms": 3099
+    },
+    {
+      "name": "PO Management Tab",
+      "passed": true,
+      "message": "PO content visible",
+      "duration_ms": 29640
+    }
+  ]
+}

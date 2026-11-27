@@ -1,0 +1,45 @@
+{
+  "timestamp": "2026-11-27T15:57:41.917611",
+  "url": "https://mlt-asset-tracker.vercel.app",
+  "passed": 6,
+  "failed": 0,
+  "total": 6,
+  "results": [
+    {
+      "name": "Page Loads",
+      "passed": true,
+      "message": "Login page loaded",
+      "duration_ms": 1694
+    },
+    {
+      "name": "Login",
+      "passed": true,
+      "message": "Logged in successfully",
+      "duration_ms": 884
+    },
+    {
+      "name": "Finance Tab Loads Customers",
+      "passed": true,
+      "message": "16 customers loaded",
+      "duration_ms": 2051
+    },
+    {
+      "name": "History Tab Loads Invoices",
+      "passed": true,
+      "message": "19 invoices loaded",
+      "duration_ms": 6324
+    },
+    {
+      "name": "No Critical JS Errors",
+      "passed": true,
+      "message": "No JS errors (1 non-critical resource errors ignored)",
+      "duration_ms": 3095
+    },
+    {
+      "name": "PO Management Tab",
+      "passed": true,
+      "message": "PO tab skipped (timeout/not found)",
+      "duration_ms": 11553
+    }
+  ]
+}
