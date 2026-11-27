@@ -4881,6 +4881,125 @@
         // Initialize auto-update realtime channel
         initUpdateChannel(supabaseClient);
         
+        // =============================================
+        // TOWER MOVEMENT TRACKING
+        // =============================================
+        
+        /**
+         * Get deployment date for a tower from tower_movements table
+         * Returns the most recent DEPLOY movement date for the tower to the specified job
+         * Falls back to system baseline (22 Nov 2026) if no record found
+         */
+        async function getTowerDeploymentDate(towerId, jobCode) {
+            if (!supabaseClient) {
+                console.warn('[getTowerDeploymentDate] Supabase not available, using baseline');
+                return new Date('2026-11-22');
+            }
+            
+            try {
+                // Get the most recent deployment to this job
+                const { data, error } = await supabaseClient
+                    .from('tower_movements')
+                    .select('moved_at, to_job')
+                    .eq('tower_id', towerId)
+                    .eq('to_job', jobCode)
+                    .order('moved_at', { ascending: false })
+                    .limit(1);
+                
+                if (error) {
+                    console.error('[getTowerDeploymentDate] Error:', error);
+                    return new Date('2026-11-22');
+                }
+                
+                if (data && data.length > 0) {
+                    return new Date(data[0].moved_at);
+                }
+                
+                // Fallback to baseline if no specific deployment found
+                console.log(`[getTowerDeploymentDate] No deployment record for ${towerId} to ${jobCode}, using baseline`);
+                return new Date('2026-11-22');
+            } catch (err) {
+                console.error('[getTowerDeploymentDate] Exception:', err);
+                return new Date('2026-11-22');
+            }
+        }
+        
+        /**
+         * Get deployment dates for multiple towers (batch query)
+         * Returns map of tower_id -> deployment Date
+         */
+        async function getTowerDeploymentDates(towerIds, jobCode) {
+            const deploymentMap = {};
+            const baseline = new Date('2026-11-22');
+            
+            if (!supabaseClient || !towerIds.length) {
+                towerIds.forEach(id => deploymentMap[id] = baseline);
+                return deploymentMap;
+            }
+            
+            try {
+                // Batch query for all towers
+                const { data, error } = await supabaseClient
+                    .from('tower_movements')
+                    .select('tower_id, moved_at')
+                    .in('tower_id', towerIds)
+                    .eq('to_job', jobCode)
+                    .order('moved_at', { ascending: false });
+                
+                if (error) {
+                    console.error('[getTowerDeploymentDates] Error:', error);
+                    towerIds.forEach(id => deploymentMap[id] = baseline);
+                    return deploymentMap;
+                }
+                
+                // Build map (use first occurrence for each tower - most recent due to ordering)
+                const seen = new Set();
+                data.forEach(record => {
+                    if (!seen.has(record.tower_id)) {
+                        deploymentMap[record.tower_id] = new Date(record.moved_at);
+                        seen.add(record.tower_id);
+                    }
+                });
+                
+                // Fill in baseline for any towers not found
+                towerIds.forEach(id => {
+                    if (!deploymentMap[id]) {
+                        console.log(`[getTowerDeploymentDates] No record for ${id}, using baseline`);
+                        deploymentMap[id] = baseline;
+                    }
+                });
+                
+                return deploymentMap;
+            } catch (err) {
+                console.error('[getTowerDeploymentDates] Exception:', err);
+                towerIds.forEach(id => deploymentMap[id] = baseline);
+                return deploymentMap;
+            }
+        }
+        
+        /**
+         * Calculate days on hire for a tower based on deployment date and billing period
+         * @param {Date} deployDate - When tower was deployed to this job
+         * @param {Date} billingFrom - Start of billing period
+         * @param {Date} billingTo - End of billing period
+         * @returns {number} Days to bill (can be less than full billing period if deployed later)
+         */
+        function calculateTowerDays(deployDate, billingFrom, billingTo) {
+            // Tower's billable start is the later of: deployment date or billing period start
+            const billableStart = new Date(Math.max(deployDate.getTime(), billingFrom.getTime()));
+            
+            // If tower was deployed after billing period ends, 0 days
+            if (billableStart > billingTo) {
+                return 0;
+            }
+            
+            // Calculate days (inclusive)
+            const msPerDay = 24 * 60 * 60 * 1000;
+            const days = Math.floor((billingTo.getTime() - billableStart.getTime()) / msPerDay) + 1;
+            
+            return Math.max(0, days);
+        }
+        
         let selectedCustomer = null;
         let selectedSite = null;
         let selectedJob = null;
@@ -5245,6 +5364,7 @@
         async function saveMovementToSupabase(movement) {
             if (!supabaseClient) return;
             try {
+                // Save to asset_movements (existing operational tracking)
                 const { error } = await supabaseClient
                     .from('asset_movements')
                     .insert({
@@ -5272,6 +5392,29 @@
                     console.error('Failed to save movement to Supabase:', error);
                 } else {
                     console.log('Movement saved to Supabase:', movement.towerId);
+                }
+                
+                // ALSO save to tower_movements for billing calculation
+                // This tracks when towers are deployed to jobs for per-tower day calculation
+                const { error: billingError } = await supabaseClient
+                    .from('tower_movements')
+                    .insert({
+                        tower_id: movement.towerId,
+                        from_customer: movement.fromSite ? movement.customer : null,
+                        from_site: movement.fromSite || null,
+                        from_job: null,  // We don't track "from job" in the current movement data
+                        to_customer: movement.customer,
+                        to_site: movement.toSite || movement.location,
+                        to_job: movement.visionJob,
+                        moved_by: movement.loggedBy,
+                        moved_at: movement.date || movement.loggedAt,
+                        notes: movement.notes || `Movement logged via Asset Tracker`
+                    });
+                
+                if (billingError) {
+                    console.error('Failed to save to tower_movements for billing:', billingError);
+                } else {
+                    console.log('Tower movement saved for billing:', movement.towerId, 'to job', movement.visionJob);
                 }
             } catch (err) {
                 console.error('Error saving movement:', err);
@@ -11720,7 +11863,7 @@ Mickala Lighting Towers`);
             document.body.removeChild(link);
         }
         
-        function approveInvoice() {
+        async function approveInvoice() {
             // CRITICAL: Verify session and get fresh user data
             const user = getVerifiedCurrentUser();
             if (!user) {
@@ -11737,9 +11880,9 @@ Mickala Lighting Towers`);
                     // Get billing dates
                     const billingFrom = document.getElementById('billingFromDate')?.value;
                     const billingTo = document.getElementById('billingToDate')?.value;
-                    const days = getBillingDays();
+                    const billingPeriodDays = getBillingDays();
                     
-                    if (!billingFrom || !billingTo || days <= 0) {
+                    if (!billingFrom || !billingTo || billingPeriodDays <= 0) {
                         showToast('Please set valid billing dates', 'error');
                         return;
                     }
@@ -11747,21 +11890,47 @@ Mickala Lighting Towers`);
                     const jobs = getJobsForSite(selectedCustomer, selectedSite);
                     const job = jobs.find(j => j.code === selectedJob);
                     const towers = getTowersForJob(selectedCustomer, selectedSite, selectedJob);
+                    
+                    // Parse billing dates for per-tower day calculation
+                    const billingFromDate = new Date(billingFrom);
+                    const billingToDate = new Date(billingTo);
+                    
+                    // Fetch deployment dates for all towers in this job (batch query)
+                    // Falls back to billing period days if query fails
+                    const towerIds = towers.map(t => t.tower_id || t.id);
+                    let deploymentDates = {};
+                    try {
+                        console.log(`[approveInvoice] Fetching deployment dates for ${towerIds.length} towers in job ${selectedJob}`);
+                        deploymentDates = await getTowerDeploymentDates(towerIds, selectedJob);
+                    } catch (err) {
+                        console.warn('[approveInvoice] Failed to fetch deployment dates, using billing period:', err);
+                        // Fallback: all towers use billing period start
+                        towerIds.forEach(id => deploymentDates[id] = billingFromDate);
+                    }
             
                     let total = 0;
                     const lineItems = [];
                     towers.forEach(tower => {
+                        const towerId = tower.tower_id || tower.id;
                         const dailyRate = parseFloat(tower.rateDaily) || parseFloat(tower.daily_rate) || 0;
                         const monthlyRate = parseFloat(tower.rateMonthly) || 0;
                         const schedule = (tower.invoicingSchedule || '').toUpperCase();
-                        // For MONTHLY schedule, use monthly rate directly; otherwise use daily * days
-                        const lineTotal = (schedule === 'MONTHLY' && monthlyRate > 0) ? monthlyRate : (dailyRate * days);
+                        
+                        // Get this tower's deployment date and calculate its specific days
+                        const deployDate = deploymentDates[towerId] || new Date('2026-11-22');
+                        const towerDays = calculateTowerDays(deployDate, billingFromDate, billingToDate);
+                        
+                        console.log(`[approveInvoice] ${towerId}: deployed ${deployDate.toISOString().slice(0,10)}, billing ${billingFrom} to ${billingTo} = ${towerDays} days`);
+                        
+                        // For MONTHLY schedule, use monthly rate directly; otherwise use daily * tower-specific days
+                        const lineTotal = (schedule === 'MONTHLY' && monthlyRate > 0) ? monthlyRate : (dailyRate * towerDays);
                         total += lineTotal;
                         lineItems.push({
-                            tower_id: tower.tower_id || tower.id,
+                            tower_id: towerId,
                             config: tower.config || 'Standard',
                             site: tower.site || selectedSite,
-                            days: days,
+                            days: towerDays,  // Per-tower days based on deployment date
+                            deploy_date: deployDate.toISOString().slice(0,10),
                             daily_rate: dailyRate,
                             monthly_rate: monthlyRate,
                             invoicing_schedule: schedule,
@@ -11773,7 +11942,7 @@ Mickala Lighting Towers`);
                     const invoiceNum = `INV-${selectedJob}-${Date.now().toString(36).toUpperCase()}`;
             
                     // Save to Supabase (async) with billing dates
-                    saveInvoiceToSupabase(invoiceNum, selectedJob, selectedCustomer, selectedSite, total, towers.length, lineItems, billingFrom, billingTo, days);
+                    saveInvoiceToSupabase(invoiceNum, selectedJob, selectedCustomer, selectedSite, total, towers.length, lineItems, billingFrom, billingTo, billingPeriodDays);
             
                     // Also save to localStorage as fallback
                     const approvedInvoices = JSON.parse(localStorage.getItem('mlt_approved_invoices') || '[]');
@@ -11785,10 +11954,11 @@ Mickala Lighting Towers`);
                         poNumber: job?.poNumber || selectedJob,
                         description: job?.description || 'Tower Hire',
                         towerCount: towers.length,
-                        days: days,
+                        days: billingPeriodDays,
                         billingFrom: billingFrom,
                         billingTo: billingTo,
                         total: total,
+                        lineItems: lineItems,  // Include per-tower details
                         approvedBy: user.name,
                         approvedAt: new Date().toISOString()
                     });
@@ -11875,7 +12045,9 @@ Mickala Lighting Towers`);
         
                 // Load invoice history from Supabase
                 async function loadInvoiceHistory() {
+                    console.log('[loadInvoiceHistory] Starting load from Supabase...');
                     if (!supabaseClient) {
+                        console.warn('[loadInvoiceHistory] No Supabase client, using localStorage');
                         return JSON.parse(localStorage.getItem('mlt_approved_invoices') || '[]');
                     }
             
@@ -11887,13 +12059,14 @@ Mickala Lighting Towers`);
                             .limit(100);
                 
                         if (error) {
-                            console.error('Load history error:', error);
+                            console.error('[loadInvoiceHistory] Supabase error:', error);
                             return JSON.parse(localStorage.getItem('mlt_approved_invoices') || '[]');
                         }
-                
+                        
+                        console.log(`[loadInvoiceHistory] Loaded ${data?.length || 0} invoices from Supabase`);
                         return data || [];
                     } catch (err) {
-                        console.error('Supabase error:', err);
+                        console.error('[loadInvoiceHistory] Exception:', err);
                         return JSON.parse(localStorage.getItem('mlt_approved_invoices') || '[]');
                     }
                 }
