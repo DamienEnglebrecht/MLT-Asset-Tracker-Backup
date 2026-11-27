@@ -6,11 +6,74 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="app-version" content="2026.11.27.1">
+    <meta name="app-version" content="2026.11.27.3">
     <title>MLT Asset Tracker</title>
     <script>
+        // =============================================
+        // AUTOMATIC LOCALSTORAGE CLEANUP ON APP INIT
+        // =============================================
+        (function() {
+            // Check localStorage usage and clean if near quota
+            function cleanupLocalStorageIfNeeded() {
+                try {
+                    // Estimate current usage
+                    let totalSize = 0;
+                    for (let key in localStorage) {
+                        if (localStorage.hasOwnProperty(key)) {
+                            totalSize += (localStorage.getItem(key) || '').length * 2; // UTF-16 = 2 bytes per char
+                        }
+                    }
+                    
+                    // localStorage quota is typically 5-10MB, clean if over 4MB
+                    const usageMB = totalSize / (1024 * 1024);
+                    const thresholdMB = 4;
+                    
+                    console.log('[localStorage Cleanup] Usage: ' + usageMB.toFixed(2) + 'MB');
+                    
+                    // Always clear large cache keys that can be reloaded from Supabase
+                    // These are known to grow large and cause quota issues
+                    const keysToClean = [
+                        'mlt_po_documents',      // Large - PO documents (Supabase is source of truth)
+                        'mlt_jobs_cache',        // Can be reloaded
+                        'mlt_sites_cache',       // Can be reloaded  
+                        'mlt_customers_cache'    // Can be reloaded
+                    ];
+                    
+                    if (usageMB > thresholdMB) {
+                        console.log('[localStorage Cleanup] Usage exceeds ' + thresholdMB + 'MB threshold, cleaning cache keys...');
+                        keysToClean.forEach(function(key) {
+                            if (localStorage.getItem(key)) {
+                                const size = (localStorage.getItem(key) || '').length * 2 / (1024 * 1024);
+                                console.log('[localStorage Cleanup] Removing ' + key + ' (' + size.toFixed(2) + 'MB)');
+                                localStorage.removeItem(key);
+                            }
+                        });
+                        console.log('[localStorage Cleanup] Cleanup complete');
+                    }
+                    
+                    // Test if localStorage is working by writing a small test value
+                    try {
+                        localStorage.setItem('_mlt_test', '1');
+                        localStorage.removeItem('_mlt_test');
+                    } catch (e) {
+                        // localStorage is completely full, force cleanup
+                        console.warn('[localStorage Cleanup] localStorage is completely full! Force cleaning all cache keys...');
+                        keysToClean.forEach(function(key) {
+                            try { localStorage.removeItem(key); } catch (err) {}
+                        });
+                    }
+                    
+                } catch (err) {
+                    console.warn('[localStorage Cleanup] Error during cleanup:', err);
+                }
+            }
+            
+            // Run cleanup on page load
+            cleanupLocalStorageIfNeeded();
+        })();
+        
         // Force reload if version changed
-        const APP_VERSION = '2026.11.27.1';
+        const APP_VERSION = '2026.11.27.3';
         const storedVersion = localStorage.getItem('mlt_app_version');
         if (storedVersion && storedVersion !== APP_VERSION) {
             localStorage.setItem('mlt_app_version', APP_VERSION);
@@ -4673,7 +4736,7 @@
         // =============================================
         // AUTO-UPDATE SYSTEM
         // =============================================
-        const CURRENT_VERSION = '2026.11.27.1';
+        const CURRENT_VERSION = '2026.11.27.3';
         let serverVersion = CURRENT_VERSION;
         let updateAvailable = false;
         let lastActivityTime = Date.now();
@@ -10970,7 +11033,17 @@ Mickala Lighting Towers`);
         }
         
         // PO Document Upload Functions
-        let poDocuments = JSON.parse(localStorage.getItem('mlt_po_documents') || '{}');
+        // Initialize poDocuments with fallback if localStorage is corrupted or unavailable
+        let poDocuments = {};
+        try {
+            const stored = localStorage.getItem('mlt_po_documents');
+            if (stored) {
+                poDocuments = JSON.parse(stored);
+            }
+        } catch (err) {
+            console.warn('[PO Docs] Failed to parse localStorage, starting fresh:', err);
+            try { localStorage.removeItem('mlt_po_documents'); } catch (e) {}
+        }
         let currentPODocUrl = null;
         let localStorageDisabled = false; // Flag to skip localStorage if quota exceeded
         
@@ -11019,6 +11092,10 @@ Mickala Lighting Towers`);
             if (!supabaseClient) return;
             
             try {
+                // Clear in-memory cache first to ensure we get fresh Supabase data
+                // This is critical when localStorage has been cleared or corrupted
+                poDocuments = {};
+                
                 const { data, error } = await supabaseClient
                     .from('po_documents')
                     .select('*');
@@ -11038,8 +11115,11 @@ Mickala Lighting Towers`);
                             fromSupabase: true
                         };
                     });
+                    // Try to cache locally but don't fail if localStorage is unavailable
                     safeSavePODocsToLocalStorage();
-                    console.log(`Loaded ${data.length} PO documents from Supabase`);
+                    console.log(`[PO Docs] Loaded ${data.length} PO documents from Supabase (source of truth)`);
+                } else {
+                    console.log('[PO Docs] No PO documents found in Supabase');
                 }
             } catch (err) {
                 console.error('Failed to load PO docs from Supabase:', err);
