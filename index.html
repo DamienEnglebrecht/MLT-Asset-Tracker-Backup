@@ -6326,11 +6326,76 @@
             container.innerHTML = html;
         }
         
+        // Open a PO file URL in a new tab. Returns true if the document was opened.
+        // Base64 data URLs are converted to Blob URLs first, because Chrome/Edge block
+        // top-level navigation to data: URLs (blank tab, no error).
+        // Same approach as viewPODocument().
+        function openPOFileUrl(fileUrl) {
+            if (!fileUrl) {
+                showToast('No document to view', 'error');
+                return false;
+            }
+            
+            if (fileUrl.startsWith('data:')) {
+                try {
+                    // Extract mime type and base64 data
+                    const matches = fileUrl.match(/^data:([^;]+);base64,(.+)$/);
+                    if (!matches) {
+                        showToast('Invalid document format', 'error');
+                        return false;
+                    }
+                    
+                    const mimeType = matches[1];
+                    const base64Data = matches[2];
+                    
+                    // Convert base64 to binary
+                    const byteCharacters = atob(base64Data);
+                    const byteArray = new Uint8Array(byteCharacters.length);
+                    for (let i = 0; i < byteCharacters.length; i++) {
+                        byteArray[i] = byteCharacters.charCodeAt(i);
+                    }
+                    
+                    // Create blob and URL
+                    const blob = new Blob([byteArray], { type: mimeType });
+                    const blobUrl = URL.createObjectURL(blob);
+                    
+                    const popupWindow = window.open(blobUrl, '_blank');
+                    if (!popupWindow) {
+                        showToast('Popup blocked - please allow popups', 'error');
+                        URL.revokeObjectURL(blobUrl);
+                        return false;
+                    }
+                    
+                    // Clean up after a delay
+                    setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+                    return true;
+                } catch (err) {
+                    console.error('Error opening PO document:', err);
+                    showToast('Could not open document', 'error');
+                    return false;
+                }
+            }
+            
+            const popupWindow = window.open(fileUrl, '_blank');
+            if (!popupWindow) {
+                showToast('Popup blocked - please allow popups', 'error');
+                return false;
+            }
+            return true;
+        }
+        
         // View a specific PO
         function viewPO(poId) {
             const po = currentJobPOList.find(p => p.id === poId);
-            if (po && po.file_url) {
-                window.open(po.file_url, '_blank');
+            if (!po) {
+                showToast('PO not found', 'error');
+                return;
+            }
+            if (!po.file_url) {
+                showToast('No document attached to this PO', 'error');
+                return;
+            }
+            if (openPOFileUrl(po.file_url)) {
                 // Log activity (non-blocking)
                 logActivity('Viewed PO', `${po.po_number || 'Unknown'} for job ${selectedPOJob}`, null, selectedPOCustomer, 'Management');
             }
@@ -6646,7 +6711,9 @@
         function viewPODocumentMgmt() {
             // View the first PO if available
             if (currentJobPOList.length > 0 && currentJobPOList[0].file_url) {
-                window.open(currentJobPOList[0].file_url, '_blank');
+                openPOFileUrl(currentJobPOList[0].file_url);
+            } else {
+                showToast('No document to view', 'error');
             }
         }
         
