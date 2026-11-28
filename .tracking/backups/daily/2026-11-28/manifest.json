@@ -1,0 +1,46 @@
+{
+  "timestamp": "2026-11-28T02:00:51.348039",
+  "tables": [
+    {
+      "table": "invoices",
+      "status": "ok",
+      "count": 19
+    },
+    {
+      "table": "invoice_line_items",
+      "status": "ok",
+      "count": 36
+    },
+    {
+      "table": "tower_movements",
+      "status": "ok",
+      "count": 804
+    },
+    {
+      "table": "po_documents",
+      "status": "ok",
+      "count": 72
+    },
+    {
+      "table": "po_overrides",
+      "status": "ok",
+      "count": 38
+    },
+    {
+      "table": "towers",
+      "status": "ok",
+      "count": 1000
+    },
+    {
+      "table": "activity_feed",
+      "status": "ok",
+      "count": 949
+    },
+    {
+      "table": "staff_users",
+      "status": "ok",
+      "count": 0
+    }
+  ],
+  "total_records": 2918
+}
