@@ -6059,11 +6059,28 @@
                 // Determine PO status
                 let statusIcon, statusClass, statusText;
                 if (hasPODoc) {
-                    // Check expiry if we have dates
-                    const endDate = job.endDate || (poOverrides[job.code]?.poEnd);
+                    // Check expiry if we have dates - prefer poDocuments (Supabase) over job object (fleet-data.json)
+                    const poDoc = poDocuments[job.code];
+                    const endDate = poDoc?.poEndDate || job.endDate || (poOverrides[job.code]?.poEnd);
+                    const startDate = poDoc?.poStartDate || job.startDate || (poOverrides[job.code]?.poStart);
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    
                     if (endDate) {
-                        const daysLeft = Math.ceil((new Date(endDate) - new Date()) / (1000 * 60 * 60 * 24));
-                        if (daysLeft < 0) {
+                        const endDateObj = new Date(endDate);
+                        endDateObj.setHours(0, 0, 0, 0);
+                        const startDateObj = startDate ? new Date(startDate) : null;
+                        if (startDateObj) startDateObj.setHours(0, 0, 0, 0);
+                        
+                        const daysLeft = Math.ceil((endDateObj - today) / (1000 * 60 * 60 * 24));
+                        
+                        // Check if job hasn't started yet (upcoming)
+                        if (startDateObj && startDateObj > today) {
+                            const daysUntilStart = Math.ceil((startDateObj - today) / (1000 * 60 * 60 * 24));
+                            statusIcon = '🟡';
+                            statusClass = 'color: var(--warning);';
+                            statusText = 'Starts in ' + daysUntilStart + 'd';
+                        } else if (daysLeft < 0) {
                             statusIcon = '⚠️';
                             statusClass = 'color: var(--danger);';
                             statusText = 'Expired';
@@ -11597,7 +11614,7 @@ Mickala Lighting Towers`);
                 while (hasMore) {
                     const { data, error } = await supabaseClient
                         .from('po_documents')
-                        .select('job_code, file_url, file_name, filename, uploaded_at, uploaded_by')
+                        .select('job_code, file_url, file_name, filename, uploaded_at, uploaded_by, po_start_date, po_end_date, po_number, po_value')
                         .range(page * pageSize, (page + 1) * pageSize - 1)
                         .order('uploaded_at', { ascending: false });
                     
@@ -11623,6 +11640,10 @@ Mickala Lighting Towers`);
                             fileName: doc.file_name || doc.filename,
                             uploadedAt: doc.uploaded_at,
                             uploadedBy: doc.uploaded_by,
+                            poStartDate: doc.po_start_date,
+                            poEndDate: doc.po_end_date,
+                            poNumber: doc.po_number,
+                            poValue: doc.po_value,
                             fromSupabase: true
                         };
                     });
